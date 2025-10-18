@@ -89,6 +89,41 @@
                   Informasi Pribadi
                 </h4>
                 <div class="grid md:grid-cols-2 gap-6">
+                  <!-- NIK Field -->
+                  <div class="group md:col-span-2">
+                    <label class="block text-sm font-semibold text-rose-800 mb-3">NIK (Nomor Induk Kependudukan) *</label>
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-rose-400 group-focus-within:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V4a2 2 0 114 0v2m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                        </svg>
+                      </div>
+                      <input 
+                        v-model="form.nik"
+                        type="text" 
+                        required
+                        maxlength="16"
+                        pattern="[0-9]{16}"
+                        @input="handleNikInput"
+                        :disabled="isLoadingNik"
+                        class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 placeholder-rose-400 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed" 
+                        placeholder="Masukkan 16 digit NIK Anda"
+                      />
+                      <div v-if="isLoadingNik" class="absolute inset-y-0 right-0 pr-4 flex items-center">
+                        <svg class="animate-spin h-5 w-5 text-rose-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      </div>
+                    </div>
+                    <div v-if="nikError" class="mt-2 text-sm text-red-600">
+                      {{ nikError }}
+                    </div>
+                    <div v-if="nikSuccess" class="mt-2 text-sm text-green-600">
+                      {{ nikSuccess }}
+                    </div>
+                  </div>
+                  
                   <div class="group">
                     <label class="block text-sm font-semibold text-rose-800 mb-3">Nama Lengkap *</label>
                     <div class="relative">
@@ -101,9 +136,18 @@
                         v-model="form.fullName"
                         type="text" 
                         required
-                        class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 placeholder-rose-400 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white" 
+                        :readonly="isNameFromNik"
+                        class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 placeholder-rose-400 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white readonly:bg-rose-50 readonly:text-rose-700" 
                         placeholder="Masukkan nama lengkap Anda"
                       />
+                      <div v-if="isNameFromNik" class="absolute inset-y-0 right-0 pr-4 flex items-center">
+                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <div v-if="isNameFromNik" class="mt-2 text-sm text-green-600">
+                      Nama otomatis terisi dari data NIK
                     </div>
                   </div>
                   <div class="group">
@@ -361,6 +405,7 @@
 import { Head } from '@inertiajs/vue3'
 import { ref, computed, onMounted } from 'vue'
 import { router } from '@inertiajs/vue3'
+import { NikService, type NikData } from '@/lib/nikService'
 
 defineOptions({
   layout: null
@@ -368,6 +413,7 @@ defineOptions({
 
 // Form data
 const form = ref({
+  nik: '',
   fullName: '',
   phone: '',
   date: '',
@@ -378,6 +424,67 @@ const form = ref({
 
 // Form state
 const isSubmitting = ref(false)
+const isLoadingNik = ref(false)
+const isNameFromNik = ref(false)
+const nikError = ref('')
+const nikSuccess = ref('')
+
+// NIK validation and API call
+const validateNik = (nik: string): boolean => {
+  return NikService.validateNik(nik)
+}
+
+const fetchNikData = async (nik: string): Promise<boolean> => {
+  try {
+    const nikData: NikData | null = await NikService.fetchNikData(nik)
+    
+    if (nikData && nikData.nama) {
+      form.value.fullName = nikData.nama
+      isNameFromNik.value = true
+      nikSuccess.value = 'Data NIK berhasil ditemukan'
+      nikError.value = ''
+      return true
+    } else {
+      throw new Error('Nama tidak ditemukan dalam data NIK')
+    }
+  } catch (error) {
+    nikError.value = error instanceof Error ? error.message : 'Gagal mengambil data NIK'
+    nikSuccess.value = ''
+    isNameFromNik.value = false
+    return false
+  }
+}
+
+const handleNikInput = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const nik = NikService.cleanNik(target.value)
+  
+  // Update form with cleaned NIK
+  form.value.nik = nik
+  
+  // Reset states
+  nikError.value = ''
+  nikSuccess.value = ''
+  
+  // Clear name if it was auto-filled previously
+  if (isNameFromNik.value) {
+    form.value.fullName = ''
+    isNameFromNik.value = false
+  }
+  
+  // Validate and fetch data if NIK is complete
+  if (nik.length === 16) {
+    if (validateNik(nik)) {
+      isLoadingNik.value = true
+      await fetchNikData(nik)
+      isLoadingNik.value = false
+    } else {
+      nikError.value = 'Format NIK tidak valid'
+    }
+  } else if (nik.length > 0) {
+    nikError.value = `NIK harus 16 digit (${nik.length}/16)`
+  }
+}
 
 // Computed minimum date (today)
 const minDate = computed(() => {
@@ -399,6 +506,7 @@ const submitBooking = async () => {
     
     // Reset form
     form.value = {
+      nik: '',
       fullName: '',
       phone: '',
       date: '',
@@ -406,6 +514,11 @@ const submitBooking = async () => {
       doctor: '',
       notes: ''
     }
+    
+    // Reset NIK states
+    isNameFromNik.value = false
+    nikError.value = ''
+    nikSuccess.value = ''
   } catch (error) {
     alert('Terjadi kesalahan. Silakan coba lagi.')
   } finally {

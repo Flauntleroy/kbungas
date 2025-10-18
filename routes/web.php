@@ -19,6 +19,14 @@ Route::get('/booking', function () {
     return Inertia::render('Booking');
 })->name('booking');
 
+// BPJS API Routes
+Route::prefix('api/bpjs')->name('api.bpjs.')->group(function () {
+    Route::post('/check-nik', [App\Http\Controllers\BpjsController::class, 'checkNik'])->name('check.nik');
+    Route::post('/check-kartu', [App\Http\Controllers\BpjsController::class, 'checkKartu'])->name('check.kartu');
+    Route::post('/validate-nik', [App\Http\Controllers\BpjsController::class, 'validateNik'])->name('validate.nik');
+    Route::get('/status', [App\Http\Controllers\BpjsController::class, 'getApiStatus'])->name('status');
+});
+
 // Admin Routes - Protected by auth middleware
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () {
