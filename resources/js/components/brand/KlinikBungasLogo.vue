@@ -100,25 +100,15 @@ const handleClick = (event: MouseEvent) => {
       <div 
         :class="[
           sizeClasses,
-          'relative flex items-center justify-center rounded-2xl shadow-lg',
-          props.theme === 'gradient' ? `bg-gradient-to-br ${themeClasses.gradient}` : 'bg-pink-500'
+          'relative flex items-center justify-center'
         ]"
       >
-        <!-- Medical Cross with Heart -->
-        <svg 
-          :class="[
-            'w-3/5 h-3/5',
-            props.theme === 'gradient' ? 'text-white' : 'text-white'
-          ]" 
-          fill="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <!-- Heart shape integrated with medical cross -->
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-          <!-- Medical cross overlay -->
-          <rect x="10.5" y="6" width="3" height="12" rx="1.5" fill="rgba(255,255,255,0.9)"/>
-          <rect x="6" y="10.5" width="12" height="3" rx="1.5" fill="rgba(255,255,255,0.9)"/>
-        </svg>
+        <!-- RBungas Logo Image -->
+        <img 
+          src="/images/RBungas.png" 
+          alt="Klinik Bungas Logo" 
+          class="w-full h-full object-contain"
+        />
         
         <!-- Subtle glow effect -->
         <div 
@@ -146,34 +136,24 @@ const handleClick = (event: MouseEvent) => {
     <!-- Full Logo (Icon + Text) -->
     <template v-else>
       <!-- Icon -->
-      <div 
-        :class="[
-          sizeClasses,
-          'relative flex items-center justify-center rounded-2xl shadow-lg mr-3',
-          props.theme === 'gradient' ? `bg-gradient-to-br ${themeClasses.gradient}` : 'bg-pink-500'
-        ]"
-      >
-        <svg 
-          :class="[
-            'w-3/5 h-3/5',
-            props.theme === 'gradient' ? 'text-white' : 'text-white'
-          ]" 
-          fill="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <!-- Heart shape integrated with medical cross -->
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-          <!-- Medical cross overlay -->
-          <rect x="10.5" y="6" width="3" height="12" rx="1.5" fill="rgba(255,255,255,0.9)"/>
-          <rect x="6" y="10.5" width="12" height="3" rx="1.5" fill="rgba(255,255,255,0.9)"/>
-        </svg>
-        
-        <!-- Animated glow -->
         <div 
-          v-if="animated" 
-          class="absolute inset-0 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 opacity-20 animate-glow-pulse"
-        ></div>
-      </div>
+          :class="[
+            sizeClasses,
+            'relative flex items-center justify-center mr-3'
+          ]"
+        >
+          <img 
+            src="/images/RBungas.png" 
+            alt="Klinik Bungas Logo" 
+            class="w-full h-full object-contain"
+          />
+          
+          <!-- Animated glow -->
+          <div 
+            v-if="animated" 
+            class="absolute inset-0 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 opacity-20 animate-glow-pulse"
+          ></div>
+        </div>
 
       <!-- Text -->
       <div class="flex flex-col">

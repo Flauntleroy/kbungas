@@ -50,7 +50,7 @@ class BookingController extends Controller
             // Validasi input
             $validated = $request->validate([
                 'nik' => 'required|string|size:16|regex:/^[0-9]{16}$/',
-                'nomor_kartu' => 'nullable|string|size:13|regex:/^[0-9]{13}$/',
+                'nomor_kartu' => 'nullable|string|max:13',
                 'nama' => 'required|string|max:40',
                 'tanggal' => 'required|date|after_or_equal:today',
                 'alamat' => 'nullable|string|max:200',

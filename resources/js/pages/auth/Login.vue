@@ -56,9 +56,17 @@ defineProps<{
         <div class="w-full max-w-md relative z-10">
             
             <!-- Logo and Brand Section -->
-            <div class="text-center mb-8">
+             <!-- Logo and Brand Section -->
+            <div class="flex justify-center mb-2">
+            <img 
+                src="/images/RBungas.png" 
+                alt="Klinik Bungas Logo" 
+                class="w-92 h-92 object-contain drop-shadow-lg animate-fade-in-up"
+            />
+            </div>
+            <!-- <div class="text-center mb-8">
                 <KlinikBungasLogo 
-                    size="lg" 
+                    size="2xl" 
                     variant="full" 
                     theme="gradient" 
                     :animated="true"
@@ -67,7 +75,7 @@ defineProps<{
                 <p class="text-gray-600 font-medium animate-fade-in-up" style="animation-delay: 0.2s">
                     Masuk ke akun Anda
                 </p>
-            </div>
+            </div> -->
 
             <!-- Login Form Card -->
             <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-pink-100 p-8 relative">
@@ -100,14 +108,14 @@ defineProps<{
                     <!-- Email Field -->
                     <div class="space-y-2">
                         <Label for="email" class="text-sm font-semibold text-gray-700">
-                            Alamat Email
+                            Username/Email
                         </Label>
                         <div class="relative">
                             <Input
                                 id="email"
                                 type="email"
                                 name="email"
-                                placeholder="nama@email.com"
+                                placeholder="nama@klinikbungas.com"
                                 class="w-full px-4 py-3 border-2 border-pink-100 rounded-xl focus:border-pink-300 focus:ring-4 focus:ring-pink-100 transition-all duration-200 bg-white/70 backdrop-blur-sm"
                                 :tabindex="1"
                                 autocomplete="username"
@@ -172,22 +180,23 @@ defineProps<{
                     <!-- Login Button -->
                     <Button
                         type="submit"
-                        class="w-full py-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 focus:ring-4 focus:ring-pink-200"
+                        class="w-full py-3 bg-[#eca8ae] hover:bg-[#b56a72] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 focus:ring-4 focus:ring-[#c67981]/40"
                         :tabindex="4"
                         :disabled="processing"
                         data-test="login-button"
-                    >
+                        >
                         <LoaderCircle
                             v-if="processing"
                             class="h-5 w-5 animate-spin mr-2"
                         />
-                        <span v-if="!processing">Masuk ke Dashboard</span>
+                        <span v-if="!processing">Login</span>
                         <span v-else>Memproses...</span>
                     </Button>
 
+
                     <!-- Register Link -->
                     <div class="text-center pt-4 border-t border-pink-100">
-                        <p class="text-sm text-gray-600">
+                        <!-- <p class="text-sm text-gray-600">
                             Belum punya akun?
                             <TextLink 
                                 :href="register()" 
@@ -196,7 +205,7 @@ defineProps<{
                             >
                                 Daftar sekarang
                             </TextLink>
-                        </p>
+                        </p> -->
                     </div>
                 </Form>
             </div>
@@ -204,7 +213,7 @@ defineProps<{
             <!-- Footer -->
             <div class="text-center mt-6">
                 <p class="text-xs text-gray-500">
-                    © 2024 Klinik Bungas. Semua hak dilindungi.
+                    © 2025 IT R. All rights reserved.
                 </p>
             </div>
         </div>

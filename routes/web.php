@@ -19,25 +19,6 @@ Route::get('/booking', function () {
     return Inertia::render('Booking');
 })->name('booking');
 
-// BPJS API Routes
-Route::prefix('api/bpjs')->name('api.bpjs.')->group(function () {
-    Route::post('/check-nik', [App\Http\Controllers\BpjsController::class, 'checkNik'])->name('check.nik');
-    Route::post('/check-kartu', [App\Http\Controllers\BpjsController::class, 'checkKartu'])->name('check.kartu');
-    Route::post('/validate-nik', [App\Http\Controllers\BpjsController::class, 'validateNik'])->name('validate.nik');
-    Route::get('/status', [App\Http\Controllers\BpjsController::class, 'getApiStatus'])->name('status');
-});
-
-// Booking API Routes
-Route::prefix('api/booking')->name('api.booking.')->group(function () {
-    Route::get('/form-data', [App\Http\Controllers\BookingController::class, 'getFormData'])->name('form.data');
-    Route::post('/store', [App\Http\Controllers\BookingController::class, 'store'])->name('store');
-    Route::get('/by-nik', [App\Http\Controllers\BookingController::class, 'getByNik'])->name('by.nik');
-    Route::get('/by-number', [App\Http\Controllers\BookingController::class, 'getByBookingNumber'])->name('by.number');
-    Route::put('/status/{noBooking}', [App\Http\Controllers\BookingController::class, 'updateStatus'])->name('update.status');
-    Route::get('/available-slots', [App\Http\Controllers\BookingController::class, 'getAvailableSlots'])->name('available.slots');
-    Route::get('/statistics', [App\Http\Controllers\BookingController::class, 'getStatistics'])->name('statistics');
-});
-
 // Admin Routes - Protected by auth middleware
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () {

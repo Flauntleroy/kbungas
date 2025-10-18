@@ -26,10 +26,8 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-4">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 bg-gradient-to-r from-rose-500 to-pink-500 rounded-xl flex items-center justify-center">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-              </svg>
+            <div class="w-16 h-16 flex items-center justify-center">
+              <img src="/images/RBungas.png" alt="Klinik Bungas Logo" class="w-full h-full object-contain" />
             </div>
             <div>
                <h2 class="text-lg font-bold text-rose-800">Klinik Bungas</h2>
@@ -217,46 +215,25 @@
                   </div>
                 </div>
                 
-                <div class="grid md:grid-cols-2 gap-6">
-                  <div class="group">
-                    <label class="block text-sm font-semibold text-rose-800 mb-3">Nomor Telepon *</label>
-                    <div class="relative">
-                      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <svg class="w-5 h-5 text-rose-400 group-focus-within:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                        </svg>
-                      </div>
-                      <input 
-                        v-model="form.no_telp"
-                        type="tel" 
-                        required
-                        class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 placeholder-rose-400 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white" 
-                        placeholder="08xx xxxx xxxx"
-                      />
+                <!-- Email field dihapus, nilai default '-' akan diset otomatis -->
+                <div class="group">
+                  <label class="block text-sm font-semibold text-rose-800 mb-3">Nomor Telepon *</label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-rose-400 group-focus-within:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                      </svg>
                     </div>
-                    <div v-if="errors.no_telp" class="mt-2 text-sm text-red-600">
-                      {{ errors.no_telp }}
-                    </div>
+                    <input 
+                      v-model="form.no_telp"
+                      type="tel" 
+                      required
+                      class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 placeholder-rose-400 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white" 
+                      placeholder="08xx xxxx xxxx"
+                    />
                   </div>
-                  
-                  <div class="group">
-                    <label class="block text-sm font-semibold text-rose-800 mb-3">Email</label>
-                    <div class="relative">
-                      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <svg class="w-5 h-5 text-rose-400 group-focus-within:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
-                        </svg>
-                      </div>
-                      <input 
-                        v-model="form.email"
-                        type="email" 
-                        class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 placeholder-rose-400 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white" 
-                        placeholder="email@example.com"
-                      />
-                    </div>
-                    <div v-if="errors.email" class="mt-2 text-sm text-red-600">
-                      {{ errors.email }}
-                    </div>
+                  <div v-if="errors.no_telp" class="mt-2 text-sm text-red-600">
+                    {{ errors.no_telp }}
                   </div>
                 </div>
                 
@@ -291,7 +268,8 @@
                   </svg>
                   Detail Konsultasi
                 </h4>
-                <div class="grid md:grid-cols-2 gap-6">
+
+                  <div class="grid md:grid-cols-2 gap-6">
                   <div class="group">
                     <label class="block text-sm font-semibold text-rose-800 mb-3">Tanggal Konsultasi *</label>
                     <div class="relative">
@@ -314,35 +292,7 @@
                     </div>
                   </div>
                   
-                  <div class="group">
-                    <label class="block text-sm font-semibold text-rose-800 mb-3">Poliklinik *</label>
-                    <div class="relative">
-                      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <svg class="w-5 h-5 text-rose-400 group-focus-within:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                        </svg>
-                      </div>
-                      <select 
-                        v-model="form.kd_poli"
-                        required
-                        class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white appearance-none"
-                      >
-                        <option value="">Pilih Poliklinik</option>
-                        <option v-for="poli in formOptions.poliklinik" :key="poli.kd_poli" :value="poli.kd_poli">
-                          {{ poli.nm_poli }}
-                        </option>
-                      </select>
-                      <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                        <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                      </div>
-                    </div>
-                    <div v-if="errors.kd_poli" class="mt-2 text-sm text-red-600">
-                      {{ errors.kd_poli }}
-                    </div>
-                  </div>
-                </div>
+                  <!-- Poliklinik field dihapus dari tampilan, nilai "Umum" akan diset otomatis -->
                 
                 <div class="group">
                   <label class="block text-sm font-semibold text-rose-800 mb-3">Pilih Dokter *</label>
@@ -359,8 +309,8 @@
                       class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white appearance-none"
                     >
                       <option value="">Pilih dokter konsultasi</option>
-                      <option v-for="dokter in formOptions.dokter" :key="dokter.kd_dokter" :value="dokter.kd_dokter">
-                        {{ dokter.nm_dokter }}
+                      <option v-for="dokter in formOptions.dokter" :key="dokter.value" :value="dokter.value">
+                        {{ dokter.label }}
                       </option>
                     </select>
                     <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
@@ -373,36 +323,9 @@
                     {{ errors.kd_dokter }}
                   </div>
                 </div>
-                
-                <!-- Jenis Pembayaran -->
-                <div class="group">
-                  <label class="block text-sm font-semibold text-rose-800 mb-3">Jenis Pembayaran *</label>
-                  <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <svg class="w-5 h-5 text-rose-400 group-focus-within:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
-                      </svg>
-                    </div>
-                    <select 
-                      v-model="form.kd_pj"
-                      required
-                      class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white appearance-none"
-                    >
-                      <option value="">Pilih jenis pembayaran</option>
-                      <option v-for="pj in formOptions.penjab" :key="pj.kd_pj" :value="pj.kd_pj">
-                        {{ pj.png_jawab }}
-                      </option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                      <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                      </svg>
-                    </div>
-                  </div>
-                  <div v-if="errors.kd_pj" class="mt-2 text-sm text-red-600">
-                    {{ errors.kd_pj }}
-                  </div>
                 </div>
+                
+                <!-- Jenis Pembayaran field dihapus dari tampilan, nilai "Umum" akan diset otomatis -->
               </div>
 
               <!-- Additional Information -->
@@ -562,6 +485,9 @@
 import { Head } from '@inertiajs/vue3'
 import { ref, computed, onMounted } from 'vue'
 import { router } from '@inertiajs/vue3'
+import Swal from 'sweetalert2'
+import html2canvas from 'html2canvas'
+import 'animate.css'
 
 defineOptions({
   layout: null
@@ -596,6 +522,182 @@ const isNameFromNik = ref(false)
 const isKartuFromNik = ref(false)
 const nikError = ref('')
 const nikSuccess = ref('')
+
+// Function to generate receipt HTML
+const generateReceiptHTML = (bookingData: any) => {
+  const selectedPoli = formOptions.value.poliklinik.find(p => p.value === bookingData.kd_poli)
+  const selectedDokter = formOptions.value.dokter.find(d => d.value === bookingData.kd_dokter)
+  const selectedPenjab = formOptions.value.penjab.find(p => p.value === bookingData.kd_pj)
+  
+  return `
+    <div id="receipt" style="
+      width: 400px;
+      padding: 30px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+      border: 2px solid #f472b6;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(244, 114, 182, 0.2);
+    ">
+      <!-- Header -->
+      <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px solid #f472b6; padding-bottom: 20px;">
+        <div style="
+          width: 60px;
+          height: 60px;
+          background: linear-gradient(135deg, #ec4899, #f472b6);
+          border-radius: 50%;
+          margin: 0 auto 15px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        ">
+          <svg width="30" height="30" fill="white" viewBox="0 0 24 24">
+            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+        </div>
+        <h2 style="color: #be185d; margin: 0; font-size: 24px; font-weight: bold;">Klinik Bungas</h2>
+        <p style="color: #ec4899; margin: 5px 0 0; font-size: 14px;">Receipt Booking Konsultasi</p>
+      </div>
+      
+      <!-- Booking Info -->
+      <div style="margin-bottom: 25px;">
+        <div style="
+          background: white;
+          padding: 20px;
+          border-radius: 10px;
+          border-left: 4px solid #ec4899;
+          margin-bottom: 15px;
+        ">
+          <h3 style="color: #be185d; margin: 0 0 10px; font-size: 18px;">Nomor Booking</h3>
+          <p style="color: #1f2937; margin: 0; font-size: 24px; font-weight: bold; letter-spacing: 1px;">${bookingData.no_booking}</p>
+        </div>
+      </div>
+      
+      <!-- Patient Details -->
+      <div style="margin-bottom: 25px;">
+        <h3 style="color: #be185d; margin: 0 0 15px; font-size: 16px; border-bottom: 1px solid #f472b6; padding-bottom: 5px;">Detail Pasien</h3>
+        <div style="background: white; padding: 15px; border-radius: 8px;">
+          <div style="margin-bottom: 10px;">
+            <span style="color: #6b7280; font-size: 12px; display: block;">Nama Lengkap</span>
+            <span style="color: #1f2937; font-weight: 600;">${bookingData.nama}</span>
+          </div>
+          <div style="margin-bottom: 10px;">
+            <span style="color: #6b7280; font-size: 12px; display: block;">NIK</span>
+            <span style="color: #1f2937; font-weight: 600;">${bookingData.nik}</span>
+          </div>
+          <div style="margin-bottom: 10px;">
+            <span style="color: #6b7280; font-size: 12px; display: block;">No. Telepon</span>
+            <span style="color: #1f2937; font-weight: 600;">${bookingData.no_telp}</span>
+          </div>
+          ${bookingData.email ? `
+          <div>
+            <span style="color: #6b7280; font-size: 12px; display: block;">Email</span>
+            <span style="color: #1f2937; font-weight: 600;">${bookingData.email}</span>
+          </div>
+          ` : ''}
+        </div>
+      </div>
+      
+      <!-- Appointment Details -->
+      <div style="margin-bottom: 25px;">
+        <h3 style="color: #be185d; margin: 0 0 15px; font-size: 16px; border-bottom: 1px solid #f472b6; padding-bottom: 5px;">Detail Konsultasi</h3>
+        <div style="background: white; padding: 15px; border-radius: 8px;">
+          <div style="margin-bottom: 10px;">
+            <span style="color: #6b7280; font-size: 12px; display: block;">Tanggal</span>
+            <span style="color: #1f2937; font-weight: 600;">${new Date(bookingData.tanggal).toLocaleDateString('id-ID', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}</span>
+          </div>
+          <div style="margin-bottom: 10px;">
+            <span style="color: #6b7280; font-size: 12px; display: block;">Poliklinik</span>
+            <span style="color: #1f2937; font-weight: 600;">${selectedPoli?.label || bookingData.kd_poli}</span>
+          </div>
+          <div style="margin-bottom: 10px;">
+            <span style="color: #6b7280; font-size: 12px; display: block;">Dokter</span>
+            <span style="color: #1f2937; font-weight: 600;">${selectedDokter?.label || bookingData.kd_dokter}</span>
+          </div>
+          <div>
+            <span style="color: #6b7280; font-size: 12px; display: block;">Jenis Pembayaran</span>
+            <span style="color: #1f2937; font-weight: 600;">${selectedPenjab?.label || bookingData.kd_pj}</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Status -->
+      <div style="margin-bottom: 25px;">
+        <div style="
+          background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+          border: 1px solid #22c55e;
+          padding: 15px;
+          border-radius: 8px;
+          text-align: center;
+        ">
+          <span style="color: #15803d; font-weight: bold; font-size: 14px;">✓ BOOKING BERHASIL</span>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div style="text-align: center; border-top: 1px solid #f472b6; padding-top: 15px;">
+        <p style="color: #6b7280; font-size: 12px; margin: 0;">
+          Terima kasih telah mempercayai Klinik Bungas<br>
+          Harap datang 15 menit sebelum jadwal konsultasi
+        </p>
+        <p style="color: #9ca3af; font-size: 10px; margin: 10px 0 0;">
+          Dicetak pada: ${new Date().toLocaleString('id-ID')}
+        </p>
+      </div>
+    </div>
+  `
+}
+
+// Function to download receipt as JPG
+const downloadReceipt = async (bookingData: any) => {
+  try {
+    // Create temporary div with receipt HTML
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = generateReceiptHTML(bookingData)
+    tempDiv.style.position = 'absolute'
+    tempDiv.style.left = '-9999px'
+    tempDiv.style.top = '-9999px'
+    document.body.appendChild(tempDiv)
+    
+    // Generate canvas from HTML
+    const canvas = await html2canvas(tempDiv.querySelector('#receipt') as HTMLElement, {
+      backgroundColor: '#ffffff',
+      scale: 2, // Higher quality
+      useCORS: true,
+      allowTaint: true
+    })
+    
+    // Convert to JPG and download
+    const link = document.createElement('a')
+    link.download = `receipt-booking-${bookingData.no_booking}.jpg`
+    link.href = canvas.toDataURL('image/jpeg', 0.9)
+    link.click()
+    
+    // Clean up
+    document.body.removeChild(tempDiv)
+    
+    // Show success message
+    Swal.fire({
+      icon: 'success',
+      title: 'Receipt Downloaded!',
+      text: 'Receipt berhasil diunduh ke perangkat Anda',
+      timer: 2000,
+      showConfirmButton: false
+    })
+  } catch (error) {
+    console.error('Error generating receipt:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Download Gagal',
+      text: 'Terjadi kesalahan saat mengunduh receipt'
+    })
+  }
+}
 const successMessage = ref('')
 const errorMessage = ref('')
 const errors = ref({})
@@ -615,6 +717,24 @@ const loadFormData = async () => {
     
     if (result.success) {
       formOptions.value = result.data
+      
+      // Set default values untuk field yang dihapus
+      form.value.email = 'pasien@klinikbungas.com' // Default value untuk email
+      
+      // Set nilai otomatis untuk poliklinik dan jenis pembayaran ke "Umum"
+      const umumPoli = formOptions.value.poliklinik.find(p => 
+        p.label && p.label.toLowerCase().includes('umum')
+      )
+      if (umumPoli) {
+        form.value.kd_poli = umumPoli.value
+      }
+      
+      const umumPenjab = formOptions.value.penjab.find(p => 
+        p.label && p.label.toLowerCase().includes('umum')
+      )
+      if (umumPenjab) {
+        form.value.kd_pj = umumPenjab.value
+      }
     } else {
       console.error('Failed to load form data:', result.message)
     }
@@ -650,25 +770,29 @@ const fetchNikData = async (nik: string): Promise<boolean> => {
 
     const result = await response.json()
     
-    if (result.success && result.data) {
-      form.value.nama = result.data.nama || ''
-      form.value.nomor_kartu = result.data.noKartu || ''
+    // Cek response sesuai struktur BPJS API yang benar
+    if (result.metaData && result.metaData.code === '200' && result.response && result.response.peserta) {
+      const pesertaData = result.response.peserta
+      
+      // Auto-fill data dari response BPJS
+      form.value.nama = pesertaData.nama || ''
+      form.value.nomor_kartu = pesertaData.noKartu || ''
       isNameFromNik.value = true
       isKartuFromNik.value = true
-      nikSuccess.value = 'Data NIK berhasil ditemukan'
+      nikSuccess.value = 'Data NIK berhasil ditemukan dan diisi otomatis'
       nikError.value = ''
       
-      // Set penjab to BPJS if data found
-      const bpjsPenjab = formOptions.value.penjab.find(p => 
-        p.png_jawab.toLowerCase().includes('bpjs') || 
-        p.png_jawab.toLowerCase().includes('jkn')
+      // Set penjab to umum (UMU) regardless of BPJS data found
+      const umumPenjab = formOptions.value.penjab.find(p => 
+        p.label && p.label.toLowerCase().includes('umum')
       )
-      if (bpjsPenjab) {
-        form.value.kd_pj = bpjsPenjab.kd_pj
+      if (umumPenjab) {
+        form.value.kd_pj = umumPenjab.value
       }
       
       return true
-    } else {
+    } else if (result.metaData && result.metaData.code === '201') {
+      // Data tidak ditemukan di BPJS
       nikError.value = 'Data NIK tidak ditemukan di BPJS'
       nikSuccess.value = ''
       isNameFromNik.value = false
@@ -676,11 +800,19 @@ const fetchNikData = async (nik: string): Promise<boolean> => {
       
       // Set penjab to umum if NIK not found in BPJS
       const umumPenjab = formOptions.value.penjab.find(p => 
-        p.png_jawab.toLowerCase().includes('umum')
+        p.label && p.label.toLowerCase().includes('umum')
       )
       if (umumPenjab) {
-        form.value.kd_pj = umumPenjab.kd_pj
+        form.value.kd_pj = umumPenjab.value
       }
+      
+      return false
+    } else {
+      // Error atau response tidak valid
+      nikError.value = result.metaData?.message || 'Gagal mengambil data NIK dari BPJS'
+      nikSuccess.value = ''
+      isNameFromNik.value = false
+      isKartuFromNik.value = false
       
       return false
     }
@@ -810,12 +942,11 @@ const validateForm = () => {
   
   // Validasi nomor kartu BPJS jika diperlukan
   if (form.value.kd_pj && formOptions.value.penjab.length > 0) {
-    const selectedPenjab = formOptions.value.penjab.find(p => p.kd_pj === form.value.kd_pj)
-    if (selectedPenjab && selectedPenjab.png_jawab.toLowerCase().includes('bpjs')) {
-      if (!form.value.nomor_kartu) {
-        errors.value.nomor_kartu = 'Nomor kartu BPJS wajib diisi untuk pembayaran BPJS'
-      } else if (!/^\d{13}$/.test(form.value.nomor_kartu)) {
-        errors.value.nomor_kartu = 'Nomor kartu BPJS harus 13 digit'
+    const selectedPenjab = formOptions.value.penjab.find(p => p.value === form.value.kd_pj)
+    if (selectedPenjab && selectedPenjab.label && selectedPenjab.label.toLowerCase().includes('bpjs')) {
+      // Nomor kartu boleh kosong atau berisi tanda hubung
+      if (form.value.nomor_kartu && form.value.nomor_kartu !== '-' && !/^\d{13}$/.test(form.value.nomor_kartu)) {
+        errors.value.nomor_kartu = 'Nomor kartu BPJS harus 13 digit atau kosong'
       }
     }
   }
@@ -864,7 +995,65 @@ const submitBooking = async () => {
     const result = await response.json()
 
     if (response.ok && result.success) {
-      successMessage.value = `Booking berhasil! Nomor booking Anda: ${result.data.no_booking}`
+      // Show SweetAlert2 success popup with booking details
+      const selectedPoli = formOptions.value.poliklinik.find(p => p.value === result.data.kd_poli)
+      const selectedDokter = formOptions.value.dokter.find(d => d.value === result.data.kd_dokter)
+      const selectedPenjab = formOptions.value.penjab.find(p => p.value === result.data.kd_pj)
+      
+      Swal.fire({
+        icon: false,
+        title: 'Booking Berhasil',
+        html: `
+          <div class="elegant-popup-content">
+            <div class="decorative-header">
+              <div class="ornament-top"></div>
+              <div class="success-icon">
+                <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="30" cy="30" r="28" fill="url(#successGradient)" stroke="url(#borderGradient)" stroke-width="2"/>
+                  <path d="M20 30L26 36L40 22" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                  <defs>
+                    <linearGradient id="successGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#f8d7da"/>
+                      <stop offset="50%" style="stop-color:#ec4899"/>
+                      <stop offset="100%" style="stop-color:#be185d"/>
+                    </linearGradient>
+                    <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#fdf2f8"/>
+                      <stop offset="100%" style="stop-color:#ec4899"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+              <div class="ornament-bottom"></div>
+            </div>
+            <div class="message-content">
+              <p class="elegant-message">Booking berhasil dilakukan. Tim kami akan segera menghubungi Anda untuk konfirmasi lebih lanjut.</p>
+            </div>
+            <div class="decorative-footer">
+              <div class="ornament-line"></div>
+            </div>
+          </div>
+        `,
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#ec4899',
+        width: '480px',
+        padding: '0',
+        background: 'transparent',
+        customClass: {
+          popup: 'elegant-booking-popup',
+          confirmButton: 'elegant-ok-btn',
+          htmlContainer: 'elegant-html-container'
+        },
+        showClass: {
+          popup: 'animate__animated animate__fadeInUp animate__faster'
+        },
+        hideClass: {
+          popup: 'animate__animated animate__fadeOutDown animate__faster'
+        }
+      })
+      
+      // Clear messages and reset form
+      successMessage.value = ''
       errorMessage.value = ''
       
       // Reset form
@@ -882,12 +1071,19 @@ const submitBooking = async () => {
         catatan: ''
       }
       
-      // Scroll to success message
-      setTimeout(() => {
-        document.querySelector('.success-message')?.scrollIntoView({ behavior: 'smooth' })
-      }, 100)
-      
     } else {
+      // Show error popup for failed booking
+      Swal.fire({
+        icon: 'error',
+        title: 'Booking Gagal',
+        text: result.message || 'Terjadi kesalahan saat menyimpan booking',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#dc2626',
+        customClass: {
+          popup: 'elegant-error-popup'
+        }
+      })
+      
       errorMessage.value = result.message || 'Terjadi kesalahan saat menyimpan booking'
       successMessage.value = ''
       
@@ -898,6 +1094,19 @@ const submitBooking = async () => {
     }
   } catch (error) {
     console.error('Error submitting booking:', error)
+    
+    // Show error popup for network/server errors
+    Swal.fire({
+      icon: 'error',
+      title: 'Kesalahan Jaringan',
+      text: 'Terjadi kesalahan jaringan. Silakan coba lagi.',
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#dc2626',
+      customClass: {
+        popup: 'elegant-error-popup'
+      }
+    })
+    
     errorMessage.value = 'Terjadi kesalahan jaringan. Silakan coba lagi.'
     successMessage.value = ''
   } finally {
@@ -1044,5 +1253,389 @@ onMounted(() => {
     transform: translateY(0);
     opacity: 1;
   }
+}
+</style>
+
+<style>
+/* Global SweetAlert2 Custom Styles */
+.booking-success-popup {
+  border-radius: 20px !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15) !important;
+}
+
+.booking-success-popup .swal2-title {
+  color: #be185d !important;
+  font-size: 28px !important;
+  font-weight: bold !important;
+  margin-bottom: 20px !important;
+}
+
+.booking-success-popup .swal2-html-container {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.download-receipt-btn {
+  background: linear-gradient(135deg, #ec4899, #f472b6) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3) !important;
+}
+
+.download-receipt-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(236, 72, 153, 0.4) !important;
+}
+
+.close-btn {
+  background: #6b7280 !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  transition: all 0.3s ease !important;
+}
+
+.close-btn:hover {
+  background: #4b5563 !important;
+  transform: translateY(-2px) !important;
+}
+
+.booking-success-popup .swal2-actions {
+  margin-top: 25px !important;
+  gap: 15px !important;
+}
+
+/* Responsive SweetAlert2 */
+@media (max-width: 768px) {
+  .booking-success-popup {
+    width: 95% !important;
+    margin: 0 auto !important;
+  }
+  
+  .booking-success-popup .swal2-title {
+    font-size: 24px !important;
+  }
+  
+  .download-receipt-btn,
+  .close-btn {
+    font-size: 14px !important;
+    padding: 10px 20px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .booking-success-popup .swal2-title {
+    font-size: 20px !important;
+  }
+  
+  .booking-success-popup .swal2-actions {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+  
+  .download-receipt-btn,
+  .close-btn {
+    width: 100% !important;
+  }
+}
+
+/* Elegant Booking Popup Styles */
+.elegant-booking-popup {
+  background: linear-gradient(145deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%) !important;
+  border: none !important;
+  border-radius: 24px !important;
+  box-shadow: 
+    0 25px 50px rgba(190, 24, 93, 0.15),
+    0 15px 35px rgba(236, 72, 153, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(10px) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.elegant-booking-popup::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(190, 24, 93, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.elegant-html-container {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.elegant-popup-content {
+  padding: 40px 30px 30px;
+  text-align: center;
+  position: relative;
+}
+
+.decorative-header {
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.ornament-top {
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #ec4899, transparent);
+  margin: 0 auto 20px;
+  border-radius: 2px;
+  position: relative;
+}
+
+.ornament-top::before,
+.ornament-top::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(45deg, #ec4899, #f472b6);
+  border-radius: 50%;
+  top: -2.5px;
+}
+
+.ornament-top::before {
+  left: -4px;
+}
+
+.ornament-top::after {
+  right: -4px;
+}
+
+.success-icon {
+  margin: 0 auto 20px;
+  filter: drop-shadow(0 8px 16px rgba(236, 72, 153, 0.2));
+  animation: gentle-pulse 2s ease-in-out infinite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes gentle-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+.ornament-bottom {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #f472b6, transparent);
+  margin: 0 auto;
+  border-radius: 1px;
+}
+
+.elegant-booking-popup .swal2-title {
+  color: #be185d !important;
+  font-family: 'Georgia', 'Times New Roman', serif !important;
+  font-size: 28px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.5px !important;
+  margin: 0 0 25px !important;
+  text-shadow: 0 2px 4px rgba(190, 24, 93, 0.1) !important;
+}
+
+.message-content {
+  margin: 25px 0;
+}
+
+.elegant-message {
+  color: #4a5568 !important;
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif !important;
+  font-size: 16px !important;
+  line-height: 1.7 !important;
+  font-weight: 400 !important;
+  margin: 0 !important;
+  letter-spacing: 0.3px !important;
+}
+
+.decorative-footer {
+  margin-top: 25px;
+}
+
+.ornament-line {
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #ec4899, transparent);
+  margin: 0 auto;
+  position: relative;
+}
+
+.ornament-line::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  background: #ec4899;
+  border-radius: 50%;
+}
+
+.elegant-ok-btn {
+  background: #ec4899 !important;
+  border: none !important;
+  border-radius: 50px !important;
+  padding: 14px 40px !important;
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 16px !important;
+  letter-spacing: 0.5px !important;
+  color: white !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 
+    0 8px 20px rgba(236, 72, 153, 0.3),
+    0 3px 6px rgba(236, 72, 153, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.elegant-ok-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  transition: left 0.5s ease;
+}
+
+.elegant-ok-btn:hover {
+  background: #db2777 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 
+    0 12px 25px rgba(236, 72, 153, 0.4),
+    0 6px 12px rgba(236, 72, 153, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.elegant-ok-btn:hover::before {
+  left: 100%;
+}
+
+.elegant-ok-btn:active {
+  background: #be185d !important;
+  transform: translateY(-1px) scale(0.98) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .elegant-booking-popup {
+    width: 90% !important;
+    margin: 0 5% !important;
+  }
+  
+  .elegant-popup-content {
+    padding: 30px 20px 25px;
+  }
+  
+  .elegant-booking-popup .swal2-title {
+    font-size: 24px !important;
+  }
+  
+  .elegant-message {
+    font-size: 15px !important;
+  }
+  
+  .elegant-ok-btn {
+    padding: 12px 35px !important;
+    font-size: 15px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .elegant-popup-content {
+    padding: 25px 15px 20px;
+  }
+  
+  .elegant-booking-popup .swal2-title {
+    font-size: 22px !important;
+  }
+  
+  .elegant-message {
+    font-size: 14px !important;
+  }
+  
+  .elegant-ok-btn {
+    width: 100% !important;
+    padding: 12px 20px !important;
+  }
+}
+@media (max-width: 768px) {
+  .confirmation-popup {
+    width: 90% !important;
+  }
+  
+  .confirmation-popup .swal2-title {
+    font-size: 20px !important;
+  }
+  
+  .confirmation-popup .swal2-content {
+    font-size: 14px !important;
+  }
+  
+  .ok-btn {
+    font-size: 14px !important;
+    padding: 10px 25px !important;
+  }
+}
+
+/* Error popup styling */
+.elegant-error-popup {
+  border-radius: 20px !important;
+  box-shadow: 0 25px 50px rgba(220, 38, 38, 0.15) !important;
+}
+
+.elegant-error-popup .swal2-title {
+  color: #dc2626 !important;
+  font-size: 24px !important;
+  font-weight: bold !important;
+  margin-bottom: 15px !important;
+}
+
+.elegant-error-popup .swal2-content {
+  color: #374151 !important;
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+}
+
+.elegant-error-popup .swal2-confirm {
+  background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3) !important;
+}
+
+.elegant-error-popup .swal2-confirm:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4) !important;
 }
 </style>

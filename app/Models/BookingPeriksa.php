@@ -12,6 +12,7 @@ class BookingPeriksa extends Model
     protected $primaryKey = 'no_booking';
     public $incrementing = false;
     protected $keyType = 'string';
+    public $timestamps = false; // Disable timestamps karena tabel tidak memiliki kolom updated_at dan created_at
     
     protected $fillable = [
         'no_booking',
