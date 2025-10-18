@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-screen bg-white flex">
+  <div class="min-h-screen bg-gray-50 flex">
     <!-- Mobile menu overlay -->
     <div 
       v-if="sidebarOpen" 
       class="fixed inset-0 z-40 lg:hidden"
       @click="sidebarOpen = false"
     >
-      <div class="absolute inset-0 bg-slate-900/20 backdrop-blur-sm"></div>
+      <div class="absolute inset-0 bg-gray-900/10 backdrop-blur-sm transition-all duration-300"></div>
     </div>
 
     <!-- Sidebar -->
@@ -21,8 +21,10 @@
       <AdminTopbar @toggle-sidebar="sidebarOpen = true" />
 
       <!-- Main content area -->
-      <main class="flex-1 overflow-auto p-6">
-        <slot />
+      <main class="flex-1 overflow-auto p-8 bg-gray-50">
+        <div class="max-w-7xl mx-auto">
+          <slot />
+        </div>
       </main>
 
       <!-- Footer -->

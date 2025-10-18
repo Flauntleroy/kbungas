@@ -1,19 +1,14 @@
 <template>
-  <footer class="bg-white border-t border-gray-200 mt-auto">
-    <div class="px-6 py-3">
-      <div class="flex flex-col md:flex-row items-center justify-between space-y-2 md:space-y-0">
+  <footer class="bg-white border-t border-gray-100 mt-auto">
+    <div class="px-8 py-4">
+      <div class="flex items-center justify-between text-sm text-gray-500">
         <!-- Left side - Copyright -->
-        <div class="flex items-center space-x-4 text-sm text-gray-500">
-          <span>© {{ currentYear }} Klinik Bungas. All rights reserved.</span>
-          <span class="hidden md:inline">Version {{ version }}</span>
-        </div>
+        <span>© {{ currentYear }} Klinik Bungas</span>
 
         <!-- Right side - Status -->
-        <div class="flex items-center space-x-2 text-sm text-gray-500">
-          <div class="flex items-center space-x-1">
-            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span>System Online</span>
-          </div>
+        <div class="flex items-center space-x-2">
+          <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+          <span>Online</span>
         </div>
       </div>
     </div>
@@ -21,23 +16,5 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-
 const currentYear = new Date().getFullYear()
-const version = ref('1.0.0')
-const lastUpdated = ref('')
-
-const updateLastUpdated = () => {
-  const now = new Date()
-  lastUpdated.value = now.toLocaleTimeString('id-ID', {
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
-onMounted(() => {
-  updateLastUpdated()
-  // Update time every minute
-  setInterval(updateLastUpdated, 60000)
-})
 </script>
