@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Foto Dokter">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <clipPath id="circleClip">
+      <circle cx="128" cy="128" r="110"/>
+    </clipPath>
+  </defs>
+  <rect width="256" height="256" rx="28" fill="#fff"/>
+  <circle cx="128" cy="128" r="112" fill="#ffe4e6" stroke="#fecdd3" stroke-width="4"/>
+  <g clip-path="url(#circleClip)">
+    <!-- Background gradient oval -->
+    <ellipse cx="128" cy="175" rx="95" ry="40" fill="#fde2e8"/>
+    
+    <!-- Shoulders and coat -->
+    <path d="M64 190c0-40 40-62 64-62s64 22 64 62v40H64v-40z" fill="#ffffff" stroke="#fecdd3" stroke-width="3"/>
+    <!-- Coat lapels -->
+    <path d="M128 140c-16 0-29 10-36 24l18 20 18-44z" fill="#fee2e2"/>
+    <path d="M128 140c16 0 29 10 36 24l-18 20-18-44z" fill="#fee2e2"/>
+    
+    <!-- Stethoscope -->
+    <path d="M90 150c0 18 12 26 22 26" fill="none" stroke="#9f1239" stroke-width="3"/>
+    <circle cx="108" cy="176" r="7" fill="#f43f5e"/>
+    <path d="M166 150c0 18-12 26-22 26" fill="none" stroke="#9f1239" stroke-width="3"/>
+    <circle cx="148" cy="176" r="7" fill="#f43f5e"/>
+    <path d="M128 168v22" stroke="#9f1239" stroke-width="3"/>
+    <circle cx="128" cy="194" r="9" fill="#fff" stroke="#fecdd3" stroke-width="3"/>
+    
+    <!-- Neck -->
+    <rect x="114" y="130" width="28" height="16" rx="6" fill="#fdc5c9"/>
+    
+    <!-- Face -->
+    <ellipse cx="128" cy="106" rx="40" ry="36" fill="#fecaca" stroke="#fda4af" stroke-width="3"/>
+    <!-- Hair -->
+    <path d="M88 100c2-22 22-36 40-36s38 14 40 36c-6-6-18-12-40-12s-34 6-40 12z" fill="#9f1239"/>
+    <path d="M94 90c8-10 20-16 34-16s26 6 34 16c-10-6-20-10-34-10s-24 4-34 10z" fill="#a61e4d"/>
+    
+    <!-- Eyes -->
+    <circle cx="114" cy="106" r="4" fill="#1f2937"/>
+    <circle cx="142" cy="106" r="4" fill="#1f2937"/>
+    <!-- Smile -->
+    <path d="M116 118c6 6 18 6 24 0" stroke="#f43f5e" stroke-width="3" fill="none" stroke-linecap="round"/>
+    
+    <!-- Badge -->
+    <rect x="168" y="170" width="20" height="14" rx="3" fill="#fff" stroke="#fecdd3"/>
+    <path d="M178 172v10" stroke="#f43f5e"/>
+  </g>
+  
+  <!-- Accent ring -->
+  <circle cx="128" cy="128" r="118" fill="none" stroke="url(#g1)" stroke-width="6" opacity="0.25"/>
+</svg>

@@ -1,0 +1,107 @@
+# =====================================================
+# KLINIK BUNGAS - DATABASE CONFIGURATION FOR .env
+# =====================================================
+# Copy konfigurasi di bawah ini ke file .env Anda
+# Ganti konfigurasi database yang ada dengan yang berikut:
+
+# Database Configuration
+DB_CONNECTION=mysql
+DB_HOST=192.168.0.3
+DB_PORT=3939
+DB_DATABASE=kbungas
+DB_USERNAME=kbungas
+DB_PASSWORD=HewlettPackard11@@
+
+# =====================================================
+# KONFIGURASI LENGKAP .env UNTUK KLINIK BUNGAS
+# =====================================================
+# Berikut adalah contoh file .env lengkap:
+
+APP_NAME="Klinik Bungas"
+APP_ENV=local
+APP_KEY=base64:GENERATE_NEW_KEY_WITH_php_artisan_key:generate
+APP_DEBUG=true
+APP_URL=http://klinikbungas.test
+
+APP_LOCALE=id
+APP_FALLBACK_LOCALE=en
+APP_FAKER_LOCALE=id_ID
+
+APP_MAINTENANCE_DRIVER=file
+PHP_CLI_SERVER_WORKERS=4
+BCRYPT_ROUNDS=12
+
+LOG_CHANNEL=stack
+LOG_STACK=single
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
+
+# Database Configuration
+DB_CONNECTION=mysql
+DB_HOST=192.168.0.3
+DB_PORT=3939
+DB_DATABASE=kbungas
+DB_USERNAME=kbungas
+DB_PASSWORD=HewlettPackard11@@
+
+# Session Configuration
+SESSION_DRIVER=database
+SESSION_LIFETIME=120
+SESSION_ENCRYPT=false
+SESSION_PATH=/
+SESSION_DOMAIN=null
+
+# Cache Configuration
+CACHE_STORE=database
+BROADCAST_CONNECTION=log
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=database
+
+# Redis Configuration (Optional)
+REDIS_CLIENT=phpredis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+# Mail Configuration (untuk notifikasi)
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=noreply@klinikbungas.com
+MAIL_FROM_NAME="Klinik Bungas"
+
+# WhatsApp Integration (Optional)
+WHATSAPP_API_URL=https://api.whatsapp.com
+WHATSAPP_TOKEN=your-whatsapp-token
+WHATSAPP_PHONE_NUMBER=6281234567890
+
+# SMS Gateway (Optional)
+SMS_GATEWAY_URL=https://api.smsgateway.com
+SMS_GATEWAY_TOKEN=your-sms-token
+SMS_GATEWAY_SENDER=KLINIKBUNGAS
+
+# Timezone
+APP_TIMEZONE=Asia/Jakarta
+
+# =====================================================
+# LANGKAH-LANGKAH SETUP:
+# =====================================================
+# 1. Copy file .env.example ke .env
+# 2. Update konfigurasi database sesuai di atas
+# 3. Jalankan: php artisan key:generate
+# 4. Jalankan: php artisan config:cache
+# 5. Jalankan: php artisan migrate (setelah database dibuat)
+# 6. Jalankan: php artisan db:seed (untuk data sample)
+
+# =====================================================
+# TESTING CONNECTION:
+# =====================================================
+# Untuk test koneksi database, jalankan:
+# php artisan tinker
+# DB::connection()->getPdo();
+# 
+# Jika berhasil, akan menampilkan object PDO
+# Jika gagal, akan menampilkan error koneksi
