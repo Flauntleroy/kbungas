@@ -207,7 +207,8 @@ class BookingPeriksa extends Model
         }
 
         $this->status = $status;
-        if ($catatan) {
+        // Hanya update catatan jika parameter catatan diberikan dan tidak kosong
+        if ($catatan && !empty(trim($catatan))) {
             $this->catatan = $catatan;
         }
 

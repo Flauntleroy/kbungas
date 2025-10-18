@@ -403,8 +403,8 @@ class BookingController extends Controller
                 ], 422);
             }
 
-            // Update status booking menjadi diterima
-            $booking->updateStatus(BookingPeriksa::STATUS_DITERIMA, 'Dikonfirmasi oleh dokter melalui WhatsApp');
+            // Update status booking menjadi diterima tanpa mengubah catatan
+            $booking->updateStatus(BookingPeriksa::STATUS_DITERIMA);
 
             // Log konfirmasi yang berhasil
             Log::info('Booking confirmed successfully', [

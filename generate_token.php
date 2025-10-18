@@ -19,7 +19,7 @@ $method = $reflection->getMethod('generateConfirmationToken');
 $method->setAccessible(true);
 
 // Generate token for the new booking
-$bookingId = 'TEST-2025101816154771';
+$bookingId = 'TEST-2025101816530248';
 $doctorId = 'DR001';
 
 try {

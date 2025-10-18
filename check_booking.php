@@ -10,7 +10,7 @@ $app = require_once __DIR__ . '/bootstrap/app.php';
 $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
 
 // Check booking data
-$booking = BookingPeriksa::where('no_booking', 'TEST-20251018160630')->first();
+$booking = BookingPeriksa::where('no_booking', 'TEST-2025101816512549')->first();
 
 if ($booking) {
     echo "Booking found:\n";
