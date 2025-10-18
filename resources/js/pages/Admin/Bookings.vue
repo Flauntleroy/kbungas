@@ -97,43 +97,40 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="booking in filteredBookings" :key="booking.id" class="hover:bg-gray-50">
+            <tr v-for="booking in filteredBookings" :key="booking.no_booking" class="hover:bg-gray-50">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
                   <div class="w-10 h-10 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full flex items-center justify-center">
-                    <span class="text-white text-sm font-semibold">{{ booking.patient_name.charAt(0) }}</span>
+                    <span class="text-white text-sm font-semibold">{{ booking.nama.charAt(0) }}</span>
                   </div>
                   <div class="ml-4">
-                    <div class="text-sm font-medium text-gray-900">{{ booking.patient_name }}</div>
-                    <div class="text-sm text-gray-500">{{ booking.patient_phone }}</div>
+                    <div class="text-sm font-medium text-gray-900">{{ booking.nama }}</div>
+                    <div class="text-sm text-gray-500">{{ booking.no_telp }}</div>
                   </div>
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">{{ formatDateTime(booking.appointment_date) }}</div>
+                <div class="text-sm text-gray-900">{{ formatDate(booking.tanggal) }}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">{{ booking.doctor }}</div>
+                <div class="text-sm text-gray-900">{{ booking.dokter?.nm_dokter || 'N/A' }}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span :class="[
                   'inline-flex px-2 py-1 text-xs font-semibold rounded-full',
-                  booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                  booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                  booking.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                  'bg-red-100 text-red-800'
+                  getStatusClass(booking.status)
                 ]">
                   {{ getStatusText(booking.status) }}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 <div class="flex space-x-2">
-                  <a :href="`tel:${booking.patient_phone}`" class="text-rose-600 hover:text-rose-800">
+                  <a :href="`tel:${booking.no_telp}`" class="text-rose-600 hover:text-rose-800">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                     </svg>
                   </a>
-                  <a :href="`https://wa.me/${booking.patient_phone.replace(/[^0-9]/g, '')}`" class="text-green-600 hover:text-green-800">
+                  <a :href="`https://wa.me/${booking.no_telp.replace(/[^0-9]/g, '')}`" class="text-green-600 hover:text-green-800">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.109"/>
                     </svg>
@@ -265,13 +262,39 @@
 import { ref, computed, onMounted } from 'vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 
+// Props dari AdminController
+interface Props {
+  bookings: {
+    data: Array<{
+      no_booking: string
+      nama: string
+      no_telp: string
+      tanggal: string
+      status: string
+      poliklinik?: {
+        nm_poli: string
+      }
+      dokter?: {
+        nm_dokter: string
+      }
+      catatan?: string
+    }>
+    current_page: number
+    last_page: number
+    per_page: number
+    total: number
+  }
+}
+
+const props = defineProps<Props>()
+
 // State
 const showFilters = ref(false)
 const showModal = ref(false)
 const editingBooking = ref(null)
 const searchQuery = ref('')
-const currentPage = ref(1)
-const itemsPerPage = ref(10)
+const currentPage = ref(props.bookings.current_page)
+const itemsPerPage = ref(props.bookings.per_page)
 
 // Filters
 const filters = ref({
@@ -287,37 +310,73 @@ const bookingForm = ref({
   patient_phone: '',
   appointment_datetime: '',
   doctor: '',
-  status: 'pending',
+  status: 'Belum Dibalas',
   notes: ''
 })
 
-// Mock data
-const bookings = ref([
-  {
-    id: 1,
-    patient_name: 'Sari Dewi',
-    patient_phone: '081234567890',
-    appointment_date: '2024-01-15T10:00:00',
-    doctor: 'dr. Bunga Sari, Sp.KK',
-    status: 'confirmed',
-    notes: 'Konsultasi rutin'
-  },
-  {
-    id: 2,
-    patient_name: 'Budi Santoso',
-    patient_phone: '081234567891',
-    appointment_date: '2024-01-15T11:30:00',
-    doctor: 'dr. Bunga Sari, Sp.KK',
-    status: 'pending',
-    notes: 'Keluhan gatal-gatal'
-  },
-  {
-    id: 3,
-    patient_name: 'Maya Putri',
-    patient_phone: '081234567892',
-    appointment_date: '2024-01-16T14:00:00',
-    doctor: 'dr. Bunga Sari, Sp.KK',
-    status: 'cancelled',
+// Computed properties
+const filteredBookings = computed(() => {
+  let filtered = props.bookings.data
+
+  if (searchQuery.value) {
+    filtered = filtered.filter(booking => 
+      booking.nama.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      booking.no_telp.includes(searchQuery.value)
+    )
+  }
+
+  if (filters.value.status) {
+    filtered = filtered.filter(booking => booking.status === filters.value.status)
+  }
+
+  if (filters.value.startDate) {
+    filtered = filtered.filter(booking => booking.tanggal >= filters.value.startDate)
+  }
+
+  if (filters.value.endDate) {
+    filtered = filtered.filter(booking => booking.tanggal <= filters.value.endDate)
+  }
+
+  if (filters.value.doctor) {
+    filtered = filtered.filter(booking => 
+      booking.dokter?.nm_dokter?.toLowerCase().includes(filters.value.doctor.toLowerCase())
+    )
+  }
+
+  return filtered
+})
+
+const totalItems = computed(() => props.bookings.total)
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A'
+  const date = new Date(dateString)
+  return date.toLocaleDateString('id-ID', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+const getStatusClass = (status) => {
+  const statusClasses = {
+    'Belum Dibalas': 'bg-yellow-100 text-yellow-700',
+    'Diterima': 'bg-green-100 text-green-700',
+    'Ditolak': 'bg-red-100 text-red-700'
+  }
+  return statusClasses[status] || 'bg-gray-100 text-gray-700'
+}
+
+const getStatusText = (status) => {
+  const statusMap = {
+    'Belum Dibalas': 'Menunggu',
+    'Diterima': 'Dikonfirmasi',
+    'Ditolak': 'Dibatalkan'
+  }
+  return statusMap[status] || status
+}
     notes: 'Pembatalan mendadak'
   }
 ])

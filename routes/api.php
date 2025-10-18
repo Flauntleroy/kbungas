@@ -26,6 +26,14 @@ Route::prefix('bpjs')->name('api.bpjs.')->group(function () {
     Route::get('/status', [App\Http\Controllers\BpjsController::class, 'getApiStatus'])->name('status');
 });
 
+// Pasien API Routes
+Route::prefix('pasien')->name('api.pasien.')->group(function () {
+    Route::post('/validate-nik', [App\Http\Controllers\PasienController::class, 'validateNik'])->name('validate.nik');
+    Route::post('/register', [App\Http\Controllers\PasienController::class, 'register'])->name('register');
+    Route::get('/get-by-nik', [App\Http\Controllers\PasienController::class, 'getByNik'])->name('get.by.nik');
+    Route::put('/{noRkmMedis}', [App\Http\Controllers\PasienController::class, 'update'])->name('update');
+});
+
 // Booking API Routes
 Route::prefix('booking')->name('api.booking.')->group(function () {
     Route::get('/form-data', [App\Http\Controllers\BookingController::class, 'getFormData'])->name('form.data');

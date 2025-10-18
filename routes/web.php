@@ -11,10 +11,6 @@ Route::get('/klinik', function () {
     return Inertia::render('LandingPage');
 })->name('klinik.landing');
 
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::get('/booking', function () {
     return Inertia::render('Booking');
 })->name('booking');
@@ -25,21 +21,18 @@ Route::get('/booking/confirm/{token}', function ($token) {
 
 // Admin Routes - Protected by auth middleware
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Admin/Dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('dashboard');
     
-    Route::get('/bookings', function () {
-        return Inertia::render('Admin/Bookings');
-    })->name('bookings');
+    Route::get('/bookings', [App\Http\Controllers\AdminController::class, 'bookings'])->name('bookings');
     
-    Route::get('/content', function () {
-        return Inertia::render('Admin/Content');
-    })->name('content');
+    Route::get('/content', [App\Http\Controllers\AdminController::class, 'content'])->name('content');
+    Route::post('/content', [App\Http\Controllers\AdminController::class, 'updateContent'])->name('content.update');
     
-    Route::get('/users', function () {
-        return Inertia::render('Admin/Users');
-    })->name('users');
+    Route::get('/users', [App\Http\Controllers\AdminController::class, 'users'])->name('users');
+    Route::post('/users', [App\Http\Controllers\AdminController::class, 'storeUser'])->name('users.store');
+    Route::put('/users/{user}', [App\Http\Controllers\AdminController::class, 'updateUser'])->name('users.update');
+    Route::delete('/users/{user}', [App\Http\Controllers\AdminController::class, 'deleteUser'])->name('users.delete');
+    Route::patch('/users/{user}/toggle-status', [App\Http\Controllers\AdminController::class, 'toggleUserStatus'])->name('users.toggle-status');
 });
 
 require __DIR__.'/settings.php';

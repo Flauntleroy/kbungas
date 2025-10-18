@@ -331,9 +331,48 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import AdminLayout from '@/layouts/AdminLayout.vue'
+import AdminLayout from '@/Layouts/AdminLayout.vue'
+import { router } from '@inertiajs/vue3'
 
-// State
+// Props
+interface Props {
+  heroContent: {
+    title: string
+    subtitle: string
+    ctaText: string
+    ctaLink: string
+  }
+  servicesContent: Array<{
+    name: string
+    description: string
+    icon: string
+  }>
+  doctorsContent: Array<{
+    name: string
+    specialization: string
+    description: string
+    photo: string
+    whatsapp: string
+    available: boolean
+  }>
+  contactContent: {
+    address: string
+    phone: string
+    whatsapp: string
+    email: string
+    hours: {
+      [key: string]: {
+        open: string
+        close: string
+        closed: boolean
+      }
+    }
+  }
+}
+
+const props = defineProps<Props>()
+
+// Reactive data
 const activeTab = ref('hero')
 
 const tabs = [
@@ -343,57 +382,13 @@ const tabs = [
   { id: 'contact', name: 'Kontak' }
 ]
 
-// Content data
-const heroContent = ref({
-  title: 'Klinik Kulit & Kecantikan Terpercaya',
-  subtitle: 'Dapatkan perawatan kulit terbaik dengan teknologi modern dan dokter berpengalaman. Konsultasi gratis untuk semua pasien baru.',
-  ctaText: 'Booking Konsultasi',
-  ctaLink: '/booking'
-})
-
-const servicesContent = ref([
-  {
-    name: 'Konsultasi Kulit',
-    description: 'Konsultasi menyeluruh untuk berbagai masalah kulit dengan dokter spesialis',
-    icon: '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
-  },
-  {
-    name: 'Perawatan Jerawat',
-    description: 'Treatment khusus untuk mengatasi jerawat dan bekasnya',
-    icon: '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>'
-  },
-  {
-    name: 'Perawatan Anti-Aging',
-    description: 'Berbagai treatment untuk menjaga kecantikan dan kesehatan kulit',
-    icon: '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>'
-  }
-])
-
-const doctorsContent = ref([
-  {
-    name: 'dr. Bunga Sari, Sp.KK',
-    specialization: 'Spesialis Kulit dan Kelamin',
-    description: 'Dokter berpengalaman lebih dari 10 tahun dalam bidang dermatologi dan venereologi. Menangani berbagai kasus penyakit kulit dan kelamin dengan pendekatan yang komprehensif.',
-    photo: '/images/doctors/dr-bungas.svg',
-    whatsapp: '628123456789',
-    available: true
-  }
-])
-
-const contactContent = ref({
-  address: 'Jl. Kesehatan No. 123, Jakarta Selatan 12345',
-  phone: '021-12345678',
-  whatsapp: '628123456789',
-  email: 'info@klinikbungas.com',
-  schedule: {
-    senin: { open: '08:00', close: '17:00', closed: false },
-    selasa: { open: '08:00', close: '17:00', closed: false },
-    rabu: { open: '08:00', close: '17:00', closed: false },
-    kamis: { open: '08:00', close: '17:00', closed: false },
-    jumat: { open: '08:00', close: '17:00', closed: false },
-    sabtu: { open: '08:00', close: '14:00', closed: false },
-    minggu: { open: '', close: '', closed: true }
-  }
+// Make content reactive for editing
+const heroContent = ref({ ...props.heroContent })
+const servicesContent = ref([...props.servicesContent])
+const doctorsContent = ref([...props.doctorsContent])
+const contactContent = ref({ 
+  ...props.contactContent,
+  schedule: props.contactContent.hours
 })
 
 // Methods
@@ -428,8 +423,39 @@ const removeDoctor = (index: number) => {
   }
 }
 
-const saveAllChanges = () => {
-  // Here you would typically send the data to your backend
-  alert('Semua perubahan telah disimpan!')
+const saveAllChanges = async () => {
+  try {
+    // Save hero content
+    await router.post('/admin/content', {
+      type: 'hero',
+      content: heroContent.value
+    })
+
+    // Save services content
+    await router.post('/admin/content', {
+      type: 'services',
+      content: servicesContent.value
+    })
+
+    // Save doctors content
+    await router.post('/admin/content', {
+      type: 'doctors',
+      content: doctorsContent.value
+    })
+
+    // Save contact content
+    await router.post('/admin/content', {
+      type: 'contact',
+      content: {
+        ...contactContent.value,
+        hours: contactContent.value.schedule
+      }
+    })
+
+    alert('Semua perubahan telah disimpan!')
+  } catch (error) {
+    console.error('Error saving content:', error)
+    alert('Terjadi kesalahan saat menyimpan perubahan')
+  }
 }
 </script>

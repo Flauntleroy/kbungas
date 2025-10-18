@@ -267,12 +267,30 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { router } from '@inertiajs/vue3'
 import AdminLayout from '@/layouts/AdminLayout.vue'
+
+// Props
+interface User {
+  id: number
+  name: string
+  email: string
+  role: string
+  status: string
+  created_at: string
+  last_login?: string
+}
+
+interface Props {
+  users: User[]
+}
+
+const props = defineProps<Props>()
 
 // State
 const showFilters = ref(false)
 const showModal = ref(false)
-const editingUser = ref(null)
+const editingUser = ref<User | null>(null)
 const searchQuery = ref('')
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
@@ -294,40 +312,9 @@ const userForm = ref({
   status: 'active'
 })
 
-// Mock data
-const users = ref([
-  {
-    id: 1,
-    name: 'Admin Utama',
-    email: 'admin@klinikbungas.com',
-    role: 'super_admin',
-    status: 'active',
-    created_at: '2024-01-01',
-    last_login: '2024-01-15T10:30:00'
-  },
-  {
-    id: 2,
-    name: 'Dr. Bunga Sari',
-    email: 'dr.bunga@klinikbungas.com',
-    role: 'admin',
-    status: 'active',
-    created_at: '2024-01-02',
-    last_login: '2024-01-15T09:15:00'
-  },
-  {
-    id: 3,
-    name: 'Staff Resepsionis',
-    email: 'staff@klinikbungas.com',
-    role: 'staff',
-    status: 'active',
-    created_at: '2024-01-03',
-    last_login: null
-  }
-])
-
 // Computed
 const filteredUsers = computed(() => {
-  let filtered = users.value
+  let filtered = props.users
 
   if (searchQuery.value) {
     filtered = filtered.filter(user => 
@@ -438,48 +425,47 @@ const saveUser = () => {
 
   if (editingUser.value) {
     // Update existing user
-    const index = users.value.findIndex(u => u.id === editingUser.value.id)
-    if (index !== -1) {
-      users.value[index] = { 
-        ...users.value[index],
-        name: userForm.value.name,
-        email: userForm.value.email,
-        role: userForm.value.role,
-        status: userForm.value.status
+    router.put(`/admin/users/${editingUser.value.id}`, userForm.value, {
+      onSuccess: () => {
+        closeModal()
+      },
+      onError: (errors) => {
+        console.error('Update user error:', errors)
       }
-    }
+    })
   } else {
     // Create new user
-    const newUser = {
-      id: Date.now(),
-      name: userForm.value.name,
-      email: userForm.value.email,
-      role: userForm.value.role,
-      status: userForm.value.status,
-      created_at: new Date().toISOString().split('T')[0],
-      last_login: null
-    }
-    users.value.unshift(newUser)
+    router.post('/admin/users', userForm.value, {
+      onSuccess: () => {
+        closeModal()
+      },
+      onError: (errors) => {
+        console.error('Create user error:', errors)
+      }
+    })
   }
-  
-  closeModal()
 }
 
-const toggleUserStatus = (user) => {
+const toggleUserStatus = (user: User) => {
   const newStatus = user.status === 'active' ? 'inactive' : 'active'
   const action = newStatus === 'active' ? 'mengaktifkan' : 'menonaktifkan'
   
   if (confirm(`Apakah Anda yakin ingin ${action} pengguna ini?`)) {
-    user.status = newStatus
+    router.patch(`/admin/users/${user.id}/toggle-status`, {}, {
+      onError: (errors) => {
+        console.error('Toggle status error:', errors)
+      }
+    })
   }
 }
 
-const deleteUser = (user) => {
+const deleteUser = (user: User) => {
   if (confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) {
-    const index = users.value.findIndex(u => u.id === user.id)
-    if (index !== -1) {
-      users.value.splice(index, 1)
-    }
+    router.delete(`/admin/users/${user.id}`, {
+      onError: (errors) => {
+        console.error('Delete user error:', errors)
+      }
+    })
   }
 }
 
