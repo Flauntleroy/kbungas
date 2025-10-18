@@ -643,6 +643,69 @@ class BookingController extends Controller
     }
 
     /**
+     * Register patient from booking data to SIMRS
+     */
+    public function registerPatientFromBooking(Request $request, $noBooking): JsonResponse
+    {
+        try {
+            $booking = BookingPeriksa::where('no_booking', $noBooking)->first();
+
+            if (!$booking) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Booking tidak ditemukan'
+                ], 404);
+            }
+
+            // Check if patient already exists by NIK
+            $existingPatient = \App\Models\Pasien::getByNik($booking->nik);
+
+            if ($existingPatient) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pasien dengan NIK ini sudah terdaftar di SIMRS',
+                    'patient' => [
+                        'no_rkm_medis' => $existingPatient->no_rkm_medis,
+                        'nama' => $existingPatient->nm_pasien,
+                        'nik' => $existingPatient->no_ktp
+                    ]
+                ], 422);
+            }
+
+            DB::beginTransaction();
+
+            // Create patient from booking data using the new method
+            $patient = \App\Models\Pasien::createFromBookingData($booking);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pasien berhasil didaftarkan ke SIMRS',
+                'patient' => [
+                    'no_rkm_medis' => $patient->no_rkm_medis,
+                    'nama' => $patient->nm_pasien,
+                    'nik' => $patient->no_ktp,
+                    'jk' => $patient->jk,
+                    'tgl_lahir' => $patient->tgl_lahir,
+                    'alamat' => $patient->alamat,
+                    'no_tlp' => $patient->no_tlp,
+                    'email' => $patient->email
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error registering patient from booking: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mendaftarkan pasien ke SIMRS'
+            ], 500);
+        }
+    }
+
+    /**
      * Kirim notifikasi WhatsApp ke pasien dan dokter
      */
     private function sendWhatsAppNotifications($booking)

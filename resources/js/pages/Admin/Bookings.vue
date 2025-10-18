@@ -144,6 +144,16 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                     </svg>
                   </button>
+                  <button 
+                    @click="registerPatient(booking)" 
+                    class="text-green-600 hover:text-green-800"
+                    :disabled="isRegisteringPatient"
+                    title="Daftarkan ke SIMRS"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
+                    </svg>
+                  </button>
                   <button @click="deleteBooking(booking)" class="text-red-600 hover:text-red-800">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -255,6 +265,232 @@
         </div>
       </div>
     </div>
+
+    <!-- Patient Registration Modal -->
+    <div v-if="showRegistrationModal" class="fixed inset-0 z-50 overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-75" @click="closeRegistrationModal"></div>
+        <div class="bg-white rounded-2xl p-6 w-full max-w-2xl relative max-h-[90vh] overflow-y-auto">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
+            </svg>
+            Daftarkan Pasien ke SIMRS
+          </h3>
+          
+          <!-- Booking Info -->
+          <div class="bg-rose-50 rounded-xl p-4 mb-6">
+            <h4 class="font-medium text-gray-900 mb-2">Data Booking</h4>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="text-gray-600">No. Booking:</span>
+                <span class="font-medium ml-2">{{ selectedBooking?.no_booking }}</span>
+              </div>
+              <div>
+                <span class="text-gray-600">Nama:</span>
+                <span class="font-medium ml-2">{{ selectedBooking?.nama }}</span>
+              </div>
+              <div>
+                <span class="text-gray-600">NIK:</span>
+                <span class="font-medium ml-2">{{ selectedBooking?.nik }}</span>
+              </div>
+              <div>
+                <span class="text-gray-600">No. Telp:</span>
+                <span class="font-medium ml-2">{{ selectedBooking?.no_telp }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <form @submit.prevent="submitPatientRegistration" class="space-y-4">
+            <!-- Data Pasien Utama -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap *</label>
+                <input 
+                  v-model="registrationForm.nm_pasien" 
+                  type="text" 
+                  required 
+                  class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-900"
+                >
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tempat Lahir</label>
+                <input 
+                  v-model="registrationForm.tmp_lahir" 
+                  type="text" 
+                  class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-900"
+                >
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Lahir</label>
+                <input 
+                  v-model="registrationForm.tgl_lahir" 
+                  type="date" 
+                  class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-900"
+                >
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Kelamin</label>
+                <select 
+                  v-model="registrationForm.jk" 
+                  class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-900"
+                >
+                  <option value="L">Laki-laki</option>
+                  <option value="P">Perempuan</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Ibu</label>
+                <input 
+                  v-model="registrationForm.nm_ibu" 
+                  type="text" 
+                  class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-900"
+                >
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Golongan Darah</label>
+                <select 
+                  v-model="registrationForm.gol_darah" 
+                  class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-900"
+                >
+                  <option value="-">Tidak Diketahui</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="AB">AB</option>
+                  <option value="O">O</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Pekerjaan</label>
+                <input 
+                  v-model="registrationForm.pekerjaan" 
+                  type="text" 
+                  class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-900"
+                >
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status Nikah</label>
+                <select 
+                  v-model="registrationForm.stts_nikah" 
+                  class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-900"
+                >
+                  <option value="BELUM MENIKAH">Belum Menikah</option>
+                  <option value="MENIKAH">Menikah</option>
+                  <option value="CERAI HIDUP">Cerai Hidup</option>
+                  <option value="CERAI MATI">Cerai Mati</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Agama</label>
+                <select 
+                  v-model="registrationForm.agama" 
+                  class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-900"
+                >
+                  <option value="ISLAM">Islam</option>
+                  <option value="KRISTEN">Kristen</option>
+                  <option value="KATOLIK">Katolik</option>
+                  <option value="HINDU">Hindu</option>
+                  <option value="BUDDHA">Buddha</option>
+                  <option value="KONGHUCU">Konghucu</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Pendidikan</label>
+                <select 
+                  v-model="registrationForm.pnd" 
+                  class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-900"
+                >
+                  <option value="-">Tidak Diketahui</option>
+                  <option value="TS">Tidak Sekolah</option>
+                  <option value="TK">TK</option>
+                  <option value="SD">SD</option>
+                  <option value="SMP">SMP</option>
+                  <option value="SMA">SMA</option>
+                  <option value="D1">D1</option>
+                  <option value="D2">D2</option>
+                  <option value="D3">D3</option>
+                  <option value="D4">D4</option>
+                  <option value="S1">S1</option>
+                  <option value="S2">S2</option>
+                  <option value="S3">S3</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Alamat -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Alamat Lengkap</label>
+              <textarea 
+                v-model="registrationForm.alamat" 
+                rows="3" 
+                class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-900"
+              ></textarea>
+            </div>
+            
+            <!-- Data Penanggung Jawab -->
+            <div class="border-t pt-4">
+              <h4 class="font-medium text-gray-900 mb-4">Data Penanggung Jawab</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Hubungan Keluarga</label>
+                  <select 
+                    v-model="registrationForm.keluarga" 
+                    class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-900"
+                  >
+                    <option value="AYAH">Ayah</option>
+                    <option value="IBU">Ibu</option>
+                    <option value="SUAMI">Suami</option>
+                    <option value="ISTRI">Istri</option>
+                    <option value="ANAK">Anak</option>
+                    <option value="SAUDARA">Saudara</option>
+                    <option value="LAINNYA">Lainnya</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Nama Penanggung Jawab</label>
+                  <input 
+                    v-model="registrationForm.namakeluarga" 
+                    type="text" 
+                    class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-900"
+                  >
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3 pt-6 border-t">
+              <button 
+                type="button" 
+                @click="closeRegistrationModal" 
+                class="px-6 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                Batal
+              </button>
+              <button 
+                type="submit" 
+                :disabled="isRegisteringPatient"
+                class="bg-gradient-to-r from-rose-500 to-pink-500 text-white px-6 py-2 rounded-xl hover:from-rose-600 hover:to-pink-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+              >
+                <svg v-if="isRegisteringPatient" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ isRegisteringPatient ? 'Mendaftarkan...' : 'Daftarkan ke SIMRS' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </AdminLayout>
 </template>
 
@@ -271,6 +507,7 @@ interface Props {
       no_telp: string
       tanggal: string
       status: string
+      nik?: string
       poliklinik?: {
         nm_poli: string
       }
@@ -291,10 +528,13 @@ const props = defineProps<Props>()
 // State
 const showFilters = ref(false)
 const showModal = ref(false)
+const showRegistrationModal = ref(false)
 const editingBooking = ref(null)
+const selectedBooking = ref(null)
 const searchQuery = ref('')
 const currentPage = ref(props.bookings.current_page)
 const itemsPerPage = ref(props.bookings.per_page)
+const isRegisteringPatient = ref(false)
 
 // Filters
 const filters = ref({
@@ -314,14 +554,129 @@ const bookingForm = ref({
   notes: ''
 })
 
+// Registration Form
+const registrationForm = ref({
+  nm_pasien: '',
+  tmp_lahir: '',
+  tgl_lahir: '',
+  jk: 'L',
+  nm_ibu: '',
+  gol_darah: '-',
+  pekerjaan: '',
+  stts_nikah: 'BELUM MENIKAH',
+  agama: 'ISLAM',
+  pnd: '-',
+  alamat: '',
+  keluarga: 'AYAH',
+  namakeluarga: ''
+})
+
+// Patient registration methods
+const registerPatient = (booking) => {
+  selectedBooking.value = booking
+  
+  // Pre-fill form with booking data
+  registrationForm.value = {
+    nm_pasien: booking.nama || '',
+    tmp_lahir: '',
+    tgl_lahir: '',
+    jk: 'L',
+    nm_ibu: '',
+    gol_darah: '-',
+    pekerjaan: '',
+    stts_nikah: 'BELUM MENIKAH',
+    agama: 'ISLAM',
+    pnd: '-',
+    alamat: '',
+    keluarga: 'AYAH',
+    namakeluarga: ''
+  }
+  
+  showRegistrationModal.value = true
+}
+
+const closeRegistrationModal = () => {
+  showRegistrationModal.value = false
+  selectedBooking.value = null
+  registrationForm.value = {
+    nm_pasien: '',
+    tmp_lahir: '',
+    tgl_lahir: '',
+    jk: 'L',
+    nm_ibu: '',
+    gol_darah: '-',
+    pekerjaan: '',
+    stts_nikah: 'BELUM MENIKAH',
+    agama: 'ISLAM',
+    pnd: '-',
+    alamat: '',
+    keluarga: 'AYAH',
+    namakeluarga: ''
+  }
+}
+
+const submitPatientRegistration = async () => {
+  if (isRegisteringPatient.value || !selectedBooking.value) return
+  
+  try {
+    isRegisteringPatient.value = true
+    
+    const response = await fetch(`/api/booking/register-patient/${selectedBooking.value.no_booking}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+      },
+      body: JSON.stringify(registrationForm.value)
+    })
+    
+    const result = await response.json()
+    
+    if (response.ok) {
+      if (result.status === 'already_registered') {
+        alert(`Pasien ${selectedBooking.value.nama} sudah terdaftar di SIMRS dengan No. RM: ${result.patient.no_rkm_medis}`)
+      } else if (result.status === 'registered') {
+        alert(`Pasien ${selectedBooking.value.nama} berhasil didaftarkan ke SIMRS dengan No. RM: ${result.patient.no_rkm_medis}`)
+      }
+      closeRegistrationModal()
+    } else {
+      alert(`Error: ${result.message || 'Gagal mendaftarkan pasien'}`)
+    }
+  } catch (error) {
+    console.error('Error registering patient:', error)
+    alert('Terjadi kesalahan saat mendaftarkan pasien')
+  } finally {
+    isRegisteringPatient.value = false
+  }
+}
+
+const closeModal = () => {
+  showModal.value = false
+  selectedBooking.value = null
+  registrationForm.value = {
+    nm_pasien: '',
+    tmp_lahir: '',
+    tgl_lahir: '',
+    jk: 'L',
+    nm_ibu: '',
+    gol_darah: '-',
+    pekerjaan: '',
+    stts_nikah: 'BELUM MENIKAH',
+    agama: 'ISLAM',
+    pnd: '-',
+    alamat: '',
+    keluarga: 'AYAH',
+    namakeluarga: ''
+  }
+}
+
 // Computed properties
 const filteredBookings = computed(() => {
   let filtered = props.bookings.data
 
   if (searchQuery.value) {
     filtered = filtered.filter(booking => 
-      booking.nama.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      booking.no_telp.includes(searchQuery.value)
+      booking.nama.toLowerCase().includes(searchQuery.value.toLowerCase())
     )
   }
 
@@ -329,56 +684,11 @@ const filteredBookings = computed(() => {
     filtered = filtered.filter(booking => booking.status === filters.value.status)
   }
 
-  if (filters.value.startDate) {
-    filtered = filtered.filter(booking => booking.tanggal >= filters.value.startDate)
-  }
-
-  if (filters.value.endDate) {
-    filtered = filtered.filter(booking => booking.tanggal <= filters.value.endDate)
-  }
-
-  if (filters.value.doctor) {
-    filtered = filtered.filter(booking => 
-      booking.dokter?.nm_dokter?.toLowerCase().includes(filters.value.doctor.toLowerCase())
-    )
-  }
-
   return filtered
 })
 
 const totalItems = computed(() => props.bookings.total)
-
-const formatDate = (dateString) => {
-  if (!dateString) return 'N/A'
-  const date = new Date(dateString)
-  return date.toLocaleDateString('id-ID', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
-const getStatusClass = (status) => {
-  const statusClasses = {
-    'Belum Dibalas': 'bg-yellow-100 text-yellow-700',
-    'Diterima': 'bg-green-100 text-green-700',
-    'Ditolak': 'bg-red-100 text-red-700'
-  }
-  return statusClasses[status] || 'bg-gray-100 text-gray-700'
-}
-
-const getStatusText = (status) => {
-  const statusMap = {
-    'Belum Dibalas': 'Menunggu',
-    'Diterima': 'Dikonfirmasi',
-    'Ditolak': 'Dibatalkan'
-  }
-  return statusMap[status] || status
-}
-
-const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value))
+const totalPages = computed(() => props.bookings.last_page)
 
 const visiblePages = computed(() => {
   const pages = []
@@ -393,15 +703,34 @@ const visiblePages = computed(() => {
 })
 
 // Methods
-const formatDateTime = (datetime: string) => {
-  return new Date(datetime).toLocaleString('id-ID', {
+const formatDate = (dateString) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('id-ID', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    day: 'numeric'
   })
+}
+
+const getStatusClass = (status) => {
+  const statusClasses = {
+    'pending': 'bg-yellow-100 text-yellow-800',
+    'confirmed': 'bg-green-100 text-green-800',
+    'completed': 'bg-blue-100 text-blue-800',
+    'cancelled': 'bg-red-100 text-red-800'
+  }
+  return statusClasses[status] || 'bg-gray-100 text-gray-800'
+}
+
+const getStatusText = (status) => {
+  const statusTexts = {
+    'pending': 'Menunggu',
+    'confirmed': 'Dikonfirmasi',
+    'completed': 'Selesai',
+    'cancelled': 'Dibatalkan'
+  }
+  return statusTexts[status] || status
 }
 
 const openCreateModal = () => {
@@ -411,7 +740,7 @@ const openCreateModal = () => {
     patient_phone: '',
     appointment_datetime: '',
     doctor: '',
-    status: 'Belum Dibalas',
+    status: 'pending',
     notes: ''
   }
   showModal.value = true
@@ -419,31 +748,27 @@ const openCreateModal = () => {
 
 const editBooking = (booking) => {
   editingBooking.value = booking
-  bookingForm.value = { ...booking }
+  bookingForm.value = {
+    patient_name: booking.nama,
+    patient_phone: booking.no_telp,
+    appointment_datetime: booking.tanggal,
+    doctor: booking.dokter?.nm_dokter || '',
+    status: booking.status,
+    notes: booking.catatan || ''
+  }
   showModal.value = true
 }
 
-const closeModal = () => {
-  showModal.value = false
-  editingBooking.value = null
-}
-
-const saveBooking = () => {
-  if (editingBooking.value) {
-    // Update existing booking - would need backend integration
-    console.log('Update booking:', bookingForm.value)
-  } else {
-    // Create new booking - would need backend integration
-    console.log('Create booking:', bookingForm.value)
-  }
-  
+const saveBooking = async () => {
+  // Implementation for saving booking
+  console.log('Saving booking:', bookingForm.value)
   closeModal()
 }
 
-const deleteBooking = (booking) => {
-  if (confirm('Apakah Anda yakin ingin menghapus booking ini?')) {
-    // Would need backend integration
-    console.log('Delete booking:', booking.no_booking)
+const deleteBooking = async (booking) => {
+  if (confirm(`Apakah Anda yakin ingin menghapus booking ${booking.nama}?`)) {
+    // Implementation for deleting booking
+    console.log('Deleting booking:', booking)
   }
 }
 
@@ -457,23 +782,26 @@ const resetFilters = () => {
 }
 
 const applyFilters = () => {
-  // Filters are applied automatically via computed property
-  showFilters.value = false
+  // Implementation for applying filters
+  console.log('Applying filters:', filters.value)
 }
 
 const previousPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--
+    // Implementation for page navigation
   }
 }
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++
+    // Implementation for page navigation
   }
 }
 
-const goToPage = (page: number) => {
+const goToPage = (page) => {
   currentPage.value = page
+  // Implementation for page navigation
 }
 </script>

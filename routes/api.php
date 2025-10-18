@@ -44,4 +44,5 @@ Route::prefix('booking')->name('api.booking.')->group(function () {
     Route::get('/available-slots', [App\Http\Controllers\BookingController::class, 'getAvailableSlots'])->name('available.slots');
     Route::get('/statistics', [App\Http\Controllers\BookingController::class, 'getStatistics'])->name('statistics');
     Route::post('/confirm/{token}', [App\Http\Controllers\BookingController::class, 'confirmBooking'])->name('confirm');
+    Route::post('/register-patient/{noBooking}', [App\Http\Controllers\BookingController::class, 'registerPatientFromBooking'])->name('register.patient');
 });

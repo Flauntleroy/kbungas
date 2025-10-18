@@ -14,6 +14,7 @@ class Pasien extends Model
     protected $primaryKey = 'no_rkm_medis';
     public $incrementing = false;
     protected $keyType = 'string';
+    public $timestamps = false;
 
     protected $fillable = [
         'no_rkm_medis',
@@ -147,7 +148,7 @@ class Pasien extends Model
             'kd_pj' => $bpjsData['kdProviderPeserta'] ?? 'BPJ',
             'no_peserta' => $bpjsData['noKartu'] ?? '',
             'kd_kel' => $additionalData['kd_kel'] ?? '',
-            'kd_kec' => $additionalData['kd_kec'] ?? 0,
+            'kd_kec' => $additionalData['kd_kec'] ?? 1,
             'kd_kab' => $additionalData['kd_kab'] ?? 0,
             'pekerjaanpj' => $additionalData['pekerjaanpj'] ?? '',
             'alamatpj' => $additionalData['alamatpj'] ?? '',
@@ -159,6 +160,85 @@ class Pasien extends Model
             'bahasa_pasien' => $additionalData['bahasa_pasien'] ?? 1,
             'cacat_fisik' => $additionalData['cacat_fisik'] ?? 1,
             'email' => $additionalData['email'] ?? '',
+            'nip' => $additionalData['nip'] ?? '',
+            'kd_prop' => $additionalData['kd_prop'] ?? 0,
+            'propinsipj' => $additionalData['propinsipj'] ?? ''
+        ]);
+    }
+
+    /**
+     * Create new patient from booking data
+     */
+    public static function createFromBookingData($booking, $additionalData = [])
+    {
+        $noRkmMedis = self::generateNoRkmMedis();
+        
+        // Try to extract birth date from NIK (positions 7-12: DDMMYY)
+        $tglLahir = null;
+        $umur = '0 Th';
+        
+        if (strlen($booking->nik) === 16) {
+            $day = substr($booking->nik, 6, 2);
+            $month = substr($booking->nik, 8, 2);
+            $year = substr($booking->nik, 10, 2);
+            
+            // Determine century (assume 00-30 is 2000s, 31-99 is 1900s)
+            $fullYear = ($year <= 30) ? '20' . $year : '19' . $year;
+            
+            try {
+                $tglLahir = Carbon::createFromFormat('d-m-Y', "$day-$month-$fullYear");
+                $umur = $tglLahir->age . ' Th';
+            } catch (\Exception $e) {
+                // If date parsing fails, use default
+                $tglLahir = Carbon::parse('1990-01-01');
+                $umur = $tglLahir->age . ' Th';
+            }
+        } else {
+            $tglLahir = Carbon::parse('1990-01-01');
+            $umur = $tglLahir->age . ' Th';
+        }
+
+        // Determine gender from NIK (position 7: odd = male, even = female)
+        $jk = 'L'; // Default
+        if (strlen($booking->nik) === 16) {
+            $genderDigit = intval(substr($booking->nik, 6, 1));
+            $jk = ($genderDigit % 2 === 0) ? 'P' : 'L';
+        }
+
+        return self::create([
+            'no_rkm_medis' => $noRkmMedis,
+            'nm_pasien' => strtoupper($booking->nama),
+            'no_ktp' => $booking->nik,
+            'jk' => $jk,
+            'tmp_lahir' => $additionalData['tmp_lahir'] ?? '',
+            'tgl_lahir' => $tglLahir->format('Y-m-d'),
+            'nm_ibu' => $additionalData['nm_ibu'] ?? '',
+            'alamat' => $booking->alamat ?? '',
+            'gol_darah' => $additionalData['gol_darah'] ?? '-',
+            'pekerjaan' => $additionalData['pekerjaan'] ?? '',
+            'stts_nikah' => $additionalData['stts_nikah'] ?? 'BELUM MENIKAH',
+            'agama' => $additionalData['agama'] ?? 'ISLAM',
+            'tgl_daftar' => Carbon::now()->format('Y-m-d'),
+            'no_tlp' => $booking->no_telp ?? '',
+            'umur' => $umur,
+            'pnd' => $additionalData['pnd'] ?? '-',
+            'keluarga' => $additionalData['keluarga'] ?? 'AYAH',
+            'namakeluarga' => $additionalData['namakeluarga'] ?? '',
+            'kd_pj' => $additionalData['kd_pj'] ?? 'BPJ',
+            'no_peserta' => $booking->nomor_kartu ?? '',
+            'kd_kel' => $additionalData['kd_kel'] ?? '',
+            'kd_kec' => $additionalData['kd_kec'] ?? 1,
+            'kd_kab' => $additionalData['kd_kab'] ?? 0,
+            'pekerjaanpj' => $additionalData['pekerjaanpj'] ?? '',
+            'alamatpj' => $additionalData['alamatpj'] ?? '',
+            'kelurahanpj' => $additionalData['kelurahanpj'] ?? '',
+            'kecamatanpj' => $additionalData['kecamatanpj'] ?? '',
+            'kabupatenpj' => $additionalData['kabupatenpj'] ?? '',
+            'perusahaan_pasien' => $additionalData['perusahaan_pasien'] ?? '',
+            'suku_bangsa' => $additionalData['suku_bangsa'] ?? 1,
+            'bahasa_pasien' => $additionalData['bahasa_pasien'] ?? 1,
+            'cacat_fisik' => $additionalData['cacat_fisik'] ?? 1,
+            'email' => $booking->email ?? '',
             'nip' => $additionalData['nip'] ?? '',
             'kd_prop' => $additionalData['kd_prop'] ?? 0,
             'propinsipj' => $additionalData['propinsipj'] ?? ''
