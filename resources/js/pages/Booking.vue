@@ -1,5 +1,7 @@
 <template>
   <div id="booking" class="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white relative overflow-hidden">
+    <Head title="Booking Konsultasi - Klinik Bungas" />
+    
     <!-- Background Decorative Elements -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <!-- Background Pattern -->
@@ -61,6 +63,32 @@
          </p>
       </div>
 
+      <!-- Success Message -->
+      <div v-if="successMessage" class="success-message mb-8 bg-green-50 border border-green-200 rounded-2xl p-6 animate-fade-in-up">
+        <div class="flex items-center">
+          <svg class="w-6 h-6 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          <div>
+            <h3 class="text-lg font-semibold text-green-800">Booking Berhasil!</h3>
+            <p class="text-green-700">{{ successMessage }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div v-if="errorMessage" class="mb-8 bg-red-50 border border-red-200 rounded-2xl p-6 animate-fade-in-up">
+        <div class="flex items-center">
+          <svg class="w-6 h-6 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <div>
+            <h3 class="text-lg font-semibold text-red-800">Terjadi Kesalahan</h3>
+            <p class="text-red-700">{{ errorMessage }}</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Main Content -->
       <div class="grid lg:grid-cols-3 gap-12 items-start">
         <!-- Booking Form -->
@@ -112,7 +140,7 @@
                       <div v-if="isLoadingNik" class="absolute inset-y-0 right-0 pr-4 flex items-center">
                         <svg class="animate-spin h-5 w-5 text-rose-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          <path class="opacity-75" fill="currentColor" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                         </svg>
                       </div>
                     </div>
@@ -121,6 +149,40 @@
                     </div>
                     <div v-if="nikSuccess" class="mt-2 text-sm text-green-600">
                       {{ nikSuccess }}
+                    </div>
+                    <div v-if="errors.nik" class="mt-2 text-sm text-red-600">
+                      {{ errors.nik }}
+                    </div>
+                  </div>
+                  
+                  <!-- Nomor Kartu BPJS/Asuransi -->
+                  <div class="group">
+                    <label class="block text-sm font-semibold text-rose-800 mb-3">Nomor Kartu BPJS/Asuransi</label>
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-rose-400 group-focus-within:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                      </div>
+                      <input 
+                        v-model="form.nomor_kartu"
+                        type="text" 
+                        maxlength="13"
+                        :readonly="isKartuFromNik"
+                        class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 placeholder-rose-400 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white readonly:bg-rose-50 readonly:text-rose-700" 
+                        placeholder="Masukkan nomor kartu BPJS/Asuransi (opsional)"
+                      />
+                      <div v-if="isKartuFromNik" class="absolute inset-y-0 right-0 pr-4 flex items-center">
+                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <div v-if="isKartuFromNik" class="mt-2 text-sm text-green-600">
+                      Nomor kartu otomatis terisi dari data NIK
+                    </div>
+                    <div v-if="errors.nomor_kartu" class="mt-2 text-sm text-red-600">
+                      {{ errors.nomor_kartu }}
                     </div>
                   </div>
                   
@@ -133,7 +195,7 @@
                         </svg>
                       </div>
                       <input 
-                        v-model="form.fullName"
+                        v-model="form.nama"
                         type="text" 
                         required
                         :readonly="isNameFromNik"
@@ -149,7 +211,13 @@
                     <div v-if="isNameFromNik" class="mt-2 text-sm text-green-600">
                       Nama otomatis terisi dari data NIK
                     </div>
+                    <div v-if="errors.nama" class="mt-2 text-sm text-red-600">
+                      {{ errors.nama }}
+                    </div>
                   </div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
                   <div class="group">
                     <label class="block text-sm font-semibold text-rose-800 mb-3">Nomor Telepon *</label>
                     <div class="relative">
@@ -159,13 +227,58 @@
                         </svg>
                       </div>
                       <input 
-                        v-model="form.phone"
+                        v-model="form.no_telp"
                         type="tel" 
                         required
                         class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 placeholder-rose-400 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white" 
                         placeholder="08xx xxxx xxxx"
                       />
                     </div>
+                    <div v-if="errors.no_telp" class="mt-2 text-sm text-red-600">
+                      {{ errors.no_telp }}
+                    </div>
+                  </div>
+                  
+                  <div class="group">
+                    <label class="block text-sm font-semibold text-rose-800 mb-3">Email</label>
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-rose-400 group-focus-within:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                        </svg>
+                      </div>
+                      <input 
+                        v-model="form.email"
+                        type="email" 
+                        class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 placeholder-rose-400 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white" 
+                        placeholder="email@example.com"
+                      />
+                    </div>
+                    <div v-if="errors.email" class="mt-2 text-sm text-red-600">
+                      {{ errors.email }}
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="group">
+                  <label class="block text-sm font-semibold text-rose-800 mb-3">Alamat *</label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-rose-400 group-focus-within:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      </svg>
+                    </div>
+                    <textarea 
+                      v-model="form.alamat"
+                      required
+                      rows="3"
+                      class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 placeholder-rose-400 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white resize-none" 
+                      placeholder="Masukkan alamat lengkap Anda"
+                    ></textarea>
+                  </div>
+                  <div v-if="errors.alamat" class="mt-2 text-sm text-red-600">
+                    {{ errors.alamat }}
                   </div>
                 </div>
               </div>
@@ -188,45 +301,49 @@
                         </svg>
                       </div>
                       <input 
-                        v-model="form.date"
+                        v-model="form.tanggal"
                         type="date" 
                         required
                         :min="minDate"
+                        @change="handleDoctorOrDateChange"
                         class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white"
                       />
                     </div>
-                  </div>
-                  <div class="group">
-                  <label class="block text-sm font-semibold text-rose-800 mb-3">Waktu Konsultasi *</label>
-                  <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <svg class="w-5 h-5 text-rose-400 group-focus-within:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                      </svg>
+                    <div v-if="errors.tanggal" class="mt-2 text-sm text-red-600">
+                      {{ errors.tanggal }}
                     </div>
-                    <select 
-                      v-model="form.time"
-                      required
-                      class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white appearance-none"
-                    >
-                        <option value="">Pilih waktu konsultasi</option>
-                        <option value="08:00">08:00 - 09:00</option>
-                        <option value="09:00">09:00 - 10:00</option>
-                        <option value="10:00">10:00 - 11:00</option>
-                        <option value="11:00">11:00 - 12:00</option>
-                        <option value="13:00">13:00 - 14:00</option>
-                        <option value="14:00">14:00 - 15:00</option>
-                        <option value="15:00">15:00 - 16:00</option>
-                        <option value="16:00">16:00 - 17:00</option>
+                  </div>
+                  
+                  <div class="group">
+                    <label class="block text-sm font-semibold text-rose-800 mb-3">Poliklinik *</label>
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-rose-400 group-focus-within:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                      </div>
+                      <select 
+                        v-model="form.kd_poli"
+                        required
+                        class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white appearance-none"
+                      >
+                        <option value="">Pilih Poliklinik</option>
+                        <option v-for="poli in formOptions.poliklinik" :key="poli.kd_poli" :value="poli.kd_poli">
+                          {{ poli.nm_poli }}
+                        </option>
                       </select>
                       <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                      <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                      </svg>
+                        <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                      </div>
                     </div>
+                    <div v-if="errors.kd_poli" class="mt-2 text-sm text-red-600">
+                      {{ errors.kd_poli }}
                     </div>
                   </div>
                 </div>
+                
                 <div class="group">
                   <label class="block text-sm font-semibold text-rose-800 mb-3">Pilih Dokter *</label>
                   <div class="relative">
@@ -236,12 +353,15 @@
                       </svg>
                     </div>
                     <select 
-                      v-model="form.doctor"
+                      v-model="form.kd_dokter"
                       required
+                      @change="handleDoctorOrDateChange"
                       class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white appearance-none"
                     >
                       <option value="">Pilih dokter konsultasi</option>
-                      <option value="dr-bunga-sari">dr. Bunga Sari, Sp.KK - Spesialis Kulit & Kelamin</option>
+                      <option v-for="dokter in formOptions.dokter" :key="dokter.kd_dokter" :value="dokter.kd_dokter">
+                        {{ dokter.nm_dokter }}
+                      </option>
                     </select>
                     <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                       <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -249,26 +369,63 @@
                       </svg>
                     </div>
                   </div>
+                  <div v-if="errors.kd_dokter" class="mt-2 text-sm text-red-600">
+                    {{ errors.kd_dokter }}
+                  </div>
+                </div>
+                
+                <!-- Jenis Pembayaran -->
+                <div class="group">
+                  <label class="block text-sm font-semibold text-rose-800 mb-3">Jenis Pembayaran *</label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-rose-400 group-focus-within:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                      </svg>
+                    </div>
+                    <select 
+                      v-model="form.kd_pj"
+                      required
+                      class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white appearance-none"
+                    >
+                      <option value="">Pilih jenis pembayaran</option>
+                      <option v-for="pj in formOptions.penjab" :key="pj.kd_pj" :value="pj.kd_pj">
+                        {{ pj.png_jawab }}
+                      </option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div v-if="errors.kd_pj" class="mt-2 text-sm text-red-600">
+                    {{ errors.kd_pj }}
+                  </div>
                 </div>
               </div>
 
               <!-- Additional Information -->
               <div class="space-y-6">
-                <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                <h4 class="text-lg font-semibold text-rose-800 flex items-center">
                   <svg class="w-5 h-5 mr-2 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-1l-4 4z"/>
                   </svg>
                   Informasi Tambahan
                 </h4>
+                
                 <div class="group">
                   <label class="block text-sm font-semibold text-rose-800 mb-3">Keluhan atau Catatan Khusus</label>
                   <div class="relative">
                     <textarea 
-                      v-model="form.notes"
+                      v-model="form.catatan"
                       rows="4" 
                       class="w-full px-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 placeholder-rose-400 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white resize-none" 
                       placeholder="Jelaskan keluhan, gejala, atau kebutuhan khusus yang ingin Anda konsultasikan..."
                     ></textarea>
+                  </div>
+                  <div v-if="errors.catatan" class="mt-2 text-sm text-red-600">
+                    {{ errors.catatan }}
                   </div>
                 </div>
               </div>
@@ -305,7 +462,7 @@
         <!-- Sidebar Information -->
         <div class="space-y-8 animate-fade-in-up animation-delay-400">
           <!-- Contact Information -->
-          <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6 border border-rose-100/50 shadow-lg">
+          <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 border border-rose-100/50 shadow-lg">
             <div class="flex items-center space-x-3 mb-6">
               <div class="w-10 h-10 bg-gradient-to-r from-rose-500 to-pink-500 rounded-xl flex items-center justify-center">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -341,7 +498,7 @@
           </div>
 
           <!-- Operating Hours -->
-          <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6 border border-rose-100/50 shadow-lg">
+          <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 border border-rose-100/50 shadow-lg">
             <div class="flex items-center space-x-3 mb-6">
               <div class="w-10 h-10 bg-gradient-to-r from-rose-500 to-pink-500 rounded-xl flex items-center justify-center">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -373,7 +530,7 @@
           </div>
 
           <!-- Doctor Information -->
-          <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6 border border-rose-100/50 shadow-lg">
+          <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 border border-rose-100/50 shadow-lg">
             <div class="flex items-center space-x-3 mb-6">
               <div class="w-10 h-10 bg-gradient-to-r from-rose-500 to-pink-500 rounded-xl flex items-center justify-center">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -405,59 +562,140 @@
 import { Head } from '@inertiajs/vue3'
 import { ref, computed, onMounted } from 'vue'
 import { router } from '@inertiajs/vue3'
-import { NikService, type NikData } from '@/lib/nikService'
 
 defineOptions({
   layout: null
 })
 
-// Form data
+// Form data - sesuai dengan struktur database booking_periksa
 const form = ref({
   nik: '',
-  fullName: '',
-  phone: '',
-  date: '',
-  time: '',
-  doctor: '',
-  notes: ''
+  nomor_kartu: '',
+  nama: '',
+  tanggal: '',
+  alamat: '',
+  no_telp: '',
+  email: '',
+  kd_poli: '',
+  kd_dokter: '',
+  kd_pj: '',
+  catatan: ''
+})
+
+// Form options from API
+const formOptions = ref({
+  dokter: [],
+  poliklinik: [],
+  penjab: []
 })
 
 // Form state
 const isSubmitting = ref(false)
 const isLoadingNik = ref(false)
 const isNameFromNik = ref(false)
+const isKartuFromNik = ref(false)
 const nikError = ref('')
 const nikSuccess = ref('')
+const successMessage = ref('')
+const errorMessage = ref('')
+const errors = ref({})
 
-// NIK validation and API call
-const validateNik = (nik: string): boolean => {
-  return NikService.validateNik(nik)
+// Load form data on mount
+const loadFormData = async () => {
+  try {
+    const response = await fetch('/api/booking/form-data', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+      }
+    })
+
+    const result = await response.json()
+    
+    if (result.success) {
+      formOptions.value = result.data
+    } else {
+      console.error('Failed to load form data:', result.message)
+    }
+  } catch (error) {
+    console.error('Error loading form data:', error)
+  }
 }
 
+// Validate NIK format (16 digits)
+const validateNikFormat = (nik: string): boolean => {
+  return /^\d{16}$/.test(nik)
+}
+
+// Fetch NIK data from BPJS API
 const fetchNikData = async (nik: string): Promise<boolean> => {
+  if (!validateNikFormat(nik)) {
+    nikError.value = 'Format NIK tidak valid'
+    nikSuccess.value = ''
+    isNameFromNik.value = false
+    isKartuFromNik.value = false
+    return false
+  }
+
   try {
-    const nikData: NikData | null = await NikService.fetchNikData(nik)
+    const response = await fetch('/api/bpjs/check-nik', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+      },
+      body: JSON.stringify({ nik })
+    })
+
+    const result = await response.json()
     
-    if (nikData && nikData.nama) {
-      form.value.fullName = nikData.nama
+    if (result.success && result.data) {
+      form.value.nama = result.data.nama || ''
+      form.value.nomor_kartu = result.data.noKartu || ''
       isNameFromNik.value = true
+      isKartuFromNik.value = true
       nikSuccess.value = 'Data NIK berhasil ditemukan'
       nikError.value = ''
+      
+      // Set penjab to BPJS if data found
+      const bpjsPenjab = formOptions.value.penjab.find(p => 
+        p.png_jawab.toLowerCase().includes('bpjs') || 
+        p.png_jawab.toLowerCase().includes('jkn')
+      )
+      if (bpjsPenjab) {
+        form.value.kd_pj = bpjsPenjab.kd_pj
+      }
+      
       return true
     } else {
-      throw new Error('Nama tidak ditemukan dalam data NIK')
+      nikError.value = 'Data NIK tidak ditemukan di BPJS'
+      nikSuccess.value = ''
+      isNameFromNik.value = false
+      isKartuFromNik.value = false
+      
+      // Set penjab to umum if NIK not found in BPJS
+      const umumPenjab = formOptions.value.penjab.find(p => 
+        p.png_jawab.toLowerCase().includes('umum')
+      )
+      if (umumPenjab) {
+        form.value.kd_pj = umumPenjab.kd_pj
+      }
+      
+      return false
     }
   } catch (error) {
     nikError.value = error instanceof Error ? error.message : 'Gagal mengambil data NIK'
     nikSuccess.value = ''
     isNameFromNik.value = false
+    isKartuFromNik.value = false
     return false
   }
 }
 
 const handleNikInput = async (event: Event) => {
   const target = event.target as HTMLInputElement
-  const nik = NikService.cleanNik(target.value)
+  const nik = target.value.replace(/\D/g, '') // Clean NIK (numbers only)
   
   // Update form with cleaned NIK
   form.value.nik = nik
@@ -468,22 +706,26 @@ const handleNikInput = async (event: Event) => {
   
   // Clear name if it was auto-filled previously
   if (isNameFromNik.value) {
-    form.value.fullName = ''
+    form.value.nama = ''
+    form.value.nomor_kartu = ''
     isNameFromNik.value = false
+    isKartuFromNik.value = false
   }
   
   // Validate and fetch data if NIK is complete
   if (nik.length === 16) {
-    if (validateNik(nik)) {
-      isLoadingNik.value = true
-      await fetchNikData(nik)
-      isLoadingNik.value = false
-    } else {
-      nikError.value = 'Format NIK tidak valid'
-    }
+    isLoadingNik.value = true
+    await fetchNikData(nik)
+    isLoadingNik.value = false
   } else if (nik.length > 0) {
     nikError.value = `NIK harus 16 digit (${nik.length}/16)`
   }
+}
+
+// Handle doctor or date change
+const handleDoctorOrDateChange = () => {
+  // This function can be used to load available slots if needed
+  console.log('Doctor or date changed')
 }
 
 // Computed minimum date (today)
@@ -492,35 +734,172 @@ const minDate = computed(() => {
   return today.toISOString().split('T')[0]
 })
 
-// Submit form
-const submitBooking = async () => {
-  isSubmitting.value = true
+// Validasi form
+const validateForm = () => {
+  errors.value = {}
   
-  try {
-    // Here you would typically send the data to your backend
-    // For now, we'll simulate a successful submission
-    await new Promise(resolve => setTimeout(resolve, 2000))
+  // Validasi NIK
+  if (!form.value.nik) {
+    errors.value.nik = 'NIK wajib diisi'
+  } else if (!/^\d{16}$/.test(form.value.nik)) {
+    errors.value.nik = 'NIK harus 16 digit angka'
+  }
+  
+  // Validasi nama
+  if (!form.value.nama) {
+    errors.value.nama = 'Nama lengkap wajib diisi'
+  } else if (form.value.nama.length < 3) {
+    errors.value.nama = 'Nama minimal 3 karakter'
+  } else if (form.value.nama.length > 40) {
+    errors.value.nama = 'Nama maksimal 40 karakter'
+  }
+  
+  // Validasi nomor telepon
+  if (!form.value.no_telp) {
+    errors.value.no_telp = 'Nomor telepon wajib diisi'
+  } else if (!/^(\+62|62|0)[0-9]{8,13}$/.test(form.value.no_telp)) {
+    errors.value.no_telp = 'Format nomor telepon tidak valid'
+  }
+  
+  // Validasi email
+  if (form.value.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email)) {
+    errors.value.email = 'Format email tidak valid'
+  }
+  
+  // Validasi alamat
+  if (!form.value.alamat) {
+    errors.value.alamat = 'Alamat wajib diisi'
+  } else if (form.value.alamat.length > 200) {
+    errors.value.alamat = 'Alamat maksimal 200 karakter'
+  }
+  
+  // Validasi tanggal
+  if (!form.value.tanggal) {
+    errors.value.tanggal = 'Tanggal konsultasi wajib dipilih'
+  } else {
+    const selectedDate = new Date(form.value.tanggal)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
     
-    // Show success message or redirect
-    alert('Booking berhasil dikirim! Tim kami akan segera menghubungi Anda untuk konfirmasi.')
-    
-    // Reset form
-    form.value = {
-      nik: '',
-      fullName: '',
-      phone: '',
-      date: '',
-      time: '',
-      doctor: '',
-      notes: ''
+    if (selectedDate < today) {
+      errors.value.tanggal = 'Tanggal tidak boleh kurang dari hari ini'
     }
     
-    // Reset NIK states
-    isNameFromNik.value = false
-    nikError.value = ''
-    nikSuccess.value = ''
+    // Cek maksimal 30 hari ke depan
+    const maxDate = new Date()
+    maxDate.setDate(maxDate.getDate() + 30)
+    if (selectedDate > maxDate) {
+      errors.value.tanggal = 'Tanggal maksimal 30 hari dari sekarang'
+    }
+  }
+  
+  // Validasi poliklinik
+  if (!form.value.kd_poli) {
+    errors.value.kd_poli = 'Poliklinik wajib dipilih'
+  }
+  
+  // Validasi dokter
+  if (!form.value.kd_dokter) {
+    errors.value.kd_dokter = 'Dokter wajib dipilih'
+  }
+  
+  // Validasi jenis pembayaran
+  if (!form.value.kd_pj) {
+    errors.value.kd_pj = 'Jenis pembayaran wajib dipilih'
+  }
+  
+  // Validasi nomor kartu BPJS jika diperlukan
+  if (form.value.kd_pj && formOptions.value.penjab.length > 0) {
+    const selectedPenjab = formOptions.value.penjab.find(p => p.kd_pj === form.value.kd_pj)
+    if (selectedPenjab && selectedPenjab.png_jawab.toLowerCase().includes('bpjs')) {
+      if (!form.value.nomor_kartu) {
+        errors.value.nomor_kartu = 'Nomor kartu BPJS wajib diisi untuk pembayaran BPJS'
+      } else if (!/^\d{13}$/.test(form.value.nomor_kartu)) {
+        errors.value.nomor_kartu = 'Nomor kartu BPJS harus 13 digit'
+      }
+    }
+  }
+  
+  // Validasi catatan
+  if (form.value.catatan && form.value.catatan.length > 255) {
+    errors.value.catatan = 'Catatan maksimal 255 karakter'
+  }
+  
+  return Object.keys(errors.value).length === 0
+}
+
+// Submit form
+const submitBooking = async () => {
+  if (isSubmitting.value) return
+
+  // Validasi form
+  if (!validateForm()) {
+    return
+  }
+
+  isSubmitting.value = true
+
+  try {
+    const response = await fetch('/api/booking/store', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+      },
+      body: JSON.stringify({
+        nik: form.value.nik,
+        nomor_kartu: form.value.nomor_kartu,
+        nama: form.value.nama,
+        tanggal: form.value.tanggal,
+        alamat: form.value.alamat,
+        no_telp: form.value.no_telp,
+        email: form.value.email,
+        kd_poli: form.value.kd_poli,
+        kd_dokter: form.value.kd_dokter,
+        kd_pj: form.value.kd_pj,
+        catatan: form.value.catatan
+      })
+    })
+
+    const result = await response.json()
+
+    if (response.ok && result.success) {
+      successMessage.value = `Booking berhasil! Nomor booking Anda: ${result.data.no_booking}`
+      errorMessage.value = ''
+      
+      // Reset form
+      form.value = {
+        nik: '',
+        nomor_kartu: '',
+        nama: '',
+        tanggal: '',
+        alamat: '',
+        no_telp: '',
+        email: '',
+        kd_poli: '',
+        kd_dokter: '',
+        kd_pj: '',
+        catatan: ''
+      }
+      
+      // Scroll to success message
+      setTimeout(() => {
+        document.querySelector('.success-message')?.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+      
+    } else {
+      errorMessage.value = result.message || 'Terjadi kesalahan saat menyimpan booking'
+      successMessage.value = ''
+      
+      // Handle validation errors
+      if (result.errors) {
+        errors.value = result.errors
+      }
+    }
   } catch (error) {
-    alert('Terjadi kesalahan. Silakan coba lagi.')
+    console.error('Error submitting booking:', error)
+    errorMessage.value = 'Terjadi kesalahan jaringan. Silakan coba lagi.'
+    successMessage.value = ''
   } finally {
     isSubmitting.value = false
   }
@@ -535,159 +914,135 @@ onMounted(() => {
       el.classList.add('opacity-100', 'translate-y-0')
     }, index * 200)
   })
+  
+  // Load form data
+  loadFormData()
 })
 </script>
 
 <style scoped>
-/* Custom animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
+/* Animations */
 .animate-fade-in-up {
   opacity: 0;
-  transform: translateY(30px);
-  animation: fadeInUp 0.6s ease-out forwards;
+  transform: translateY(20px);
+  transition: all 0.6s ease-out;
 }
 
-.animation-delay-200 {
-  animation-delay: 0.2s;
+.animate-fade-in-up.opacity-100 {
+  opacity: 1;
 }
 
-.animation-delay-400 {
-  animation-delay: 0.4s;
+.animate-fade-in-up.translate-y-0 {
+  transform: translateY(0);
 }
 
-/* Custom scrollbar for webkit browsers */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  background: #f1f1f1;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #f43f5e, #ec4899);
-  border-radius: 3px;
+  background: #e91e63;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #e11d48, #db2777);
+  background: #c2185b;
 }
 
-/* Enhanced focus states */
-.group:focus-within .group-focus-within\:text-rose-500 {
-  color: #f43f5e;
+/* Form focus states */
+.form-input:focus {
+  outline: none;
+  border-color: #e91e63;
+  box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
 }
 
-/* Smooth transitions for all interactive elements */
-* {
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
+.form-select:focus {
+  outline: none;
+  border-color: #e91e63;
+  box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
 }
 
-/* Custom backdrop blur for better browser support */
-.backdrop-blur-sm {
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-
-.backdrop-blur-md {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-/* Enhanced shadow effects */
-.shadow-rose-100\/20 {
-  box-shadow: 0 25px 50px -12px rgba(251, 113, 133, 0.2);
-}
-
-/* Responsive text sizing */
-@media (max-width: 640px) {
-  .text-4xl {
-    font-size: 2.25rem;
-    line-height: 2.5rem;
-  }
-  
-  .text-5xl {
-    font-size: 3rem;
-    line-height: 1;
-  }
-  
-  .text-6xl {
-    font-size: 3.75rem;
-    line-height: 1;
-  }
-}
-
-/* Loading animation */
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-spin {
+/* Loading spinner */
+.loading-spinner {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #e91e63;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
   animation: spin 1s linear infinite;
 }
 
-/* Hover effects for cards */
-.hover\:shadow-xl:hover {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.hover\:shadow-md:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+/* Button hover effects */
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(233, 30, 99, 0.3);
 }
 
-/* Enhanced button interactions */
-button:active,
-a:active {
-  transform: translateY(1px);
+.btn-whatsapp:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(37, 211, 102, 0.3);
 }
 
-/* Improved form field focus */
-input:focus,
-select:focus,
-textarea:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1);
+/* Card hover effects */
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
-/* Gradient text support for older browsers */
-.bg-clip-text {
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Enhanced mobile responsiveness */
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .lg\:col-span-2 {
-    grid-column: span 1;
+  .container {
+    padding: 0 1rem;
   }
   
-  .lg\:grid-cols-3 {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
+  .form-grid {
+    grid-template-columns: 1fr;
   }
   
-  .lg\:p-10 {
-    padding: 2rem;
+  .hero-title {
+    font-size: 2rem;
   }
   
-  .lg\:py-20 {
-    padding-top: 3rem;
-    padding-bottom: 3rem;
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+}
+
+/* Error message styling */
+.error-message {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Success message styling */
+.success-message {
+  animation: slideInDown 0.5s ease-out;
+}
+
+@keyframes slideInDown {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 </style>

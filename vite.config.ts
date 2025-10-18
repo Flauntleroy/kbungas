@@ -25,4 +25,13 @@ export default defineConfig({
             },
         }),
     ],
+    server: {
+        proxy: {
+            '/api': {
+                target: 'http://klinikbungas.test',
+                changeOrigin: true,
+                secure: false,
+            },
+        },
+    },
 });
