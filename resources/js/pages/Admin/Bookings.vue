@@ -377,28 +377,7 @@ const getStatusText = (status) => {
   }
   return statusMap[status] || status
 }
-    notes: 'Pembatalan mendadak'
-  }
-])
 
-// Computed
-const filteredBookings = computed(() => {
-  let filtered = bookings.value
-
-  if (searchQuery.value) {
-    filtered = filtered.filter(booking => 
-      booking.patient_name.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
-  }
-
-  if (filters.value.status) {
-    filtered = filtered.filter(booking => booking.status === filters.value.status)
-  }
-
-  return filtered
-})
-
-const totalItems = computed(() => filteredBookings.value.length)
 const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value))
 
 const visiblePages = computed(() => {
@@ -414,15 +393,6 @@ const visiblePages = computed(() => {
 })
 
 // Methods
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString('id-ID', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
-
 const formatDateTime = (datetime: string) => {
   return new Date(datetime).toLocaleString('id-ID', {
     weekday: 'long',
@@ -434,16 +404,6 @@ const formatDateTime = (datetime: string) => {
   })
 }
 
-const getStatusText = (status: string) => {
-  const statusMap = {
-    pending: 'Menunggu',
-    confirmed: 'Dikonfirmasi',
-    completed: 'Selesai',
-    cancelled: 'Dibatalkan'
-  }
-  return statusMap[status] || status
-}
-
 const openCreateModal = () => {
   editingBooking.value = null
   bookingForm.value = {
@@ -451,7 +411,7 @@ const openCreateModal = () => {
     patient_phone: '',
     appointment_datetime: '',
     doctor: '',
-    status: 'pending',
+    status: 'Belum Dibalas',
     notes: ''
   }
   showModal.value = true
@@ -470,18 +430,11 @@ const closeModal = () => {
 
 const saveBooking = () => {
   if (editingBooking.value) {
-    // Update existing booking
-    const index = bookings.value.findIndex(b => b.id === editingBooking.value.id)
-    if (index !== -1) {
-      bookings.value[index] = { ...bookingForm.value }
-    }
+    // Update existing booking - would need backend integration
+    console.log('Update booking:', bookingForm.value)
   } else {
-    // Create new booking
-    const newBooking = {
-      ...bookingForm.value,
-      id: Date.now()
-    }
-    bookings.value.unshift(newBooking)
+    // Create new booking - would need backend integration
+    console.log('Create booking:', bookingForm.value)
   }
   
   closeModal()
@@ -489,10 +442,8 @@ const saveBooking = () => {
 
 const deleteBooking = (booking) => {
   if (confirm('Apakah Anda yakin ingin menghapus booking ini?')) {
-    const index = bookings.value.findIndex(b => b.id === booking.id)
-    if (index !== -1) {
-      bookings.value.splice(index, 1)
-    }
+    // Would need backend integration
+    console.log('Delete booking:', booking.no_booking)
   }
 }
 

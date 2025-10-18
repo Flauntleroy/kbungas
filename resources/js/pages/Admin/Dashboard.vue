@@ -84,10 +84,10 @@
           <div v-for="booking in props.recentBookings" :key="booking.id" class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
             <div class="flex items-center space-x-4">
               <div class="w-10 h-10 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full flex items-center justify-center">
-                <span class="text-white text-sm font-semibold">{{ booking.patient.charAt(0) }}</span>
+                <span class="text-white text-sm font-semibold">{{ booking.patient.name.charAt(0) }}</span>
               </div>
               <div>
-                <p class="font-medium text-gray-900">{{ booking.patient }}</p>
+                <p class="font-medium text-gray-900">{{ booking.patient.name }}</p>
                 <p class="text-sm text-gray-500">{{ booking.date }} • {{ booking.time }}</p>
               </div>
             </div>
@@ -197,7 +197,9 @@ interface Props {
   }
   recentBookings: Array<{
     id: string
-    patient: string
+    patient: {
+      name: string
+    }
     date: string
     time: string
     status: string
