@@ -15,9 +15,29 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+        // Create Test User
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+        ]);
+
+        // Create Admin Users from SQL seed data
+        User::factory()->create([
+            'name' => 'Super Admin',
+            'email' => 'admin@klinikbungas.com',
+            'password' => 'password', // Will be hashed by factory
+        ]);
+
+        User::factory()->create([
+            'name' => 'Dr. Admin',
+            'email' => 'doctor.admin@klinikbungas.com',
+            'password' => 'password', // Will be hashed by factory
+        ]);
+
+        User::factory()->create([
+            'name' => 'Staff Resepsionis',
+            'email' => 'staff@klinikbungas.com',
+            'password' => 'password', // Will be hashed by factory
         ]);
     }
 }

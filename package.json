@@ -7,7 +7,10 @@
         "dev": "vite",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
-        "lint": "eslint . --fix"
+        "lint": "eslint . --fix",
+        "db:seed": "herd php artisan db:seed",
+        "db:migrate": "herd php artisan migrate",
+        "db:fresh": "herd php artisan migrate:fresh --seed"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",
