@@ -35,25 +35,25 @@
         </Link>
 
         <Link 
-          href="/admin/patients" 
+          href="/admin/bookings" 
           class="flex items-center px-4 py-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 group"
-          :class="{ 'bg-gray-100 text-gray-900': $page.component.startsWith('Admin/Patient') }"
+          :class="{ 'bg-gray-100 text-gray-900': $page.component.startsWith('Admin/Booking') }"
         >
           <svg class="w-5 h-5 mr-3 transition-transform duration-200 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0V7a2 2 0 012-2h4a2 2 0 012 2v0M8 7v8a2 2 0 002 2h4a2 2 0 002-2V7M8 7H6a2 2 0 00-2 2v8a2 2 0 002 2h2m0 0h8a2 2 0 002-2v-2M8 15v2m8-2v2"/>
           </svg>
-          <span class="font-medium">Data Pasien</span>
+          <span class="font-medium">Manajemen Booking</span>
         </Link>
 
         <Link 
-          href="/admin/examinations" 
+          href="/admin/content" 
           class="flex items-center px-4 py-3 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 group"
-          :class="{ 'bg-gray-100 text-gray-900': $page.component.startsWith('Admin/Examination') }"
+          :class="{ 'bg-gray-100 text-gray-900': $page.component.startsWith('Admin/Content') }"
         >
           <svg class="w-5 h-5 mr-3 transition-transform duration-200 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"/>
           </svg>
-          <span class="font-medium">Pemeriksaan</span>
+          <span class="font-medium">Kelola Website</span>
         </Link>
 
         <Link 

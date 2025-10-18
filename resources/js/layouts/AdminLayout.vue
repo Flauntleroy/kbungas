@@ -21,7 +21,7 @@
       <AdminTopbar @toggle-sidebar="sidebarOpen = true" />
 
       <!-- Main content area -->
-      <main class="flex-1 overflow-auto p-8 bg-gray-50">
+      <main class="flex-1 overflow-auto p-4 bg-gray-50">
         <div class="max-w-7xl mx-auto">
           <slot />
         </div>

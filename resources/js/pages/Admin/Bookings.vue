@@ -1,7 +1,9 @@
 <template>
   <AdminLayout>
+
+    <div class="w-full">
     <!-- Header with actions -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
       <div>
         <h1 class="text-2xl font-bold text-gray-900">Manajemen Booking</h1>
         <p class="text-gray-600 mt-1">Kelola semua booking dan janji konsultasi pasien</p>
@@ -29,7 +31,7 @@
     </div>
 
     <!-- Filters -->
-    <div v-if="showFilters" class="bg-white rounded-2xl p-6 shadow-sm border border-rose-100 mb-6">
+    <div v-if="showFilters" class="bg-white rounded-2xl p-6 shadow-sm border border-rose-100 mb-4">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
@@ -491,6 +493,7 @@
         </div>
       </div>
     </div>
+    </div>
   </AdminLayout>
 </template>
 
@@ -805,3 +808,13 @@ const goToPage = (page) => {
   // Implementation for page navigation
 }
 </script>
+<style scoped>
+/* Ensure full width by removing any inherited constraints */
+:deep(.container),
+:deep(.max-w-7xl),
+:deep(.mx-auto) {
+  max-width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+</style>

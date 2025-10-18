@@ -1,7 +1,7 @@
 <template>
   <AdminLayout>
     <!-- Header with actions -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
       <div>
         <h1 class="text-2xl font-bold text-gray-900">Manajemen Pengguna</h1>
         <p class="text-gray-600 mt-1">Kelola akun admin dan pengguna sistem</p>
@@ -497,3 +497,13 @@ const goToPage = (page: number) => {
   currentPage.value = page
 }
 </script>
+<style scoped>
+/* Ensure full width by removing any inherited constraints */
+:deep(.container),
+:deep(.max-w-7xl),
+:deep(.mx-auto) {
+  max-width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+</style>
