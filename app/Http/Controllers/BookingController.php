@@ -60,7 +60,7 @@ class BookingController extends Controller
                 'nik' => 'required|string|size:16|regex:/^[0-9]{16}$/',
                 'nomor_kartu' => 'nullable|string|max:13',
                 'nama' => 'required|string|max:40',
-                'tanggal' => 'required|date|after_or_equal:today',
+                'tanggal' => 'required|date_format:Y-m-d H:i',
                 'alamat' => 'nullable|string|max:200',
                 'no_telp' => 'required|string|max:40',
                 'email' => 'nullable|email|max:50',
@@ -70,9 +70,21 @@ class BookingController extends Controller
                 'catatan' => 'nullable|string|max:255',
             ]);
 
-            // Cek apakah sudah ada booking dengan NIK dan tanggal yang sama
+            // Validasi manual untuk waktu minimum
+            $bookingDateTime = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $validated['tanggal']);
+            if ($bookingDateTime->isPast()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data tidak valid',
+                    'errors' => [
+                        'tanggal' => ['Tanggal dan waktu booking harus di masa depan.']
+                    ]
+                ], 422);
+            }
+
+            // Cek apakah sudah ada booking dengan NIK dan datetime yang sama
             $existingBooking = BookingPeriksa::where('nik', $validated['nik'])
-                ->whereDate('tanggal', $validated['tanggal'])
+                ->where('tanggal', $validated['tanggal'])
                 ->whereIn('status', [
                     BookingPeriksa::STATUS_DITERIMA,
                     BookingPeriksa::STATUS_BELUM_DIBALAS
@@ -82,7 +94,7 @@ class BookingController extends Controller
             if ($existingBooking) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Anda sudah memiliki booking pada tanggal tersebut dengan status ' . $existingBooking->status
+                    'message' => 'Anda sudah memiliki booking pada tanggal dan waktu tersebut dengan status ' . $existingBooking->status
                 ], 422);
             }
 
@@ -536,7 +548,7 @@ class BookingController extends Controller
         try {
             $validated = $request->validate([
                 'kd_dokter' => 'required|string|exists:dokter,kd_dokter',
-                'tanggal' => 'required|date|after_or_equal:today'
+                'tanggal' => 'required|date_format:Y-m-d|after_or_equal:today'
             ]);
 
             // Slot waktu yang tersedia (bisa disesuaikan dengan jadwal dokter)
@@ -568,7 +580,8 @@ class BookingController extends Controller
                 'data' => [
                     'available_slots' => array_values($availableSlots),
                     'booked_slots' => $bookedSlots,
-                    'total_available' => count($availableSlots)
+                    'total_available' => count($availableSlots),
+                    'date' => $validated['tanggal']
                 ]
             ]);
 

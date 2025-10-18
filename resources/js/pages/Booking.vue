@@ -271,7 +271,7 @@
 
                   <div class="grid md:grid-cols-2 gap-6">
                   <div class="group">
-                    <label class="block text-sm font-semibold text-rose-800 mb-3">Tanggal Konsultasi *</label>
+                    <label class="block text-sm font-semibold text-rose-800 mb-3">Tanggal & Waktu Konsultasi *</label>
                     <div class="relative">
                       <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <svg class="w-5 h-5 text-rose-400 group-focus-within:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -280,15 +280,18 @@
                       </div>
                       <input 
                         v-model="form.tanggal"
-                        type="date" 
+                        type="datetime-local" 
                         required
-                        :min="minDate"
+                        :min="minDateTime"
                         @change="handleDoctorOrDateChange"
                         class="w-full pl-12 pr-4 py-4 border border-rose-200 rounded-2xl focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-300 text-rose-900 bg-white/50 backdrop-blur-sm hover:bg-white/80 focus:bg-white"
                       />
                     </div>
                     <div v-if="errors.tanggal" class="mt-2 text-sm text-red-600">
                       {{ errors.tanggal }}
+                    </div>
+                    <div class="mt-2 text-xs text-rose-600">
+                      Format: YYYY-MM-DD HH:MM (contoh: 2025-12-25 10:30)
                     </div>
                   </div>
                   
@@ -603,12 +606,14 @@ const generateReceiptHTML = (bookingData: any) => {
         <h3 style="color: #be185d; margin: 0 0 15px; font-size: 16px; border-bottom: 1px solid #f472b6; padding-bottom: 5px;">Detail Konsultasi</h3>
         <div style="background: white; padding: 15px; border-radius: 8px;">
           <div style="margin-bottom: 10px;">
-            <span style="color: #6b7280; font-size: 12px; display: block;">Tanggal</span>
-            <span style="color: #1f2937; font-weight: 600;">${new Date(bookingData.tanggal).toLocaleDateString('id-ID', { 
+            <span style="color: #6b7280; font-size: 12px; display: block;">Tanggal & Waktu</span>
+            <span style="color: #1f2937; font-weight: 600;">${new Date(bookingData.tanggal).toLocaleString('id-ID', { 
               weekday: 'long', 
               year: 'numeric', 
               month: 'long', 
-              day: 'numeric' 
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
             })}</span>
           </div>
           <div style="margin-bottom: 10px;">
@@ -860,10 +865,12 @@ const handleDoctorOrDateChange = () => {
   console.log('Doctor or date changed')
 }
 
-// Computed minimum date (today)
-const minDate = computed(() => {
-  const today = new Date()
-  return today.toISOString().split('T')[0]
+// Computed minimum datetime (now)
+const minDateTime = computed(() => {
+  const now = new Date()
+  // Add 1 hour to current time as minimum booking time
+  now.setHours(now.getHours() + 1)
+  return now.toISOString().slice(0, 16) // Format: YYYY-MM-DDTHH:MM
 })
 
 // Validasi form
@@ -907,20 +914,20 @@ const validateForm = () => {
   
   // Validasi tanggal
   if (!form.value.tanggal) {
-    errors.value.tanggal = 'Tanggal konsultasi wajib dipilih'
+    errors.value.tanggal = 'Tanggal dan waktu konsultasi wajib diisi'
   } else {
-    const selectedDate = new Date(form.value.tanggal)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    const selectedDateTime = new Date(form.value.tanggal)
+    const now = new Date()
+    const minBookingTime = new Date(now.getTime() + 60 * 60 * 1000) // 1 hour from now
     
-    if (selectedDate < today) {
-      errors.value.tanggal = 'Tanggal tidak boleh kurang dari hari ini'
+    if (selectedDateTime < minBookingTime) {
+      errors.value.tanggal = 'Waktu konsultasi minimal 1 jam dari sekarang'
     }
     
     // Cek maksimal 30 hari ke depan
     const maxDate = new Date()
     maxDate.setDate(maxDate.getDate() + 30)
-    if (selectedDate > maxDate) {
+    if (selectedDateTime > maxDate) {
       errors.value.tanggal = 'Tanggal maksimal 30 hari dari sekarang'
     }
   }
@@ -971,6 +978,9 @@ const submitBooking = async () => {
   isSubmitting.value = true
 
   try {
+    // Konversi format tanggal dari datetime-local (2025-10-20T10:00) ke Y-m-d H:i (2025-10-20 10:00)
+    const formattedTanggal = form.value.tanggal ? form.value.tanggal.replace('T', ' ') : ''
+    
     const response = await fetch('/api/booking/store', {
       method: 'POST',
       headers: {
@@ -981,7 +991,7 @@ const submitBooking = async () => {
         nik: form.value.nik,
         nomor_kartu: form.value.nomor_kartu,
         nama: form.value.nama,
-        tanggal: form.value.tanggal,
+        tanggal: formattedTanggal,
         alamat: form.value.alamat,
         no_telp: form.value.no_telp,
         email: form.value.email,

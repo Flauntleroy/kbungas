@@ -32,7 +32,7 @@ class BookingPeriksa extends Model
     ];
 
     protected $casts = [
-        'tanggal' => 'date',
+        'tanggal' => 'datetime',
         'tanggal_booking' => 'datetime',
     ];
 
@@ -104,6 +104,14 @@ class BookingPeriksa extends Model
     }
 
     /**
+     * Scope untuk filter berdasarkan tanggal dan waktu
+     */
+    public function scopeByDateTime($query, $datetime)
+    {
+        return $query->where('tanggal', $datetime);
+    }
+
+    /**
      * Scope untuk filter berdasarkan dokter
      */
     public function scopeByDokter($query, $kdDokter)
@@ -124,7 +132,43 @@ class BookingPeriksa extends Model
      */
     public function getTanggalFormattedAttribute(): string
     {
-        return $this->tanggal ? $this->tanggal->format('d/m/Y') : '';
+        if (!$this->tanggal) {
+            return '';
+        }
+        
+        // Set locale ke Indonesia
+        Carbon::setLocale('id');
+        
+        // Array nama hari dalam bahasa Indonesia
+        $namaHari = [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin', 
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu'
+        ];
+        
+        // Array nama bulan dalam bahasa Indonesia
+        $namaBulan = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        
+        $tanggal = $this->tanggal;
+        $hari = $namaHari[$tanggal->format('l')];
+        $bulan = $namaBulan[(int)$tanggal->format('n')];
+        
+        return sprintf(
+            '%s, %d %s %d Pukul %s WITA',
+            $hari,
+            $tanggal->day,
+            $bulan,
+            $tanggal->year,
+            $tanggal->format('H.i')
+        );
     }
 
     /**

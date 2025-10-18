@@ -110,8 +110,7 @@
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">{{ formatDate(booking.appointment_date) }}</div>
-                <div class="text-sm text-gray-500">{{ booking.appointment_time }}</div>
+                <div class="text-sm text-gray-900">{{ formatDateTime(booking.appointment_date) }}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm text-gray-900">{{ booking.doctor }}</div>
@@ -220,13 +219,8 @@
             </div>
             
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Janji</label>
-              <input v-model="bookingForm.appointment_date" type="date" required class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-900">
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Waktu</label>
-              <input v-model="bookingForm.appointment_time" type="time" required class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-900">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal & Waktu Janji</label>
+              <input v-model="bookingForm.appointment_datetime" type="datetime-local" required class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-transparent text-gray-900">
             </div>
             
             <div>
@@ -291,8 +285,7 @@ const filters = ref({
 const bookingForm = ref({
   patient_name: '',
   patient_phone: '',
-  appointment_date: '',
-  appointment_time: '',
+  appointment_datetime: '',
   doctor: '',
   status: 'pending',
   notes: ''
@@ -304,8 +297,7 @@ const bookings = ref([
     id: 1,
     patient_name: 'Sari Dewi',
     patient_phone: '081234567890',
-    appointment_date: '2024-01-15',
-    appointment_time: '10:00',
+    appointment_date: '2024-01-15T10:00:00',
     doctor: 'dr. Bunga Sari, Sp.KK',
     status: 'confirmed',
     notes: 'Konsultasi rutin'
@@ -314,8 +306,7 @@ const bookings = ref([
     id: 2,
     patient_name: 'Budi Santoso',
     patient_phone: '081234567891',
-    appointment_date: '2024-01-15',
-    appointment_time: '11:30',
+    appointment_date: '2024-01-15T11:30:00',
     doctor: 'dr. Bunga Sari, Sp.KK',
     status: 'pending',
     notes: 'Keluhan gatal-gatal'
@@ -324,11 +315,10 @@ const bookings = ref([
     id: 3,
     patient_name: 'Maya Putri',
     patient_phone: '081234567892',
-    appointment_date: '2024-01-16',
-    appointment_time: '14:00',
+    appointment_date: '2024-01-16T14:00:00',
     doctor: 'dr. Bunga Sari, Sp.KK',
-    status: 'completed',
-    notes: 'Follow up treatment'
+    status: 'cancelled',
+    notes: 'Pembatalan mendadak'
   }
 ])
 
@@ -374,6 +364,17 @@ const formatDate = (date: string) => {
   })
 }
 
+const formatDateTime = (datetime: string) => {
+  return new Date(datetime).toLocaleString('id-ID', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
 const getStatusText = (status: string) => {
   const statusMap = {
     pending: 'Menunggu',
@@ -389,8 +390,7 @@ const openCreateModal = () => {
   bookingForm.value = {
     patient_name: '',
     patient_phone: '',
-    appointment_date: '',
-    appointment_time: '',
+    appointment_datetime: '',
     doctor: '',
     status: 'pending',
     notes: ''
