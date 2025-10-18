@@ -6,6 +6,7 @@ use App\Models\BookingPeriksa;
 use App\Models\Dokter;
 use App\Models\Poliklinik;
 use App\Models\Penjab;
+use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +16,13 @@ use Carbon\Carbon;
 
 class BookingController extends Controller
 {
+    protected $whatsAppService;
+
+    public function __construct(WhatsAppService $whatsAppService)
+    {
+        $this->whatsAppService = $whatsAppService;
+    }
+
     /**
      * Get booking form data (dokter, poliklinik, penjab)
      */
@@ -123,6 +131,9 @@ class BookingController extends Controller
             $booking->load(['poliklinik', 'dokter', 'penjab']);
 
             DB::commit();
+
+            // Kirim notifikasi WhatsApp setelah booking berhasil
+            $this->sendWhatsAppNotifications($booking);
 
             return response()->json([
                 'success' => true,
@@ -327,6 +338,197 @@ class BookingController extends Controller
     }
 
     /**
+     * Confirm booking by doctor via WhatsApp link
+     */
+    public function confirmBooking(Request $request, $token): JsonResponse
+    {
+        try {
+            // Rate limiting untuk mencegah spam
+            $clientIp = $request->ip();
+            $rateLimitKey = "booking_confirm:{$clientIp}";
+            
+            if (cache()->has($rateLimitKey)) {
+                $attempts = cache()->get($rateLimitKey, 0);
+                if ($attempts >= 5) { // Maksimal 5 percobaan per IP per menit
+                    Log::warning('Rate limit exceeded for booking confirmation', ['ip' => $clientIp]);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Terlalu banyak percobaan. Silakan coba lagi dalam 1 menit.'
+                    ], 429);
+                }
+                cache()->put($rateLimitKey, $attempts + 1, 60); // 60 detik
+            } else {
+                cache()->put($rateLimitKey, 1, 60);
+            }
+
+            // Decode token untuk mendapatkan booking ID dan validasi keamanan
+            $decodedData = $this->decodeConfirmationToken($token);
+            
+            if (!$decodedData) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Token konfirmasi tidak valid atau sudah kedaluwarsa'
+                ], 400);
+            }
+
+            $booking = BookingPeriksa::where('no_booking', $decodedData['booking_id'])->first();
+
+            if (!$booking) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Booking tidak ditemukan'
+                ], 404);
+            }
+
+            // Validasi bahwa dokter yang mengonfirmasi sesuai dengan booking
+            if ($booking->kd_dokter !== $decodedData['doctor_id']) {
+                Log::warning('Unauthorized confirmation attempt', [
+                    'booking_id' => $booking->no_booking,
+                    'expected_doctor' => $booking->kd_dokter,
+                    'attempted_doctor' => $decodedData['doctor_id'],
+                    'ip' => $clientIp
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki akses untuk mengonfirmasi booking ini'
+                ], 403);
+            }
+
+            // Cek apakah booking masih bisa dikonfirmasi
+            if (!in_array($booking->status, [BookingPeriksa::STATUS_BELUM_DIBALAS])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Booking sudah dikonfirmasi sebelumnya atau tidak dapat dikonfirmasi',
+                    'current_status' => $booking->status
+                ], 422);
+            }
+
+            // Update status booking menjadi diterima
+            $booking->updateStatus(BookingPeriksa::STATUS_DITERIMA, 'Dikonfirmasi oleh dokter melalui WhatsApp');
+
+            // Log konfirmasi yang berhasil
+            Log::info('Booking confirmed successfully', [
+                'booking_id' => $booking->no_booking,
+                'doctor_id' => $booking->kd_dokter,
+                'patient_name' => $booking->nama,
+                'confirmed_at' => now(),
+                'ip' => $clientIp
+            ]);
+
+            // Kirim notifikasi konfirmasi ke pasien
+            $this->sendConfirmationNotificationToPatient($booking);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Booking berhasil dikonfirmasi! Pasien akan mendapat notifikasi.',
+                'data' => [
+                    'no_booking' => $booking->no_booking,
+                    'status' => $booking->status,
+                    'patient_name' => $booking->nama,
+                    'appointment_date' => Carbon::parse($booking->tanggal)->format('d/m/Y H:i'),
+                    'confirmed_at' => now()->format('d/m/Y H:i')
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error confirming booking: ' . $e->getMessage(), [
+                'token' => substr($token, 0, 20) . '...',
+                'ip' => $request->ip()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengonfirmasi booking. Silakan coba lagi.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Decode and validate confirmation token
+     */
+    private function decodeConfirmationToken($token)
+    {
+        try {
+            // Decode base64 token
+            $decoded = base64_decode($token);
+            $data = json_decode($decoded, true);
+
+            if (!$data || !isset($data['booking_id'], $data['doctor_id'], $data['expires_at'], $data['hash'])) {
+                Log::warning('Invalid token structure', ['token' => substr($token, 0, 20) . '...']);
+                return false;
+            }
+
+            // Cek apakah token sudah kedaluwarsa (24 jam)
+            if (Carbon::parse($data['expires_at'])->isPast()) {
+                Log::warning('Expired token', ['booking_id' => $data['booking_id'], 'expires_at' => $data['expires_at']]);
+                return false;
+            }
+
+            // Validasi hash untuk memastikan integritas token
+            $salt = config('app.key') . date('Y-m-d');
+            $expectedHash = hash('sha256', $data['booking_id'] . $data['doctor_id'] . $salt);
+            
+            if (!hash_equals($expectedHash, $data['hash'])) {
+                // Coba dengan salt hari sebelumnya (untuk token yang dibuat menjelang tengah malam)
+                $yesterdaySalt = config('app.key') . date('Y-m-d', strtotime('-1 day'));
+                $yesterdayHash = hash('sha256', $data['booking_id'] . $data['doctor_id'] . $yesterdaySalt);
+                
+                if (!hash_equals($yesterdayHash, $data['hash'])) {
+                    Log::warning('Invalid token hash', ['booking_id' => $data['booking_id']]);
+                    return false;
+                }
+            }
+
+            // Validasi tambahan: pastikan booking dan dokter masih ada di database
+            $booking = BookingPeriksa::where('no_booking', $data['booking_id'])
+                                   ->where('kd_dokter', $data['doctor_id'])
+                                   ->first();
+            
+            if (!$booking) {
+                Log::warning('Booking not found for token', ['booking_id' => $data['booking_id'], 'doctor_id' => $data['doctor_id']]);
+                return false;
+            }
+
+            return $data;
+        } catch (\Exception $e) {
+            Log::error('Error decoding confirmation token: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Send confirmation notification to patient
+     */
+    private function sendConfirmationNotificationToPatient($booking)
+    {
+        try {
+            if (empty($booking->no_telp)) {
+                Log::warning("Tidak dapat mengirim notifikasi konfirmasi: nomor telepon pasien kosong untuk booking {$booking->no_booking}");
+                return;
+            }
+
+            $message = "BOOKING DIKONFIRMASI - KLINIK BUNGAS\n\n" .
+                      "Halo {$booking->nama},\n\n" .
+                      "Booking Anda telah Diterima oleh Dokter kami:\n\n" .
+                      "Dokter: {$booking->dokter->nm_dokter}\n" .
+                      "Tanggal: " . Carbon::parse($booking->tanggal)->format('d/m/Y H:i') . "\n" .
+                      "Status: DITERIMA\n\n" .
+                      "Silakan datang 15 menit sebelum jadwal konsultasi.\n" .
+                      "Terima kasih telah mempercayai R'Bungas! 🙏";
+
+            $result = $this->whatsAppService->sendMessage($booking->no_telp, $message);
+            
+            if ($result['success']) {
+                Log::info("Notifikasi konfirmasi berhasil dikirim ke pasien {$booking->nama} ({$booking->no_telp}) untuk booking {$booking->no_booking}");
+            } else {
+                Log::error("Gagal mengirim notifikasi konfirmasi ke pasien {$booking->nama}: " . $result['message']);
+            }
+        } catch (\Exception $e) {
+            Log::error("Error sending confirmation notification to patient: " . $e->getMessage());
+        }
+    }
+
+    /**
      * Get available time slots for a doctor on a specific date
      */
     public function getAvailableSlots(Request $request): JsonResponse
@@ -424,6 +626,56 @@ class BookingController extends Controller
                 'success' => false,
                 'message' => 'Gagal mengambil statistik booking'
             ], 500);
+        }
+    }
+
+    /**
+     * Kirim notifikasi WhatsApp ke pasien dan dokter
+     */
+    private function sendWhatsAppNotifications($booking)
+    {
+        try {
+            // Kirim notifikasi ke pasien
+            if (!empty($booking->no_telp)) {
+                $patientResult = $this->whatsAppService->sendBookingConfirmationToPatient($booking);
+                
+                Log::info('WhatsApp notification to patient', [
+                    'booking_id' => $booking->no_booking,
+                    'patient_phone' => $booking->no_telp,
+                    'success' => $patientResult['success'],
+                    'message' => $patientResult['message']
+                ]);
+            } else {
+                Log::warning('Patient phone number is empty', [
+                    'booking_id' => $booking->no_booking,
+                    'patient_name' => $booking->nama
+                ]);
+            }
+
+            // Kirim notifikasi ke dokter
+            if (!empty($booking->dokter->no_telp)) {
+                $doctorResult = $this->whatsAppService->sendBookingNotificationToDoctor($booking);
+                
+                Log::info('WhatsApp notification to doctor', [
+                    'booking_id' => $booking->no_booking,
+                    'doctor_phone' => $booking->dokter->no_telp,
+                    'doctor_name' => $booking->dokter->nm_dokter,
+                    'success' => $doctorResult['success'],
+                    'message' => $doctorResult['message']
+                ]);
+            } else {
+                Log::warning('Doctor phone number is empty', [
+                    'booking_id' => $booking->no_booking,
+                    'doctor_name' => $booking->dokter->nm_dokter
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Error sending WhatsApp notifications', [
+                'booking_id' => $booking->no_booking,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
         }
     }
 }

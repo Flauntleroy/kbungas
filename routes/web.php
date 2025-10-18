@@ -19,6 +19,10 @@ Route::get('/booking', function () {
     return Inertia::render('Booking');
 })->name('booking');
 
+Route::get('/booking/confirm/{token}', function ($token) {
+    return Inertia::render('BookingConfirmation', ['token' => $token]);
+})->name('booking.confirm');
+
 // Admin Routes - Protected by auth middleware
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () {
