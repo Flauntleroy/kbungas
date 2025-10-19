@@ -619,6 +619,9 @@ const isRegisteringPatient = ref(false)
 const isTransferring = ref(false)
 const isAccepting = ref(false)
 
+// Reactive bookings data for real-time updates
+const bookingsData = ref(props.bookings)
+
 // NIK BPJS Auto-fill State
 const nikBpjs = ref('')
 const isLoadingNikData = ref(false)
@@ -721,8 +724,8 @@ const closeRegistrationModal = () => {
 
 const handleSuccessModalOk = () => {
   showSuccessModal.value = false
-  // Reload the page to refresh the data
-  window.location.reload()
+  // Refresh bookings data instead of reloading page
+  refreshBookings()
 }
 
 const submitPatientRegistration = async () => {
@@ -750,8 +753,21 @@ const submitPatientRegistration = async () => {
           'Pasien Sudah Terdaftar',
           `Pasien ${selectedBooking.value.nama} sudah terdaftar di SIMRS dengan No. RM: ${result.patient.no_rkm_medis}`
         )
+        
+        // Update booking status locally
+        const bookingIndex = bookingsData.value.data.findIndex(b => b.no_booking === selectedBooking.value.no_booking)
+        if (bookingIndex !== -1) {
+          bookingsData.value.data[bookingIndex].status = 'Terdaftar'
+        }
       } else if (result.success === true && result.patient) {
         console.log('Setting up success modal with patient data:', result.patient)
+        
+        // Update booking status locally
+        const bookingIndex = bookingsData.value.data.findIndex(b => b.no_booking === selectedBooking.value.no_booking)
+        if (bookingIndex !== -1) {
+          bookingsData.value.data[bookingIndex].status = 'Terdaftar'
+        }
+        
         // Show custom success modal with patient details
         successPatientData.value = {
           no_rkm_medis: result.patient.no_rkm_medis,
@@ -803,7 +819,7 @@ const closeModal = () => {
 
 // Computed properties
 const filteredBookings = computed(() => {
-  let filtered = props.bookings.data
+  let filtered = bookingsData.value.data
 
   if (searchQuery.value) {
     filtered = filtered.filter(booking => 
@@ -818,8 +834,8 @@ const filteredBookings = computed(() => {
   return filtered
 })
 
-const totalItems = computed(() => props.bookings.total)
-const totalPages = computed(() => props.bookings.last_page)
+const totalItems = computed(() => bookingsData.value.total)
+const totalPages = computed(() => bookingsData.value.last_page)
 
 const visiblePages = computed(() => {
   const pages = []
@@ -834,6 +850,26 @@ const visiblePages = computed(() => {
 })
 
 // Methods
+const refreshBookings = async () => {
+  try {
+    const response = await fetch(`/admin/bookings?page=${currentPage.value}`, {
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    
+    if (response.ok) {
+      const data = await response.json()
+      if (data.props && data.props.bookings) {
+        bookingsData.value = data.props.bookings
+      }
+    }
+  } catch (error) {
+    console.error('Error refreshing bookings:', error)
+  }
+}
+
 const formatDate = (dateString) => {
   const date = new Date(dateString)
   const dateStr = date.toLocaleDateString('id-ID', {
@@ -1118,6 +1154,12 @@ const acceptBooking = async (booking) => {
       const result = await response.json()
       
       if (response.ok && result.success) {
+        // Update booking status locally for real-time update
+        const bookingIndex = bookingsData.value.data.findIndex(b => b.no_booking === booking.no_booking)
+        if (bookingIndex !== -1) {
+          bookingsData.value.data[bookingIndex].status = 'Diterima'
+        }
+        
         await showSuccess(
           'Booking Diterima!',
           undefined,
@@ -1137,8 +1179,7 @@ const acceptBooking = async (booking) => {
           `
         )
         
-        // Refresh the page after showing success
-        window.location.reload()
+        // No need to reload page - data updated locally
       } else {
         await showError(
           'Gagal Menerima Booking',
@@ -1208,6 +1249,13 @@ const transferToRegPeriksa = async (booking) => {
       
       if (response.ok && result.success) {
         console.log('Success condition met, showing success popup')
+        
+        // Update booking status locally for real-time update
+        const bookingIndex = bookingsData.value.data.findIndex(b => b.no_booking === booking.no_booking)
+        if (bookingIndex !== -1) {
+          bookingsData.value.data[bookingIndex].status = 'Terdaftar'
+        }
+        
         // Show success message with detailed registration info
         await showSuccess(
           'Transfer Berhasil!',
@@ -1230,8 +1278,7 @@ const transferToRegPeriksa = async (booking) => {
           `
         )
         
-        // Reload the page to refresh the data
-        window.location.reload()
+        // No need to reload page - data updated locally
       } else {
         console.log('Failure condition met, showing error popup')
         console.error('Transfer failed:', {
