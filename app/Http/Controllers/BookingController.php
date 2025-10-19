@@ -57,7 +57,7 @@ class BookingController extends Controller
         try {
             // Validasi input
             $validated = $request->validate([
-                'nik' => 'required|string|size:16|regex:/^[0-9]{16}$/',
+                'nik' => 'nullable|string|size:16|regex:/^[0-9]{16}$/',
                 'nomor_kartu' => 'nullable|string|max:13',
                 'nama' => 'required|string|max:40',
                 'tanggal' => 'required|date_format:Y-m-d H:i',
@@ -82,20 +82,22 @@ class BookingController extends Controller
                 ], 422);
             }
 
-            // Cek apakah sudah ada booking dengan NIK dan datetime yang sama
-            $existingBooking = BookingPeriksa::where('nik', $validated['nik'])
-                ->where('tanggal', $validated['tanggal'])
-                ->whereIn('status', [
-                    BookingPeriksa::STATUS_DITERIMA,
-                    BookingPeriksa::STATUS_BELUM_DIBALAS
-                ])
-                ->first();
+            // Cek apakah sudah ada booking dengan NIK dan datetime yang sama (hanya jika NIK tidak null)
+            if (!empty($validated['nik'])) {
+                $existingBooking = BookingPeriksa::where('nik', $validated['nik'])
+                    ->where('tanggal', $validated['tanggal'])
+                    ->whereIn('status', [
+                        BookingPeriksa::STATUS_DITERIMA,
+                        BookingPeriksa::STATUS_BELUM_DIBALAS
+                    ])
+                    ->first();
 
-            if ($existingBooking) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Anda sudah memiliki booking pada tanggal dan waktu tersebut dengan status ' . $existingBooking->status
-                ], 422);
+                if ($existingBooking) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Anda sudah memiliki booking pada tanggal dan waktu tersebut dengan status ' . $existingBooking->status
+                    ], 422);
+                }
             }
 
             // Cek kapasitas dokter pada tanggal tersebut (maksimal 20 booking per hari)
@@ -657,19 +659,21 @@ class BookingController extends Controller
                 ], 404);
             }
 
-            // Check if patient already exists by NIK
-            $existingPatient = \App\Models\Pasien::getByNik($booking->nik);
+            // Check if patient already exists by NIK (only if NIK is not null)
+            if (!empty($booking->nik)) {
+                $existingPatient = \App\Models\Pasien::getByNik($booking->nik);
 
-            if ($existingPatient) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Pasien dengan NIK ini sudah terdaftar di SIMRS',
-                    'patient' => [
-                        'no_rkm_medis' => $existingPatient->no_rkm_medis,
-                        'nama' => $existingPatient->nm_pasien,
-                        'nik' => $existingPatient->no_ktp
-                    ]
-                ], 422);
+                if ($existingPatient) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Pasien dengan NIK ini sudah terdaftar di SIMRS',
+                        'patient' => [
+                            'no_rkm_medis' => $existingPatient->no_rkm_medis,
+                            'nama' => $existingPatient->nm_pasien,
+                            'nik' => $existingPatient->no_ktp
+                        ]
+                    ], 422);
+                }
             }
 
             DB::beginTransaction();

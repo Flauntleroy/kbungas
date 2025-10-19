@@ -125,10 +125,8 @@
               </td>
              
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">
-                  <div>{{ formatDateOnly(booking.tanggal) }}</div>
-                  <div class="text-xs text-gray-500">Pukul {{ formatTimeOnly(booking.tanggal) }} WITA</div>
-                </div>
+                <div class="text-sm text-gray-900">{{ formatDate(booking.tanggal).date }}</div>
+                <div class="text-sm text-gray-600">Pukul {{ formatDate(booking.tanggal).time }}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm text-gray-900">{{ booking.dokter?.nm_dokter || 'N/A' }}</div>
@@ -780,33 +778,21 @@ const visiblePages = computed(() => {
 // Methods
 const formatDate = (dateString) => {
   const date = new Date(dateString)
-  return date.toLocaleDateString('id-ID', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }) + ' Pukul ' + date.toLocaleTimeString('id-ID', {
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
-const formatDateOnly = (dateString) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString('id-ID', {
+  const dateStr = date.toLocaleDateString('id-ID', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   })
-}
-
-const formatTimeOnly = (dateString) => {
-  const date = new Date(dateString)
-  return date.toLocaleTimeString('id-ID', {
+  const timeStr = date.toLocaleTimeString('id-ID', {
     hour: '2-digit',
     minute: '2-digit'
-  })
+  }) + ' WITA'
+  
+  return {
+    date: dateStr,
+    time: timeStr
+  }
 }
 
 const getStatusClass = (status) => {

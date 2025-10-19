@@ -106,13 +106,16 @@ class Pasien extends Model
         $lastPatient = self::orderBy('no_rkm_medis', 'desc')->first();
         
         if (!$lastPatient) {
-            return '000001';
+            $newNumber = '000001';
+        } else {
+            $lastNumber = intval($lastPatient->no_rkm_medis);
+            $newNumber = str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
         }
-
-        $lastNumber = intval($lastPatient->no_rkm_medis);
-        $newNumber = $lastNumber + 1;
         
-        return str_pad($newNumber, 6, '0', STR_PAD_LEFT);
+        // Update set_no_rkm_medis table instead of inserting
+        \DB::table('set_no_rkm_medis')->update(['no_rkm_medis' => $newNumber]);
+        
+        return $newNumber;
     }
 
     /**

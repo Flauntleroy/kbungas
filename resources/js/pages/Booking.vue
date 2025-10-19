@@ -877,10 +877,8 @@ const minDateTime = computed(() => {
 const validateForm = () => {
   errors.value = {}
   
-  // Validasi NIK
-  if (!form.value.nik) {
-    errors.value.nik = 'NIK wajib diisi'
-  } else if (!/^\d{16}$/.test(form.value.nik)) {
+  // Validasi NIK (opsional, tapi jika diisi harus valid)
+  if (form.value.nik && !/^\d{16}$/.test(form.value.nik)) {
     errors.value.nik = 'NIK harus 16 digit angka'
   }
   
