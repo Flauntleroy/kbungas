@@ -91,6 +91,7 @@
           <thead class="bg-gray-50">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pasien</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No Rekam Medis</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal & Waktu</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dokter</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -109,6 +110,11 @@
                     <div class="text-sm font-medium text-gray-900">{{ booking.nama }}</div>
                     <div class="text-sm text-gray-500">{{ booking.no_telp }}</div>
                   </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">
+                  {{ booking.pasien?.no_rkm_medis || 'Belum' }}
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
@@ -285,25 +291,52 @@
             <h4 class="font-medium text-gray-900 mb-2">Data Booking</h4>
             <div class="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span class="text-gray-600">No. Booking:</span>
-                <span class="font-medium ml-2">{{ selectedBooking?.no_booking }}</span>
+                <span class="text-gray-900">No. Booking:</span>
+                <span class="text-gray-900 font-medium ml-2">{{ selectedBooking?.no_booking }}</span>
               </div>
               <div>
                 <span class="text-gray-600">Nama:</span>
-                <span class="font-medium ml-2">{{ selectedBooking?.nama }}</span>
+                <span class="text-gray-900 font-medium ml-2">{{ selectedBooking?.nama }}</span>
               </div>
               <div>
                 <span class="text-gray-600">NIK:</span>
-                <span class="font-medium ml-2">{{ selectedBooking?.nik }}</span>
+                <span class="text-gray-900 font-medium ml-2">{{ selectedBooking?.nik }}</span>
               </div>
               <div>
                 <span class="text-gray-600">No. Telp:</span>
-                <span class="font-medium ml-2">{{ selectedBooking?.no_telp }}</span>
+                <span class="text-gray-900 font-medium ml-2">{{ selectedBooking?.no_telp }}</span>
               </div>
             </div>
           </div>
           
           <form @submit.prevent="submitPatientRegistration" class="space-y-4">
+            
+            <!-- NIK BPJS Field for Auto-fill (Hidden but functional) -->
+            <div v-if="false" class="bg-blue-50 rounded-xl p-4 mb-4">
+              <h4 class="font-medium text-gray-900 mb-3">Data BPJS (Opsional)</h4>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">NIK BPJS</label>
+                <div class="relative">
+                  <input 
+                    v-model="nikBpjs" 
+                    @input="handleNikInput"
+                    type="text" 
+                    maxlength="16"
+                    placeholder="Masukkan 16 digit NIK untuk auto-fill data"
+                    class="w-full px-3 py-2 border border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  >
+                  <div v-if="isLoadingNikData" class="absolute right-3 top-3">
+                    <svg class="animate-spin h-4 w-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div v-if="nikError" class="mt-1 text-sm text-red-600">{{ nikError }}</div>
+                <div v-if="nikSuccess" class="mt-1 text-sm text-green-600">{{ nikSuccess }}</div>
+              </div>
+            </div>
+            
             <!-- Data Pasien Utama -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -316,7 +349,7 @@
                 >
               </div>
               
-              <div>
+              <div v-if="false">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Tempat Lahir</label>
                 <input 
                   v-model="registrationForm.tmp_lahir" 
@@ -344,8 +377,8 @@
                   <option value="P">Perempuan</option>
                 </select>
               </div>
-              
-              <div>
+
+              <div v-if="false">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Nama Ibu</label>
                 <input 
                   v-model="registrationForm.nm_ibu" 
@@ -354,7 +387,7 @@
                 >
               </div>
               
-              <div>
+              <div v-if="false">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Golongan Darah</label>
                 <select 
                   v-model="registrationForm.gol_darah" 
@@ -377,7 +410,7 @@
                 >
               </div>
               
-              <div>
+              <div v-if="false">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Status Nikah</label>
                 <select 
                   v-model="registrationForm.stts_nikah" 
@@ -390,7 +423,7 @@
                 </select>
               </div>
               
-              <div>
+              <div v-if="false">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Agama</label>
                 <select 
                   v-model="registrationForm.agama" 
@@ -405,7 +438,7 @@
                 </select>
               </div>
               
-              <div>
+              <div v-if="false">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Pendidikan</label>
                 <select 
                   v-model="registrationForm.pnd" 
@@ -439,7 +472,7 @@
             </div>
             
             <!-- Data Penanggung Jawab -->
-            <div class="border-t pt-4">
+            <div v-if="false" class="border-t pt-4">
               <h4 class="font-medium text-gray-900 mb-4">Data Penanggung Jawab</h4>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -500,6 +533,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
+import { useSweetAlert } from '@/composables/useSweetAlert'
 
 // Props dari AdminController
 interface Props {
@@ -538,6 +572,16 @@ const searchQuery = ref('')
 const currentPage = ref(props.bookings.current_page)
 const itemsPerPage = ref(props.bookings.per_page)
 const isRegisteringPatient = ref(false)
+
+// NIK BPJS Auto-fill State
+const nikBpjs = ref('')
+const isLoadingNikData = ref(false)
+const nikError = ref('')
+const nikSuccess = ref('')
+let nikTimeout: NodeJS.Timeout | null = null
+
+// Initialize SweetAlert composable
+const { showSuccess, showError, showWarning, showConfirmation, showDeleteConfirmation, showToast } = useSweetAlert()
 
 // Filters
 const filters = ref({
@@ -590,10 +634,16 @@ const registerPatient = (booking) => {
     stts_nikah: 'BELUM MENIKAH',
     agama: 'ISLAM',
     pnd: '-',
-    alamat: '',
+    alamat: booking.alamat || '', // Auto-fill address from booking data
     keluarga: 'AYAH',
     namakeluarga: ''
   }
+  
+  // Auto-fill address from booking data
+  fillAddressFromBooking()
+  
+  // Auto-fill NIK BPJS from booking data
+  autoFillNikFromBooking()
   
   showRegistrationModal.value = true
 }
@@ -637,17 +687,29 @@ const submitPatientRegistration = async () => {
     
     if (response.ok) {
       if (result.status === 'already_registered') {
-        alert(`Pasien ${selectedBooking.value.nama} sudah terdaftar di SIMRS dengan No. RM: ${result.patient.no_rkm_medis}`)
+        showWarning(
+          'Pasien Sudah Terdaftar',
+          `Pasien ${selectedBooking.value.nama} sudah terdaftar di SIMRS dengan No. RM: ${result.patient.no_rkm_medis}`
+        )
       } else if (result.status === 'registered') {
-        alert(`Pasien ${selectedBooking.value.nama} berhasil didaftarkan ke SIMRS dengan No. RM: ${result.patient.no_rkm_medis}`)
+        showSuccess(
+          'Pendaftaran Berhasil',
+          `Pasien ${selectedBooking.value.nama} berhasil didaftarkan ke SIMRS dengan No. RM: ${result.patient.no_rkm_medis}`
+        )
       }
       closeRegistrationModal()
     } else {
-      alert(`Error: ${result.message || 'Gagal mendaftarkan pasien'}`)
+      showError(
+        'Gagal Mendaftarkan Pasien',
+        result.message || 'Terjadi kesalahan saat mendaftarkan pasien'
+      )
     }
   } catch (error) {
     console.error('Error registering patient:', error)
-    alert('Terjadi kesalahan saat mendaftarkan pasien')
+    showError(
+      'Kesalahan Sistem',
+      'Terjadi kesalahan saat mendaftarkan pasien. Silakan coba lagi.'
+    )
   } finally {
     isRegisteringPatient.value = false
   }
@@ -769,9 +831,20 @@ const saveBooking = async () => {
 }
 
 const deleteBooking = async (booking) => {
-  if (confirm(`Apakah Anda yakin ingin menghapus booking ${booking.nama}?`)) {
-    // Implementation for deleting booking
-    console.log('Deleting booking:', booking)
+  const result = await showDeleteConfirmation(
+    'Hapus Booking',
+    `Apakah Anda yakin ingin menghapus booking ${booking.nama}?`
+  )
+  
+  if (result.isConfirmed) {
+    try {
+      // Implementation for deleting booking
+      console.log('Deleting booking:', booking)
+      showToast('Booking berhasil dihapus', 'success')
+    } catch (error) {
+      console.error('Error deleting booking:', error)
+      showError('Gagal Menghapus', 'Terjadi kesalahan saat menghapus booking')
+    }
   }
 }
 
@@ -806,6 +879,144 @@ const nextPage = () => {
 const goToPage = (page) => {
   currentPage.value = page
   // Implementation for page navigation
+}
+
+// NIK BPJS Auto-fill methods
+const handleNikInput = async () => {
+  // Clear previous timeout
+  if (nikTimeout) {
+    clearTimeout(nikTimeout)
+  }
+  
+  // Clear previous messages
+  // Note: nikError and nikSuccess are no longer used as we use SweetAlert2 toasts
+  
+  // Check if NIK is 16 digits
+  if (nikBpjs.value.length !== 16) {
+    return
+  }
+  
+  // Set timeout for real-time processing
+  nikTimeout = setTimeout(async () => {
+    await fetchNikData()
+  }, 500) // 500ms delay for real-time feel
+}
+
+// Auto-fill NIK BPJS field when registering from booking
+const autoFillNikFromBooking = () => {
+  if (selectedBooking.value?.nik) {
+    nikBpjs.value = selectedBooking.value.nik
+    // Trigger auto-fill immediately if NIK is valid
+    if (selectedBooking.value.nik.length === 16) {
+      fetchNikData()
+    }
+  }
+}
+
+const fetchNikData = async () => {
+  if (!nikBpjs.value || nikBpjs.value.length !== 16) {
+    return
+  }
+  
+  try {
+    isLoadingNikData.value = true
+    // Note: nikError and nikSuccess are no longer used as we use SweetAlert2 toasts
+    
+    const response = await fetch('/api/bpjs/check-nik', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+      },
+      body: JSON.stringify({ nik: nikBpjs.value })
+    })
+    
+    const result = await response.json()
+    
+    // Handle BPJS API response structure
+    if (response.ok && result.metaData && result.metaData.code === '200') {
+      const pesertaData = result.response?.peserta
+      
+      if (pesertaData) {
+        let hasAutoFilled = false
+        
+        // Auto-fill birth date from NIK or peserta data
+        if (pesertaData.tglLahir) {
+          registrationForm.value.tgl_lahir = pesertaData.tglLahir
+          hasAutoFilled = true
+        }
+        
+        // Auto-fill name
+        if (pesertaData.nama) {
+          registrationForm.value.nm_pasien = pesertaData.nama
+          hasAutoFilled = true
+        }
+        
+        // Auto-fill gender
+        if (pesertaData.sex) {
+          registrationForm.value.jk = pesertaData.sex === 'L' ? 'L' : 'P'
+          hasAutoFilled = true
+        } else if (pesertaData.jenisKelamin) {
+          registrationForm.value.jk = pesertaData.jenisKelamin === 'Laki-laki' ? 'L' : 'P'
+          hasAutoFilled = true
+        }
+        
+        // Auto-fill occupation from jenisPeserta
+        if (pesertaData.jenisPeserta && pesertaData.jenisPeserta.keterangan) {
+          registrationForm.value.pekerjaan = pesertaData.jenisPeserta.keterangan
+          hasAutoFilled = true
+        }
+        
+        // Auto-fill NIK
+        if (pesertaData.nik) {
+          registrationForm.value.no_ktp = pesertaData.nik
+          hasAutoFilled = true
+        }
+        
+        // Auto-fill BPJS card number
+        if (pesertaData.noKartu) {
+          registrationForm.value.no_peserta = pesertaData.noKartu
+          hasAutoFilled = true
+        }
+        
+        // Auto-fill address if available
+        if (pesertaData.alamat) {
+          registrationForm.value.alamat = pesertaData.alamat
+          hasAutoFilled = true
+        }
+        
+        // Auto-fill phone number if available
+        if (pesertaData.noHP) {
+          registrationForm.value.no_tlp = pesertaData.noHP
+          hasAutoFilled = true
+        }
+        
+        if (hasAutoFilled) {
+          showToast('Data peserta berhasil diambil dari BPJS dan form telah diisi otomatis', 'success')
+        } else {
+          showToast('Data peserta ditemukan di BPJS', 'info')
+        }
+      } else {
+        showToast('Data peserta ditemukan tetapi informasi tidak lengkap', 'warning')
+      }
+    } else if (result.metaData && result.metaData.code === '201') {
+      showToast(result.metaData.message || 'Data peserta tidak ditemukan di BPJS', 'error')
+    } else {
+      showToast(result.metaData?.message || 'Gagal mengambil data dari BPJS', 'error')
+    }
+  } catch (error) {
+    console.error('Error fetching NIK data:', error)
+    showToast('Terjadi kesalahan saat mengambil data BPJS', 'error')
+  } finally {
+    isLoadingNikData.value = false
+  }
+}
+
+// Auto-fill address from booking data
+const fillAddressFromBooking = () => {
+  if (selectedBooking.value?.alamat) {
+    registrationForm.value.alamat = selectedBooking.value.alamat
+  }
 }
 </script>
 <style scoped>

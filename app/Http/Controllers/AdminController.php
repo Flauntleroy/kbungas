@@ -98,7 +98,7 @@ class AdminController extends Controller
      */
     public function bookings()
     {
-        $bookings = BookingPeriksa::with(['poliklinik', 'dokter'])
+        $bookings = BookingPeriksa::with(['poliklinik', 'dokter', 'pasien'])
             ->orderBy('tanggal_booking', 'desc')
             ->paginate(20);
 

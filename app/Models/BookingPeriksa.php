@@ -68,6 +68,14 @@ class BookingPeriksa extends Model
     }
 
     /**
+     * Relationship dengan tabel pasien menggunakan NIK
+     */
+    public function pasien(): BelongsTo
+    {
+        return $this->belongsTo(Pasien::class, 'nik', 'no_ktp');
+    }
+
+    /**
      * Generate nomor booking otomatis
      */
     public static function generateBookingNumber(): string
