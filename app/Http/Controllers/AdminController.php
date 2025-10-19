@@ -278,4 +278,52 @@ class AdminController extends Controller
         
         return redirect()->back()->with('success', 'Status user berhasil diperbarui');
     }
+
+    /**
+     * Display reg_periksa management page
+     */
+    public function regPeriksa(Request $request)
+    {
+        $query = \App\Models\RegPeriksa::with(['dokter', 'poliklinik', 'pasien', 'penjab']);
+
+        // Apply filters
+        if ($request->filled('tanggal')) {
+            $query->whereDate('tgl_registrasi', $request->tanggal);
+        }
+
+        if ($request->filled('kd_poli')) {
+            $query->where('kd_poli', $request->kd_poli);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('stts', $request->status);
+        }
+
+        $registrations = $query->orderBy('tgl_registrasi', 'desc')
+                              ->orderBy('jam_reg', 'desc')
+                              ->paginate(15);
+
+        // Get available bookings for transfer
+        $availableBookings = BookingPeriksa::where('status', 'confirmed')
+                                          ->whereDoesntHave('regPeriksa')
+                                          ->orderBy('tanggal', 'desc')
+                                          ->get();
+
+        // Get polikliniks for filter
+        $polikliniks = \App\Models\Poliklinik::all();
+
+        return view('admin.reg-periksa.index', compact('registrations', 'availableBookings', 'polikliniks'));
+    }
+
+    /**
+     * Show specific reg_periksa details
+     */
+    public function showRegPeriksa($noRawat)
+    {
+        $registration = \App\Models\RegPeriksa::with(['dokter', 'poliklinik', 'pasien', 'penjab'])
+                                             ->where('no_rawat', $noRawat)
+                                             ->firstOrFail();
+
+        return view('admin.reg-periksa.show', compact('registration'));
+    }
 }

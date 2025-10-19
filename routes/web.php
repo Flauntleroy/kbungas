@@ -33,6 +33,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::put('/users/{user}', [App\Http\Controllers\AdminController::class, 'updateUser'])->name('users.update');
     Route::delete('/users/{user}', [App\Http\Controllers\AdminController::class, 'deleteUser'])->name('users.delete');
     Route::patch('/users/{user}/toggle-status', [App\Http\Controllers\AdminController::class, 'toggleUserStatus'])->name('users.toggle-status');
+    
+    // Registrasi Periksa Routes
+    Route::get('/reg-periksa', [App\Http\Controllers\AdminController::class, 'regPeriksa'])->name('reg-periksa.index');
+    Route::get('/reg-periksa/{noRawat}', [App\Http\Controllers\AdminController::class, 'showRegPeriksa'])->name('reg-periksa.show');
 });
 
 require __DIR__.'/settings.php';

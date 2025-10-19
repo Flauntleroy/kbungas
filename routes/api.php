@@ -46,3 +46,17 @@ Route::prefix('booking')->name('api.booking.')->group(function () {
     Route::post('/confirm/{token}', [App\Http\Controllers\BookingController::class, 'confirmBooking'])->name('confirm');
     Route::post('/register-patient/{noBooking}', [App\Http\Controllers\BookingController::class, 'registerPatientFromBooking'])->name('register.patient');
 });
+
+// Registrasi Periksa API Routes
+Route::prefix('reg-periksa')->name('api.reg.periksa.')->group(function () {
+    Route::get('/', [App\Http\Controllers\RegPeriksaController::class, 'index'])->name('index');
+    Route::post('/', [App\Http\Controllers\RegPeriksaController::class, 'store'])->name('store');
+    Route::get('/{noRawat}', [App\Http\Controllers\RegPeriksaController::class, 'show'])->name('show');
+    Route::put('/{noRawat}', [App\Http\Controllers\RegPeriksaController::class, 'update'])->name('update');
+    Route::delete('/{noRawat}', [App\Http\Controllers\RegPeriksaController::class, 'destroy'])->name('destroy');
+    
+    // Transfer booking to reg_periksa
+    Route::post('/transfer/{noBooking}', [App\Http\Controllers\RegPeriksaController::class, 'transferFromBooking'])->name('transfer.booking');
+    Route::post('/transfer-multiple', [App\Http\Controllers\RegPeriksaController::class, 'transferMultipleBookings'])->name('transfer.multiple');
+    Route::get('/validate-booking/{noBooking}', [App\Http\Controllers\RegPeriksaController::class, 'validateBookingForTransfer'])->name('validate.booking');
+});

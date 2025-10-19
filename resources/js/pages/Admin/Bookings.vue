@@ -170,9 +170,14 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
                     </svg>
                   </button>
-                  <button @click="deleteBooking(booking)" class="text-red-600 hover:text-red-800">
+                  <button 
+                    @click="transferToRegPeriksa(booking)" 
+                    class="text-blue-600 hover:text-blue-800"
+                    :disabled="isTransferring || booking.status !== 'Diterima'"
+                    title="Transfer ke Reg Periksa"
+                  >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
                     </svg>
                   </button>
                 </div>
@@ -596,6 +601,7 @@ const searchQuery = ref('')
 const currentPage = ref(props.bookings.current_page)
 const itemsPerPage = ref(props.bookings.per_page)
 const isRegisteringPatient = ref(false)
+const isTransferring = ref(false)
 
 // NIK BPJS Auto-fill State
 const nikBpjs = ref('')
@@ -1069,6 +1075,83 @@ const fetchNikData = async () => {
 const fillAddressFromBooking = () => {
   if (selectedBooking.value?.alamat) {
     registrationForm.value.alamat = selectedBooking.value.alamat
+  }
+}
+
+// Transfer to Reg Periksa methods
+const transferToRegPeriksa = async (booking) => {
+  if (isTransferring.value) return
+  
+  const result = await showConfirmation(
+    'Transfer ke Reg Periksa',
+    `Apakah Anda yakin ingin mentransfer booking ${booking.nama} ke Reg Periksa?`
+  )
+  
+  if (result.isConfirmed) {
+    try {
+      isTransferring.value = true
+      
+      const response = await fetch(`/api/reg-periksa/transfer/${booking.no_booking}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+        }
+      })
+      
+      const result = await response.json()
+      
+      console.log('Transfer response:', { 
+        status: response.status, 
+        ok: response.ok, 
+        result: result 
+      })
+      
+      if (response.ok && result.success) {
+        // Show success message with detailed registration info
+        const confirmResult = await Swal.fire({
+          title: 'Transfer Berhasil!',
+          html: `
+            <div class="text-left">
+              <p class="mb-3">Booking <strong>${booking.nama}</strong> berhasil ditransfer ke Reg Periksa.</p>
+              <div class="bg-green-50 p-4 rounded-lg mb-4">
+                <h4 class="font-semibold text-green-800 mb-2">Detail Registrasi SIMRS:</h4>
+                <p class="text-sm"><strong>No. Rawat:</strong> ${result.data.no_rawat}</p>
+                <p class="text-sm"><strong>No. Registrasi:</strong> ${result.data.no_reg}</p>
+                <p class="text-sm"><strong>No. RM:</strong> ${result.data.no_rkm_medis}</p>
+                <p class="text-sm"><strong>Pasien:</strong> ${result.data.nama_pasien}</p>
+                <p class="text-sm"><strong>Tanggal:</strong> ${new Date(result.data.tgl_registrasi).toLocaleDateString('id-ID')}</p>
+                <p class="text-sm"><strong>Poli:</strong> ${result.data.poli}</p>
+                <p class="text-sm"><strong>Dokter:</strong> ${result.data.dokter}</p>
+              </div>
+              <p class="mb-4 text-sm text-gray-600">Pasien sudah terdaftar di SIMRS dan siap untuk pemeriksaan.</p>
+            </div>
+          `,
+          icon: 'success',
+          showCancelButton: false,
+          confirmButtonText: 'OK, Tutup',
+          confirmButtonColor: '#10b981',
+          width: '600px'
+        })
+        
+        // Reload the page to refresh the data
+        window.location.reload()
+      } else {
+        console.error('Transfer failed:', result)
+        showError(
+          'Transfer Gagal',
+          result.message || 'Terjadi kesalahan saat mentransfer booking'
+        )
+      }
+    } catch (error) {
+      console.error('Error transferring booking:', error)
+      showError(
+        'Kesalahan Sistem',
+        'Terjadi kesalahan saat mentransfer booking. Silakan coba lagi.'
+      )
+    } finally {
+      isTransferring.value = false
+    }
   }
 }
 </script>
