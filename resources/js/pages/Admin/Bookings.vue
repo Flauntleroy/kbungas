@@ -535,6 +535,14 @@
       </div>
     </div>
     </div>
+
+    <!-- Registration Success Modal -->
+    <RegistrationSuccessModal 
+      :is-visible="showSuccessModal"
+      :patient-data="successPatientData"
+      @ok="handleSuccessModalOk"
+      @close="showSuccessModal = false"
+    />
   </AdminLayout>
 </template>
 
@@ -542,6 +550,7 @@
 import { ref, computed, onMounted } from 'vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import { useSweetAlert } from '@/composables/useSweetAlert'
+import RegistrationSuccessModal from '@/components/RegistrationSuccessModal.vue'
 
 // Props dari AdminController
 interface Props {
@@ -574,6 +583,13 @@ const props = defineProps<Props>()
 const showFilters = ref(false)
 const showModal = ref(false)
 const showRegistrationModal = ref(false)
+const showSuccessModal = ref(false)
+const successPatientData = ref({
+  no_rkm_medis: '',
+  nama: '',
+  no_telp: '',
+  alamat: ''
+})
 const editingBooking = ref(null)
 const selectedBooking = ref(null)
 const searchQuery = ref('')
@@ -590,6 +606,11 @@ let nikTimeout: NodeJS.Timeout | null = null
 
 // Initialize SweetAlert composable
 const { showSuccess, showError, showWarning, showConfirmation, showDeleteConfirmation, showToast } = useSweetAlert()
+
+// Test modal visibility - temporary for debugging
+onMounted(() => {
+  console.log('Bookings component mounted')
+})
 
 // Filters
 const filters = ref({
@@ -676,6 +697,12 @@ const closeRegistrationModal = () => {
   }
 }
 
+const handleSuccessModalOk = () => {
+  showSuccessModal.value = false
+  // Reload the page to refresh the data
+  window.location.reload()
+}
+
 const submitPatientRegistration = async () => {
   if (isRegisteringPatient.value || !selectedBooking.value) return
   
@@ -694,16 +721,25 @@ const submitPatientRegistration = async () => {
     const result = await response.json()
     
     if (response.ok) {
-      if (result.status === 'already_registered') {
+      console.log('Registration API Response:', result)
+      if (result.success === false && result.patient) {
+        // Patient already exists
         showWarning(
           'Pasien Sudah Terdaftar',
           `Pasien ${selectedBooking.value.nama} sudah terdaftar di SIMRS dengan No. RM: ${result.patient.no_rkm_medis}`
         )
-      } else if (result.status === 'registered') {
-        showSuccess(
-          'Pendaftaran Berhasil',
-          `Pasien ${selectedBooking.value.nama} berhasil didaftarkan ke SIMRS dengan No. RM: ${result.patient.no_rkm_medis}`
-        )
+      } else if (result.success === true && result.patient) {
+        console.log('Setting up success modal with patient data:', result.patient)
+        // Show custom success modal with patient details
+        successPatientData.value = {
+          no_rkm_medis: result.patient.no_rkm_medis,
+          nama: result.patient.nama,
+          no_telp: result.patient.no_tlp || selectedBooking.value.no_telp,
+          alamat: result.patient.alamat
+        }
+        console.log('Success patient data set:', successPatientData.value)
+        showSuccessModal.value = true
+        console.log('showSuccessModal set to:', showSuccessModal.value)
       }
       closeRegistrationModal()
     } else {
