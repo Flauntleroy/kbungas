@@ -109,6 +109,15 @@ class WhatsAppService
     }
 
     /**
+     * Kirim notifikasi penerimaan booking ke pasien
+     */
+    public function sendBookingAcceptanceNotification($booking)
+    {
+        $message = $this->generateAcceptanceMessage($booking);
+        return $this->sendMessage($booking->no_telp, $message);
+    }
+
+    /**
      * Generate pesan untuk pasien
      */
     private function generatePatientMessage($booking)
@@ -151,6 +160,30 @@ class WhatsAppService
                "• Link berlaku selama 24 jam\n" .
                "• Setelah dikonfirmasi, pasien akan mendapat notifikasi otomatis\n" .
                "R'Bungas ";
+    }
+
+    /**
+     * Generate pesan penerimaan booking untuk pasien
+     */
+    private function generateAcceptanceMessage($booking)
+    {
+        return "*BOOKING DITERIMA - KLINIK BUNGAS* ✅\n\n" .
+               "Halo {$booking->nama},\n\n" .
+               "Kabar baik! Booking Anda telah *DITERIMA* oleh dokter.\n\n" .
+               "*Detail Booking:*\n" .
+               "📋 *No. Booking:* {$booking->no_booking}\n" .
+               "👤 *Nama:* {$booking->nama}\n" .
+               "📅 *Tanggal:* {$booking->tanggal_formatted}\n" .
+               "👨‍⚕️ *Dokter:* {$booking->dokter->nm_dokter}\n" .
+               "🏥 *Poliklinik:* {$booking->poliklinik->nm_poli}\n" .
+               "✅ *Status:* DITERIMA\n\n" .
+               "📍 *Alamat Klinik:*\n" .
+               "Jl. Contoh No. 123, Kota Anda\n\n" .
+               "⏰ *Harap datang 15 menit sebelum jadwal*\n" .
+               "📋 *Bawa dokumen:* KTP, Kartu BPJS (jika ada)\n\n" .
+               "Jika ada pertanyaan, silakan hubungi kami.\n\n" .
+               "Terima kasih telah mempercayai Klinik Bungas! 🙏\n\n" .
+               "_Pesan otomatis dari Sistem Klinik Bungas_";
     }
 
     /**

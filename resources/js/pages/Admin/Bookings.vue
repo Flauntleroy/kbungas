@@ -155,14 +155,29 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex space-x-2">
-                  <button @click="editBooking(booking)" class="text-rose-600 hover:text-rose-800">
+                  <button 
+                    @click="editBooking(booking)" 
+                    class="text-blue-600 hover:text-blue-800"
+                    title="Edit"
+                  >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                     </svg>
                   </button>
                   <button 
-                    @click="registerPatient(booking)" 
+                    v-if="booking.status === 'Belum Dibalas'"
+                    @click="acceptBooking(booking)" 
                     class="text-green-600 hover:text-green-800"
+                    :disabled="isAccepting"
+                    title="Terima Booking"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </button>
+                  <button 
+                    @click="registerPatient(booking)" 
+                    class="text-purple-600 hover:text-purple-800"
                     :disabled="isRegisteringPatient"
                     title="Daftarkan ke SIMRS"
                   >
@@ -602,6 +617,7 @@ const currentPage = ref(props.bookings.current_page)
 const itemsPerPage = ref(props.bookings.per_page)
 const isRegisteringPatient = ref(false)
 const isTransferring = ref(false)
+const isAccepting = ref(false)
 
 // NIK BPJS Auto-fill State
 const nikBpjs = ref('')
@@ -1075,6 +1091,69 @@ const fetchNikData = async () => {
 const fillAddressFromBooking = () => {
   if (selectedBooking.value?.alamat) {
     registrationForm.value.alamat = selectedBooking.value.alamat
+  }
+}
+
+// Accept booking methods
+const acceptBooking = async (booking) => {
+  if (isAccepting.value) return
+  
+  const result = await showConfirmation(
+    'Terima Booking',
+    `Apakah Anda yakin ingin menerima booking dari ${booking.nama}?`
+  )
+  
+  if (result.isConfirmed) {
+    try {
+      isAccepting.value = true
+      
+      const response = await fetch(`/api/bookings/${booking.no_booking}/accept`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+        }
+      })
+      
+      const result = await response.json()
+      
+      if (response.ok && result.success) {
+        await showSuccess(
+          'Booking Diterima!',
+          undefined,
+          `
+            <div class="text-left">
+              <p class="mb-3">Booking dari <strong>${booking.nama}</strong> berhasil diterima.</p>
+              <div class="bg-green-50 p-4 rounded-lg mb-4">
+                <h4 class="font-semibold text-green-800 mb-2">Detail Booking:</h4>
+                <p class="text-sm"><strong>No. Booking:</strong> ${booking.no_booking}</p>
+                <p class="text-sm"><strong>Nama:</strong> ${booking.nama}</p>
+                <p class="text-sm"><strong>Tanggal:</strong> ${new Date(booking.tanggal).toLocaleDateString('id-ID')}</p>
+                <p class="text-sm"><strong>Dokter:</strong> ${booking.dokter?.nm_dokter || 'N/A'}</p>
+                <p class="text-sm"><strong>Poli:</strong> ${booking.poliklinik?.nm_poli || 'N/A'}</p>
+              </div>
+              <p class="mb-4 text-sm text-gray-600">Notifikasi telah dikirim ke pasien melalui WhatsApp.</p>
+            </div>
+          `
+        )
+        
+        // Refresh the page after showing success
+        window.location.reload()
+      } else {
+        await showError(
+          'Gagal Menerima Booking',
+          result.message || 'Terjadi kesalahan saat menerima booking'
+        )
+      }
+    } catch (error) {
+      console.error('Error accepting booking:', error)
+      await showError(
+        'Kesalahan Sistem',
+        'Terjadi kesalahan saat menerima booking. Silakan coba lagi.'
+      )
+    } finally {
+      isAccepting.value = false
+    }
   }
 }
 

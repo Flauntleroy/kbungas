@@ -47,6 +47,11 @@ Route::prefix('booking')->name('api.booking.')->group(function () {
     Route::post('/register-patient/{noBooking}', [App\Http\Controllers\BookingController::class, 'registerPatientFromBooking'])->name('register.patient');
 });
 
+// Bookings API Routes (alternative path)
+Route::prefix('bookings')->name('api.bookings.')->group(function () {
+    Route::post('/{noBooking}/accept', [App\Http\Controllers\BookingController::class, 'acceptBooking'])->name('accept');
+});
+
 // Registrasi Periksa API Routes
 Route::prefix('reg-periksa')->name('api.reg.periksa.')->group(function () {
     Route::get('/', [App\Http\Controllers\RegPeriksaController::class, 'index'])->name('index');

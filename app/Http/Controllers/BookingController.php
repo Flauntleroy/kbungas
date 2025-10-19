@@ -776,4 +776,104 @@ class BookingController extends Controller
             ]);
         }
     }
+
+    /**
+     * Accept booking and send notification to patient
+     */
+    public function acceptBooking(Request $request, $noBooking): JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            // Find booking
+            $booking = BookingPeriksa::where('no_booking', $noBooking)
+                ->with(['poliklinik', 'dokter', 'penjab'])
+                ->first();
+
+            if (!$booking) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Booking tidak ditemukan'
+                ], 404);
+            }
+
+            // Check if booking can be accepted
+            if ($booking->status !== BookingPeriksa::STATUS_BELUM_DIBALAS) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Booking tidak dapat diterima. Status saat ini: ' . $booking->status
+                ], 422);
+            }
+
+            // Update booking status to accepted
+            $booking->update([
+                'status' => BookingPeriksa::STATUS_DITERIMA
+            ]);
+
+            DB::commit();
+
+            // Send WhatsApp notification to patient
+            $this->sendAcceptanceNotification($booking);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Booking berhasil diterima',
+                'data' => [
+                    'no_booking' => $booking->no_booking,
+                    'nama' => $booking->nama,
+                    'status' => $booking->status,
+                    'tanggal' => $booking->tanggal_formatted,
+                    'dokter' => $booking->dokter->nm_dokter ?? 'N/A',
+                    'poliklinik' => $booking->poliklinik->nm_poli ?? 'N/A'
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            Log::error('Error accepting booking', [
+                'booking_number' => $noBooking,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menerima booking'
+            ], 500);
+        }
+    }
+
+    /**
+     * Send acceptance notification to patient via WhatsApp
+     */
+    private function sendAcceptanceNotification(BookingPeriksa $booking): void
+    {
+        try {
+            if (empty($booking->no_telp)) {
+                Log::warning('Patient phone number is empty', [
+                    'booking_id' => $booking->no_booking,
+                    'patient_name' => $booking->nama
+                ]);
+                return;
+            }
+
+            $result = $this->whatsAppService->sendBookingAcceptanceNotification($booking);
+            
+            Log::info('WhatsApp acceptance notification sent', [
+                'booking_id' => $booking->no_booking,
+                'patient_phone' => $booking->no_telp,
+                'patient_name' => $booking->nama,
+                'success' => $result['success'],
+                'message' => $result['message']
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error sending acceptance notification', [
+                'booking_id' => $booking->no_booking,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    }
 }
