@@ -90,8 +90,8 @@
         <table class="w-full">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pasien</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No Rekam Medis</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pasien</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal & Waktu</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dokter</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -101,24 +101,34 @@
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <tr v-for="booking in filteredBookings" :key="booking.no_booking" class="hover:bg-gray-50">
+               <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">
+                  <span
+                    :class="booking.pasien?.no_rkm_medis
+                      ? 'bg-green-300 text-black font-bold px-3 py-1 rounded-lg shadow-md'
+                      : 'bg-red-400 text-white font-bold px-3 py-1 rounded-lg shadow-md'"
+                  >
+                    {{ booking.pasien?.no_rkm_medis || 'Belum' }}
+                  </span>
+                </div>
+              </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
-                  <div class="w-10 h-10 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full flex items-center justify-center">
+                  <!-- <div class="w-10 h-10 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full flex items-center justify-center">
                     <span class="text-white text-sm font-semibold">{{ booking.nama.charAt(0) }}</span>
-                  </div>
-                  <div class="ml-4">
+                  </div> -->
+                  <div class="ml-0">
                     <div class="text-sm font-medium text-gray-900">{{ booking.nama }}</div>
                     <div class="text-sm text-gray-500">{{ booking.no_telp }}</div>
                   </div>
                 </div>
               </td>
+             
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm text-gray-900">
-                  {{ booking.pasien?.no_rkm_medis || 'Belum' }}
+                  <div>{{ formatDateOnly(booking.tanggal) }}</div>
+                  <div class="text-xs text-gray-500">Pukul {{ formatTimeOnly(booking.tanggal) }} WITA</div>
                 </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">{{ formatDate(booking.tanggal) }}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm text-gray-900">{{ booking.dokter?.nm_dokter || 'N/A' }}</div>
@@ -775,6 +785,27 @@ const formatDate = (dateString) => {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
+  }) + ' Pukul ' + date.toLocaleTimeString('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+const formatDateOnly = (dateString) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('id-ID', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+const formatTimeOnly = (dateString) => {
+  const date = new Date(dateString)
+  return date.toLocaleTimeString('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit'
   })
 }
 
