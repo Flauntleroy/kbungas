@@ -1091,6 +1091,8 @@ const transferToRegPeriksa = async (booking) => {
     try {
       isTransferring.value = true
       
+      console.log('Starting transfer for booking:', booking.no_booking)
+      
       const response = await fetch(`/api/reg-periksa/transfer/${booking.no_booking}`, {
         method: 'POST',
         headers: {
@@ -1099,19 +1101,39 @@ const transferToRegPeriksa = async (booking) => {
         }
       })
       
+      console.log('Raw response:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries())
+      })
+      
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type')
+      console.log('Content-Type:', contentType)
+      
+      if (!contentType || !contentType.includes('application/json')) {
+        const textResponse = await response.text()
+        console.error('Non-JSON response:', textResponse)
+        throw new Error('Server returned non-JSON response: ' + textResponse.substring(0, 200))
+      }
+      
       const result = await response.json()
       
-      console.log('Transfer response:', { 
-        status: response.status, 
-        ok: response.ok, 
-        result: result 
+      console.log('Parsed JSON result:', result)
+      console.log('Response conditions:', {
+        'response.ok': response.ok,
+        'result.success': result.success,
+        'combined': response.ok && result.success
       })
       
       if (response.ok && result.success) {
+        console.log('Success condition met, showing success popup')
         // Show success message with detailed registration info
-        const confirmResult = await Swal.fire({
-          title: 'Transfer Berhasil!',
-          html: `
+        await showSuccess(
+          'Transfer Berhasil!',
+          undefined,
+          `
             <div class="text-left">
               <p class="mb-3">Booking <strong>${booking.nama}</strong> berhasil ditransfer ke Reg Periksa.</p>
               <div class="bg-green-50 p-4 rounded-lg mb-4">
@@ -1126,18 +1148,18 @@ const transferToRegPeriksa = async (booking) => {
               </div>
               <p class="mb-4 text-sm text-gray-600">Pasien sudah terdaftar di SIMRS dan siap untuk pemeriksaan.</p>
             </div>
-          `,
-          icon: 'success',
-          showCancelButton: false,
-          confirmButtonText: 'OK, Tutup',
-          confirmButtonColor: '#10b981',
-          width: '600px'
-        })
+          `
+        )
         
         // Reload the page to refresh the data
         window.location.reload()
       } else {
-        console.error('Transfer failed:', result)
+        console.log('Failure condition met, showing error popup')
+        console.error('Transfer failed:', {
+          responseOk: response.ok,
+          resultSuccess: result.success,
+          result: result
+        })
         showError(
           'Transfer Gagal',
           result.message || 'Terjadi kesalahan saat mentransfer booking'

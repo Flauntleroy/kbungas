@@ -21,16 +21,18 @@ export const useSweetAlert = () => {
   }
 
   // Success alert
-  const showSuccess = (title: string, text?: string) => {
+  const showSuccess = (title: string, text?: string, html?: string) => {
     return Swal.fire({
       ...baseConfig,
       icon: 'success',
       title,
-      text,
+      text: html ? undefined : text,
+      html: html || undefined,
       iconColor: '#10b981',
-      timer: 3000,
+      timer: html ? 5000 : 3000, // Longer timer for HTML content
       timerProgressBar: true,
-      showConfirmButton: false
+      showConfirmButton: html ? true : false, // Show confirm button for HTML content
+      confirmButtonText: 'Tutup'
     })
   }
 
