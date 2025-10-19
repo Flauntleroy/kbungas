@@ -95,8 +95,7 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal & Waktu</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dokter</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kontak</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi & Kontak</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
@@ -139,62 +138,177 @@
                   {{ getStatusText(booking.status) }}
                 </span>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <div class="flex space-x-2">
-                  <a :href="`tel:${booking.no_telp}`" class="text-rose-600 hover:text-rose-800">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                    </svg>
-                  </a>
-                  <a :href="`https://wa.me/${booking.no_telp.replace(/[^0-9]/g, '')}`" class="text-green-600 hover:text-green-800">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.109"/>
-                    </svg>
-                  </a>
-                </div>
-              </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <div class="flex space-x-2">
-                  <button 
-                    @click="editBooking(booking)" 
-                    class="text-blue-600 hover:text-blue-800"
-                    title="Edit"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                <div class="relative">
+                    <button 
+                      @click.stop="toggleDropdown(booking.no_booking)"
+                      class="group inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-gray-50 to-gray-100 hover:from-rose-50 hover:to-pink-100 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 shadow-sm hover:shadow-md"
+                    >
+                    <svg 
+                      class="w-5 h-5 text-gray-600 group-hover:text-gray-800 rotate-icon" 
+                      :class="{ 'rotated': dropdownOpen === booking.no_booking }"
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
                     </svg>
                   </button>
-                  <button 
-                    v-if="booking.status === 'Belum Dibalas'"
-                    @click="acceptBooking(booking)" 
-                    class="text-green-600 hover:text-green-800"
-                    :disabled="isAccepting"
-                    title="Terima Booking"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                  </button>
-                  <button 
-                    @click="registerPatient(booking)" 
-                    class="text-purple-600 hover:text-purple-800"
-                    :disabled="isRegisteringPatient"
-                    title="Daftarkan ke SIMRS"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
-                    </svg>
-                  </button>
-                  <button 
-                    @click="transferToRegPeriksa(booking)" 
-                    class="text-blue-600 hover:text-blue-800"
-                    :disabled="isTransferring || booking.status !== 'Diterima'"
-                    title="Transfer ke Reg Periksa"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
-                    </svg>
-                  </button>
+                  
+                  <Transition name="dropdown" appear>
+                    <div 
+                      v-show="dropdownOpen === booking.no_booking"
+                      class="absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200/50 z-50 overflow-hidden"
+                      @click.stop
+                    >
+                      <!-- Header -->
+                      <div class="px-5 py-4 bg-gradient-to-r from-rose-50/80 to-pink-50/80 border-b border-gray-200/30">
+                        <div class="flex items-center justify-between">
+                          <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-rose-100 to-pink-100 rounded-full flex items-center justify-center">
+                              <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                              </svg>
+                            </div>
+                            <div>
+                              <h3 class="text-sm font-semibold text-gray-800">{{ booking.nama }}</h3>
+                              <p class="text-xs text-gray-600 mt-0.5">{{ booking.no_telp }}</p>
+                            </div>
+                          </div>
+                          <button 
+                            @click="closeDropdown()"
+                            class="p-1.5 rounded-full hover:bg-white/70 transition-all duration-200 group"
+                          >
+                            <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="py-3">
+                        <!-- Kontak Section -->
+                        <div class="px-5 py-3">
+                          <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center">
+                            <svg class="w-3 h-3 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                            </svg>
+                            Kontak
+                          </h4>
+                          <div class="space-y-2">
+                            <a 
+                              :href="`tel:${booking.no_telp}`" 
+                              class="action-button flex items-center px-4 py-3 rounded-xl text-sm text-gray-700 hover:bg-blue-50/80 hover:text-blue-700 color-transition group border border-transparent hover:border-blue-200/50"
+                            >
+                              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center mr-3 group-hover:from-blue-200 group-hover:to-blue-300 transition-all duration-200">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                </svg>
+                              </div>
+                              <div class="flex-1">
+                                <span class="font-medium">Telepon</span>
+                                <p class="text-xs text-gray-500 mt-0.5">Hubungi langsung</p>
+                              </div>
+                            </a>
+                          
+                            <a 
+                              :href="`https://wa.me/${booking.no_telp.replace(/[^0-9]/g, '')}`" 
+                              target="_blank"
+                              class="action-button flex items-center px-4 py-3 rounded-xl text-sm text-gray-700 hover:bg-green-50/80 hover:text-green-700 color-transition group border border-transparent hover:border-green-200/50"
+                            >
+                              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center mr-3 group-hover:from-green-200 group-hover:to-green-300 transition-all duration-200">
+                                <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.109"/>
+                                </svg>
+                              </div>
+                              <div class="flex-1">
+                                <span class="font-medium">WhatsApp</span>
+                                <p class="text-xs text-gray-500 mt-0.5">Kirim pesan</p>
+                              </div>
+                            </a>
+                          </div>
+                        </div>
+                        
+                        <!-- Divider -->
+                        <div class="mx-5 my-4 border-t border-gray-200/60"></div>
+                        
+                        <!-- Aksi Section -->
+                        <div class="px-5 py-3">
+                          <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center">
+                            <svg class="w-3 h-3 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                            Aksi
+                          </h4>
+                          <div class="space-y-2">
+                            <button 
+                              @click="editBooking(booking); closeDropdown()"
+                              class="action-button flex items-center w-full px-4 py-3 rounded-xl text-sm text-gray-700 hover:bg-amber-50/80 hover:text-amber-700 color-transition group border border-transparent hover:border-amber-200/50"
+                            >
+                              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center mr-3 group-hover:from-amber-200 group-hover:to-amber-300 transition-all duration-200">
+                                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                              </div>
+                              <div class="flex-1 text-left">
+                                <span class="font-medium">Edit Booking</span>
+                                <p class="text-xs text-gray-500 mt-0.5">Ubah detail booking</p>
+                              </div>
+                            </button>
+                            
+                            <button 
+                              v-if="booking.status === 'Belum Dibalas'"
+                              @click="acceptBooking(booking); closeDropdown()"
+                              :disabled="isAccepting"
+                              class="action-button flex items-center w-full px-4 py-3 rounded-xl text-sm text-gray-700 hover:bg-green-50/80 hover:text-green-700 color-transition group disabled:opacity-50 disabled:cursor-not-allowed border border-transparent hover:border-green-200/50"
+                            >
+                              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center mr-3 group-hover:from-green-200 group-hover:to-green-300 transition-all duration-200">
+                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                              </div>
+                              <div class="flex-1 text-left">
+                                <span class="font-medium">Terima Booking</span>
+                                <p class="text-xs text-gray-500 mt-0.5">Konfirmasi booking pasien</p>
+                              </div>
+                            </button>
+                            
+                            <button 
+                              @click="registerPatient(booking); closeDropdown()"
+                              :disabled="isRegisteringPatient"
+                              class="action-button flex items-center w-full px-4 py-3 rounded-xl text-sm text-gray-700 hover:bg-purple-50/80 hover:text-purple-700 color-transition group disabled:opacity-50 disabled:cursor-not-allowed border border-transparent hover:border-purple-200/50"
+                            >
+                              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center mr-3 group-hover:from-purple-200 group-hover:to-purple-300 transition-all duration-200">
+                                <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
+                                </svg>
+                              </div>
+                              <div class="flex-1 text-left">
+                                <span class="font-medium">Daftarkan ke SIMRS</span>
+                                <p class="text-xs text-gray-500 mt-0.5">Registrasi pasien ke sistem</p>
+                              </div>
+                            </button>
+                            
+                            <button 
+                              @click="transferToRegPeriksa(booking); closeDropdown()"
+                              :disabled="isTransferring || booking.status !== 'Diterima'"
+                              class="action-button flex items-center w-full px-4 py-3 rounded-xl text-sm text-gray-700 hover:bg-indigo-50/80 hover:text-indigo-700 color-transition group disabled:opacity-50 disabled:cursor-not-allowed border border-transparent hover:border-indigo-200/50"
+                            >
+                              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center mr-3 group-hover:from-indigo-200 group-hover:to-indigo-300 transition-all duration-200">
+                                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                                </svg>
+                              </div>
+                              <div class="flex-1 text-left">
+                                <span class="font-medium">Transfer ke Reg Periksa</span>
+                                <p class="text-xs text-gray-500 mt-0.5">Pindah ke registrasi periksa</p>
+                              </div>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Transition>
                 </div>
               </td>
             </tr>
@@ -567,7 +681,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import { useSweetAlert } from '@/composables/useSweetAlert'
 import RegistrationSuccessModal from '@/components/RegistrationSuccessModal.vue'
@@ -619,7 +733,10 @@ const isRegisteringPatient = ref(false)
 const isTransferring = ref(false)
 const isAccepting = ref(false)
 
-// Reactive bookings data for real-time updates
+// Dropdown state
+const dropdownOpen = ref(null)
+
+// Reactive copy of bookings data for real-time updates
 const bookingsData = ref(props.bookings)
 
 // NIK BPJS Auto-fill State
@@ -850,6 +967,14 @@ const visiblePages = computed(() => {
 })
 
 // Methods
+const toggleDropdown = (bookingId) => {
+  dropdownOpen.value = dropdownOpen.value === bookingId ? null : bookingId
+}
+
+const closeDropdown = () => {
+  dropdownOpen.value = null
+}
+
 const refreshBookings = async () => {
   try {
     const response = await fetch(`/admin/bookings?page=${currentPage.value}`, {
@@ -1203,7 +1328,7 @@ const transferToRegPeriksa = async (booking) => {
   if (isTransferring.value) return
   
   const result = await showConfirmation(
-    'Transfer ke Reg Periksa',
+    'Daftarkan pasien ke PendaSIMRS',
     `Apakah Anda yakin ingin mentransfer booking ${booking.nama} ke Reg Periksa?`
   )
   
@@ -1302,6 +1427,15 @@ const transferToRegPeriksa = async (booking) => {
     }
   }
 }
+
+// Event listener untuk menutup dropdown saat klik di luar
+onMounted(() => {
+  document.addEventListener('click', closeDropdown)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', closeDropdown)
+})
 </script>
 <style scoped>
 /* Ensure full width by removing any inherited constraints */
@@ -1311,5 +1445,66 @@ const transferToRegPeriksa = async (booking) => {
   max-width: 100% !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
+}
+
+/* Dropdown Animations */
+.dropdown-enter-active {
+  animation: dropdownFadeIn 0.3s ease-out;
+}
+
+.dropdown-leave-active {
+  animation: dropdownFadeOut 0.2s ease-in;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes dropdownFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+}
+
+/* Button Hover Animations */
+.action-button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Icon Rotation Animation */
+.rotate-icon {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rotate-icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* Smooth Color Transitions */
+.color-transition {
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+/* Backdrop Blur Effect */
+.backdrop-blur {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 </style>
