@@ -674,8 +674,25 @@ class BookingController extends Controller
 
             DB::beginTransaction();
 
-            // Create patient from booking data using the new method
-            $patient = \App\Models\Pasien::createFromBookingData($booking);
+            // Get additional data from request
+            $additionalData = $request->only([
+                'nm_pasien',
+                'tmp_lahir',
+                'tgl_lahir',
+                'jk',
+                'nm_ibu',
+                'gol_darah',
+                'pekerjaan',
+                'stts_nikah',
+                'agama',
+                'pnd',
+                'alamat',
+                'keluarga',
+                'namakeluarga'
+            ]);
+
+            // Create patient from booking data using the new method with additional data
+            $patient = \App\Models\Pasien::createFromBookingData($booking, $additionalData);
 
             DB::commit();
 
@@ -697,10 +714,11 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error registering patient from booking: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat mendaftarkan pasien ke SIMRS'
+                'message' => 'Terjadi kesalahan saat mendaftarkan pasien ke SIMRS: ' . $e->getMessage()
             ], 500);
         }
     }

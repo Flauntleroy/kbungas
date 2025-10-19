@@ -155,7 +155,7 @@ class Pasien extends Model
             'kelurahanpj' => $additionalData['kelurahanpj'] ?? '',
             'kecamatanpj' => $additionalData['kecamatanpj'] ?? '',
             'kabupatenpj' => $additionalData['kabupatenpj'] ?? '',
-            'perusahaan_pasien' => $additionalData['perusahaan_pasien'] ?? '',
+            'perusahaan_pasien' => $additionalData['perusahaan_pasien'] ?? '-',
             'suku_bangsa' => $additionalData['suku_bangsa'] ?? 1,
             'bahasa_pasien' => $additionalData['bahasa_pasien'] ?? 1,
             'cacat_fisik' => $additionalData['cacat_fisik'] ?? 1,
@@ -173,11 +173,16 @@ class Pasien extends Model
     {
         $noRkmMedis = self::generateNoRkmMedis();
         
-        // Try to extract birth date from NIK (positions 7-12: DDMMYY)
+        // Use provided birth date or extract from NIK
         $tglLahir = null;
         $umur = '0 Th';
         
-        if (strlen($booking->nik) === 16) {
+        if (!empty($additionalData['tgl_lahir'])) {
+            // Use provided birth date
+            $tglLahir = Carbon::parse($additionalData['tgl_lahir']);
+            $umur = $tglLahir->age . ' Th';
+        } elseif (strlen($booking->nik) === 16) {
+            // Try to extract birth date from NIK (positions 7-12: DDMMYY)
             $day = substr($booking->nik, 6, 2);
             $month = substr($booking->nik, 8, 2);
             $year = substr($booking->nik, 10, 2);
@@ -198,22 +203,22 @@ class Pasien extends Model
             $umur = $tglLahir->age . ' Th';
         }
 
-        // Determine gender from NIK (position 7: odd = male, even = female)
-        $jk = 'L'; // Default
-        if (strlen($booking->nik) === 16) {
+        // Use provided gender or determine from NIK
+        $jk = $additionalData['jk'] ?? 'L';
+        if (empty($additionalData['jk']) && strlen($booking->nik) === 16) {
             $genderDigit = intval(substr($booking->nik, 6, 1));
             $jk = ($genderDigit % 2 === 0) ? 'P' : 'L';
         }
 
         return self::create([
             'no_rkm_medis' => $noRkmMedis,
-            'nm_pasien' => strtoupper($booking->nama),
+            'nm_pasien' => strtoupper($additionalData['nm_pasien'] ?? $booking->nama),
             'no_ktp' => $booking->nik,
             'jk' => $jk,
             'tmp_lahir' => $additionalData['tmp_lahir'] ?? '',
             'tgl_lahir' => $tglLahir->format('Y-m-d'),
             'nm_ibu' => $additionalData['nm_ibu'] ?? '',
-            'alamat' => $booking->alamat ?? '',
+            'alamat' => $additionalData['alamat'] ?? $booking->alamat ?? '',
             'gol_darah' => $additionalData['gol_darah'] ?? '-',
             'pekerjaan' => $additionalData['pekerjaan'] ?? '',
             'stts_nikah' => $additionalData['stts_nikah'] ?? 'BELUM MENIKAH',
@@ -228,19 +233,19 @@ class Pasien extends Model
             'no_peserta' => $booking->nomor_kartu ?? '',
             'kd_kel' => $additionalData['kd_kel'] ?? '',
             'kd_kec' => $additionalData['kd_kec'] ?? 1,
-            'kd_kab' => $additionalData['kd_kab'] ?? 0,
+            'kd_kab' => $additionalData['kd_kab'] ?? 1,
             'pekerjaanpj' => $additionalData['pekerjaanpj'] ?? '',
             'alamatpj' => $additionalData['alamatpj'] ?? '',
             'kelurahanpj' => $additionalData['kelurahanpj'] ?? '',
             'kecamatanpj' => $additionalData['kecamatanpj'] ?? '',
             'kabupatenpj' => $additionalData['kabupatenpj'] ?? '',
-            'perusahaan_pasien' => $additionalData['perusahaan_pasien'] ?? '',
+            'perusahaan_pasien' => $additionalData['perusahaan_pasien'] ?? '-',
             'suku_bangsa' => $additionalData['suku_bangsa'] ?? 1,
             'bahasa_pasien' => $additionalData['bahasa_pasien'] ?? 1,
             'cacat_fisik' => $additionalData['cacat_fisik'] ?? 1,
-            'email' => $booking->email ?? '',
+            'email' => $booking->email ?? 'pasien@klinikbungas.com',
             'nip' => $additionalData['nip'] ?? '',
-            'kd_prop' => $additionalData['kd_prop'] ?? 0,
+            'kd_prop' => $additionalData['kd_prop'] ?? 1,
             'propinsipj' => $additionalData['propinsipj'] ?? ''
         ]);
     }
