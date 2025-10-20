@@ -433,18 +433,30 @@ const saveAllChanges = async () => {
     await router.post('/admin/content', {
       type: 'hero',
       content: heroContent.value
+    }, {
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+      }
     })
 
     // Save services content
     await router.post('/admin/content', {
       type: 'services',
       content: servicesContent.value
+    }, {
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+      }
     })
 
     // Save doctors content
     await router.post('/admin/content', {
       type: 'doctors',
       content: doctorsContent.value
+    }, {
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+      }
     })
 
     // Save contact content
@@ -453,6 +465,10 @@ const saveAllChanges = async () => {
       content: {
         ...contactContent.value,
         hours: contactContent.value.schedule
+      }
+    }, {
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
       }
     })
 

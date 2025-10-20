@@ -18,17 +18,31 @@ class ClinicSetting extends Model
         'description'
     ];
 
-    protected $casts = [
-        'value' => 'json'
-    ];
+    // Removed automatic JSON casting to handle different data types properly
 
     /**
-     * Get setting value by key
+     * Get setting value by key with proper type handling
      */
     public static function get($key, $default = null)
     {
         $setting = static::where('key', $key)->first();
-        return $setting ? $setting->value : $default;
+        
+        if (!$setting) {
+            return $default;
+        }
+
+        // Handle different data types based on the type column
+        switch ($setting->type) {
+            case 'json':
+                return json_decode($setting->value, true);
+            case 'boolean':
+                return filter_var($setting->value, FILTER_VALIDATE_BOOLEAN);
+            case 'number':
+                return is_numeric($setting->value) ? (float)$setting->value : $setting->value;
+            case 'string':
+            default:
+                return $setting->value;
+        }
     }
 
     /**
@@ -47,11 +61,33 @@ class ClinicSetting extends Model
     }
 
     /**
-     * Get all settings as key-value pairs
+     * Get all settings as key-value pairs with proper type handling
      */
     public static function getAll()
     {
-        return static::pluck('value', 'key')->toArray();
+        $settings = static::all();
+        $result = [];
+        
+        foreach ($settings as $setting) {
+            // Handle different data types based on the type column
+            switch ($setting->type) {
+                case 'json':
+                    $result[$setting->key] = json_decode($setting->value, true);
+                    break;
+                case 'boolean':
+                    $result[$setting->key] = filter_var($setting->value, FILTER_VALIDATE_BOOLEAN);
+                    break;
+                case 'number':
+                    $result[$setting->key] = is_numeric($setting->value) ? (float)$setting->value : $setting->value;
+                    break;
+                case 'string':
+                default:
+                    $result[$setting->key] = $setting->value;
+                    break;
+            }
+        }
+        
+        return $result;
     }
 
     /**

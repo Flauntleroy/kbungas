@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DoctorReviewController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,4 +65,12 @@ Route::prefix('reg-periksa')->name('api.reg.periksa.')->group(function () {
     Route::post('/transfer/{noBooking}', [App\Http\Controllers\RegPeriksaController::class, 'transferFromBooking'])->name('transfer.booking');
     Route::post('/transfer-multiple', [App\Http\Controllers\RegPeriksaController::class, 'transferMultipleBookings'])->name('transfer.multiple');
     Route::get('/validate-booking/{noBooking}', [App\Http\Controllers\RegPeriksaController::class, 'validateBookingForTransfer'])->name('validate.booking');
+});
+
+// Doctor Reviews Public API Routes
+Route::prefix('doctor-reviews')->name('api.doctor.reviews.')->group(function () {
+    Route::post('/', [DoctorReviewController::class, 'store'])->name('store');
+    Route::get('/featured', [DoctorReviewController::class, 'getFeaturedReviews'])->name('featured');
+    Route::get('/by-doctor', [DoctorReviewController::class, 'getReviewsByDoctor'])->name('by.doctor');
+    Route::get('/high-rated', [DoctorReviewController::class, 'getHighRatedReviews'])->name('high.rated');
 });

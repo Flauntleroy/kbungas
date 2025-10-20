@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\BookingPeriksa;
 use App\Models\ClinicSetting;
+use App\Models\Service;
+use App\Models\ClinicDoctor;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -112,44 +114,113 @@ class AdminController extends Controller
      */
     public function content()
     {
-        // Get all content settings
-        $heroContent = ClinicSetting::get('hero_content', [
-            'title' => 'Klinik Kulit & Kecantikan Terpercaya',
-            'subtitle' => 'Dapatkan perawatan kulit terbaik dengan teknologi modern dan dokter berpengalaman. Konsultasi gratis untuk semua pasien baru.',
-            'ctaText' => 'Booking Konsultasi',
-            'ctaLink' => '/booking'
-        ]);
+        // Get all content settings from the database using the correct key format
+        $allSettings = ClinicSetting::getAll();
 
-        $servicesContent = ClinicSetting::get('services_content', [
-            [
-                'name' => 'Konsultasi Kulit',
-                'description' => 'Konsultasi menyeluruh untuk berbagai masalah kulit dengan dokter spesialis',
-                'icon' => '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
-            ],
-            [
-                'name' => 'Perawatan Jerawat',
-                'description' => 'Treatment khusus untuk mengatasi jerawat dan bekasnya',
-                'icon' => '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>'
-            ]
-        ]);
+        $heroContent = [
+            'title' => $allSettings['hero.title'] ?? 'Klinik Kulit & Kecantikan Terpercaya',
+            'subtitle' => $allSettings['hero.subtitle'] ?? 'Dapatkan perawatan kulit terbaik dengan teknologi modern dan dokter berpengalaman. Konsultasi gratis untuk semua pasien baru.',
+            'ctaText' => $allSettings['hero.cta_text'] ?? 'Booking Konsultasi',
+            'ctaLink' => $allSettings['hero.cta_link'] ?? '/booking'
+        ];
 
-        $doctorsContent = ClinicSetting::get('doctors_content', [
-            [
-                'name' => 'Dr. Sarah Wijaya, Sp.KK',
-                'specialization' => 'Spesialis Kulit & Kelamin',
-                'description' => 'Berpengalaman lebih dari 10 tahun dalam menangani berbagai masalah kulit',
-                'photo' => '/images/doctors/dr-sarah.jpg',
-                'whatsapp' => '081234567890',
-                'available' => true
-            ]
-        ]);
+        // Get services from dedicated table
+        $servicesFromDb = Service::active()->ordered()->get();
+        $servicesContent = [];
+        
+        if ($servicesFromDb->isNotEmpty()) {
+            $servicesContent = $servicesFromDb->map(function ($service) {
+                return [
+                    'name' => $service->name,
+                    'description' => $service->description,
+                    'icon' => $service->icon
+                ];
+            })->toArray();
+        } else {
+            // Fallback to JSON data if no services in dedicated table
+            if (isset($allSettings['services.items'])) {
+                $servicesData = is_string($allSettings['services.items']) 
+                    ? json_decode($allSettings['services.items'], true) 
+                    : $allSettings['services.items'];
+                $servicesContent = is_array($servicesData) ? $servicesData : [];
+            }
+            
+            // If still no services, use defaults
+            if (empty($servicesContent)) {
+                $servicesContent = [
+                    [
+                        'name' => 'Konsultasi Kulit',
+                        'description' => 'Konsultasi menyeluruh untuk berbagai masalah kulit dengan dokter spesialis',
+                        'icon' => '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+                    ],
+                    [
+                        'name' => 'Perawatan Jerawat',
+                        'description' => 'Treatment khusus untuk mengatasi jerawat dan bekasnya',
+                        'icon' => '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>'
+                    ]
+                ];
+            }
+        }
 
-        $contactContent = ClinicSetting::get('contact_content', [
-            'address' => 'Jl. Kesehatan No. 123, Jakarta Selatan',
-            'phone' => '021-12345678',
-            'whatsapp' => '081234567890',
-            'email' => 'info@klinikbungas.com',
-            'hours' => [
+        // Get doctors from dedicated table
+        $doctorsFromDb = ClinicDoctor::active()->ordered()->get();
+        $doctorsContent = [];
+        
+        if ($doctorsFromDb->isNotEmpty()) {
+            $doctorsContent = $doctorsFromDb->map(function ($doctor) {
+                return [
+                    'name' => $doctor->name,
+                    'specialization' => $doctor->specialization,
+                    'description' => $doctor->description,
+                    'photo' => $doctor->photo,
+                    'whatsapp' => $doctor->whatsapp,
+                    'available' => $doctor->available
+                ];
+            })->toArray();
+        } else {
+            // Fallback to JSON data if no doctors in dedicated table
+            if (isset($allSettings['doctors.all'])) {
+                $doctorsData = is_string($allSettings['doctors.all']) 
+                    ? json_decode($allSettings['doctors.all'], true) 
+                    : $allSettings['doctors.all'];
+                $doctorsContent = is_array($doctorsData) ? $doctorsData : [];
+            }
+            
+            // If no doctors in database, create from primary doctor data or use defaults
+            if (empty($doctorsContent)) {
+                if (isset($allSettings['doctors.primary.name'])) {
+                    $doctorsContent = [[
+                        'name' => $allSettings['doctors.primary.name'],
+                        'specialization' => $allSettings['doctors.primary.specialization'] ?? '',
+                        'description' => $allSettings['doctors.primary.description'] ?? '',
+                        'photo' => $allSettings['doctors.primary.photo'] ?? '',
+                        'whatsapp' => $allSettings['doctors.primary.whatsapp'] ?? '',
+                        'available' => ($allSettings['doctors.primary.available'] ?? '1') === '1'
+                    ]];
+                } else {
+                    $doctorsContent = [[
+                        'name' => 'Dr. Sarah Wijaya, Sp.KK',
+                        'specialization' => 'Spesialis Kulit & Kelamin',
+                        'description' => 'Berpengalaman lebih dari 10 tahun dalam menangani berbagai masalah kulit',
+                        'photo' => '/images/doctors/dr-sarah.jpg',
+                        'whatsapp' => '081234567890',
+                        'available' => true
+                    ]];
+                }
+            }
+        }
+
+        // Get contact hours from database or use defaults
+        $contactHours = [];
+        if (isset($allSettings['contact.hours'])) {
+            $hoursData = is_string($allSettings['contact.hours']) 
+                ? json_decode($allSettings['contact.hours'], true) 
+                : $allSettings['contact.hours'];
+            $contactHours = is_array($hoursData) ? $hoursData : [];
+        }
+        
+        if (empty($contactHours)) {
+            $contactHours = [
                 'senin' => ['open' => '08:00', 'close' => '17:00', 'closed' => false],
                 'selasa' => ['open' => '08:00', 'close' => '17:00', 'closed' => false],
                 'rabu' => ['open' => '08:00', 'close' => '17:00', 'closed' => false],
@@ -157,8 +228,16 @@ class AdminController extends Controller
                 'jumat' => ['open' => '08:00', 'close' => '17:00', 'closed' => false],
                 'sabtu' => ['open' => '08:00', 'close' => '14:00', 'closed' => false],
                 'minggu' => ['open' => '', 'close' => '', 'closed' => true]
-            ]
-        ]);
+            ];
+        }
+
+        $contactContent = [
+            'address' => $allSettings['contact.address'] ?? 'Jl. Kesehatan No. 123, Jakarta Selatan',
+            'phone' => $allSettings['contact.phone'] ?? '021-12345678',
+            'whatsapp' => $allSettings['contact.whatsapp'] ?? '081234567890',
+            'email' => $allSettings['contact.email'] ?? 'info@klinikbungas.com',
+            'hours' => $contactHours
+        ];
 
         return Inertia::render('Admin/Content', [
             'heroContent' => $heroContent,
@@ -181,12 +260,113 @@ class AdminController extends Controller
         $type = $request->input('type');
         $content = $request->input('content');
 
-        ClinicSetting::set($type . '_content', $content, 'json', 'Landing page ' . $type . ' content');
+        // Log the received data for debugging
+        \Log::info("Updating content type: {$type}", ['content' => $content]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Konten berhasil diperbarui'
-        ]);
+        try {
+            // Save content with the correct key format that matches the landing page expectations
+            switch ($type) {
+                case 'hero':
+                    ClinicSetting::set('hero.title', $content['title'] ?? '', 'string', 'Hero section title');
+                    ClinicSetting::set('hero.subtitle', $content['subtitle'] ?? '', 'string', 'Hero section subtitle');
+                    ClinicSetting::set('hero.cta_text', $content['ctaText'] ?? '', 'string', 'Hero section CTA text');
+                    ClinicSetting::set('hero.cta_link', $content['ctaLink'] ?? '', 'string', 'Hero section CTA link');
+                    break;
+
+                case 'services':
+                    // Clear existing services
+                    Service::query()->delete();
+                    
+                    // Validate and save services to dedicated table
+                    if (is_array($content)) {
+                        foreach ($content as $index => $serviceData) {
+                            if (!isset($serviceData['name']) || !isset($serviceData['description'])) {
+                                throw new \Exception('Invalid service data structure');
+                            }
+                            
+                            Service::create([
+                                'name' => $serviceData['name'],
+                                'description' => $serviceData['description'],
+                                'icon' => $serviceData['icon'] ?? '',
+                                'order' => $index + 1,
+                                'is_active' => true
+                            ]);
+                        }
+                    }
+                    break;
+
+                case 'doctors':
+                    // Clear existing doctors
+                    ClinicDoctor::query()->delete();
+                    
+                    // Validate and save doctors to dedicated table
+                    if (is_array($content)) {
+                        foreach ($content as $index => $doctorData) {
+                            if (!isset($doctorData['name']) || !isset($doctorData['specialization'])) {
+                                throw new \Exception('Invalid doctor data structure');
+                            }
+                            
+                            ClinicDoctor::create([
+                                'name' => $doctorData['name'],
+                                'specialization' => $doctorData['specialization'],
+                                'description' => $doctorData['description'] ?? '',
+                                'photo' => $doctorData['photo'] ?? '',
+                                'whatsapp' => $doctorData['whatsapp'] ?? '',
+                                'available' => $doctorData['available'] ?? true,
+                                'is_primary' => $index === 0, // First doctor is primary
+                                'order' => $index + 1,
+                                'is_active' => true
+                            ]);
+                        }
+                        
+                        // Keep backward compatibility by saving primary doctor to settings
+                        if (!empty($content)) {
+                            $primaryDoctor = $content[0];
+                            ClinicSetting::set('doctors.primary.name', $primaryDoctor['name'] ?? '', 'string', 'Primary doctor name');
+                            ClinicSetting::set('doctors.primary.specialization', $primaryDoctor['specialization'] ?? '', 'string', 'Primary doctor specialization');
+                            ClinicSetting::set('doctors.primary.description', $primaryDoctor['description'] ?? '', 'string', 'Primary doctor description');
+                            ClinicSetting::set('doctors.primary.photo', $primaryDoctor['photo'] ?? '', 'string', 'Primary doctor photo');
+                            ClinicSetting::set('doctors.primary.whatsapp', $primaryDoctor['whatsapp'] ?? '', 'string', 'Primary doctor WhatsApp');
+                            ClinicSetting::set('doctors.primary.available', ($primaryDoctor['available'] ?? true) ? '1' : '0', 'boolean', 'Primary doctor availability');
+                        }
+                    }
+                    break;
+
+                case 'contact':
+                    ClinicSetting::set('contact.address', $content['address'] ?? '', 'string', 'Clinic address');
+                    ClinicSetting::set('contact.phone', $content['phone'] ?? '', 'string', 'Clinic phone');
+                    ClinicSetting::set('contact.whatsapp', $content['whatsapp'] ?? '', 'string', 'Clinic WhatsApp');
+                    ClinicSetting::set('contact.email', $content['email'] ?? '', 'string', 'Clinic email');
+                    
+                    // Handle both 'hours' and 'schedule' keys from frontend
+                    $hours = $content['hours'] ?? $content['schedule'] ?? null;
+                    if ($hours) {
+                        ClinicSetting::set('contact.hours', json_encode($hours), 'json', 'Clinic operating hours');
+                    }
+                    break;
+            }
+
+            \Log::info("Content saved successfully for type: {$type}");
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Konten berhasil diperbarui',
+                'data' => [
+                    'type' => $type,
+                    'timestamp' => now()->toISOString()
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error("Error saving content: " . $e->getMessage(), [
+                'type' => $type, 
+                'content' => $content,
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menyimpan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -325,5 +505,13 @@ class AdminController extends Controller
                                              ->firstOrFail();
 
         return view('admin.reg-periksa.show', compact('registration'));
+    }
+
+    /**
+     * Display doctor reviews management page
+     */
+    public function doctorReviews()
+    {
+        return Inertia::render('Admin/DoctorReviews');
     }
 }
