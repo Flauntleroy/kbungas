@@ -996,22 +996,35 @@ const refreshBookings = async () => {
 }
 
 const formatDate = (dateString) => {
-  const date = new Date(dateString)
+  if (!dateString || typeof dateString !== 'string') {
+    return { date: 'Tanggal tidak tersedia', time: '—' }
+  }
+
+  // Hilangkan milidetik dan Z jika ada
+  const clean = dateString.replace('T', ' ').replace('Z', '').split('.')[0]
+
+  const m = clean.match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})(?::(\d{2}))?$/)
+  if (!m) {
+    console.warn('Format tanggal tidak cocok:', dateString)
+    return { date: 'Tanggal tidak valid', time: '—' }
+  }
+
+  const [_, y, mo, d, h, mi, s] = m.map(Number)
+  const date = new Date(y, mo - 1, d, h, mi, s || 0)
+
   const dateStr = date.toLocaleDateString('id-ID', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   })
+
   const timeStr = date.toLocaleTimeString('id-ID', {
     hour: '2-digit',
     minute: '2-digit'
   }) + ' WITA'
-  
-  return {
-    date: dateStr,
-    time: timeStr
-  }
+
+  return { date: dateStr, time: timeStr }
 }
 
 const getStatusClass = (status) => {

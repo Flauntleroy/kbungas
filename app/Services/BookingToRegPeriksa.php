@@ -128,11 +128,30 @@ class BookingToRegPeriksa
         // Hitung umur pasien saat registrasi
         $umurData = $this->calculateAge($pasien->tgl_lahir, $booking->tanggal);
 
+        // Determine registration time based on booking data
+        $jamReg = $additionalData['jam_reg'] ?? null;
+        
+        if (!$jamReg) {
+            // Use the time from tanggal field (visit time) if available
+            if ($booking->tanggal) {
+                $jamReg = Carbon::parse($booking->tanggal)->format('H:i:s');
+            } elseif ($booking->tanggal_booking) {
+                // Fallback to tanggal_booking if tanggal is not available
+                $jamReg = Carbon::parse($booking->tanggal_booking)->format('H:i:s');
+            } else {
+                // Final fallback to current server time
+                $jamReg = Carbon::now('Asia/Jakarta')->format('H:i:s');
+            }
+        }
+
+        // Use the visit date from booking, ensuring it's properly formatted
+        $tglRegistrasi = $booking->tanggal ? Carbon::parse($booking->tanggal)->format('Y-m-d') : Carbon::now('Asia/Jakarta')->format('Y-m-d');
+
         return [
             'no_reg' => $noReg,
             'no_rawat' => $noRawat,
-            'tgl_registrasi' => $booking->tanggal,
-            'jam_reg' => $additionalData['jam_reg'] ?? Carbon::now()->format('H:i:s'),
+            'tgl_registrasi' => $tglRegistrasi,
+            'jam_reg' => $jamReg,
             'kd_dokter' => $booking->kd_dokter,
             'no_rkm_medis' => $pasien->no_rkm_medis,
             'kd_poli' => $booking->kd_poli,

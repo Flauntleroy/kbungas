@@ -335,7 +335,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import AdminLayout from '@/Layouts/AdminLayout.vue'
+import AdminLayout from '@/layouts/AdminLayout.vue'
 import { router } from '@inertiajs/vue3'
 
 // Props

@@ -35,9 +35,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import AdminSidebar from '@/Components/Admin/AdminSidebar.vue'
-import AdminTopbar from '@/Components/Admin/AdminTopbar.vue'
-import AdminFooter from '@/Components/Admin/AdminFooter.vue'
+import AdminSidebar from '@/components/admin/AdminSidebar.vue'
+import AdminTopbar from '@/components/admin/AdminTopbar.vue'
+import AdminFooter from '@/components/admin/AdminFooter.vue'
 
 const sidebarOpen = ref(false)
 </script>

@@ -125,6 +125,35 @@ const formatDate = (dateString) => {
     });
 };
 
+// Computed property for dynamic grid classes based on doctor count
+const dynamicGridClasses = computed(() => {
+    const count = doctors.value.length;
+    
+    if (count === 1) {
+        return 'flex justify-center';
+    } else if (count === 2) {
+        return 'grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto';
+    } else if (count === 3) {
+        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+    } else if (count === 4) {
+        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6';
+    } else {
+        // For 5+ doctors, use responsive grid that wraps nicely
+        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6';
+    }
+});
+
+// Computed property for individual card classes based on doctor count
+const cardClasses = computed(() => {
+    const count = doctors.value.length;
+    
+    if (count === 1) {
+        return 'bg-gradient-to-br from-rose-50 to-pink-50 rounded-3xl p-8 border border-rose-100 shadow-lg max-w-md w-full';
+    } else {
+        return 'bg-gradient-to-br from-rose-50 to-pink-50 rounded-3xl p-6 border border-rose-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1';
+    }
+});
+
 // Get service icon SVG
 const getServiceIcon = (iconType: string) => {
     const icons = {
@@ -156,12 +185,12 @@ onMounted(() => {
                             <img 
                                 src="/images/RBungas.png" 
                                 alt="Klinik Bungas Logo" 
-                                class="w-10 h-10 object-contain"
+                                class="h-15 w-15 object-contain"
                             />
                         </div>
                         <div>
-                            <h1 class="text-2xl font-bold text-rose-600">{{ general.clinic_name }}</h1>
-                            <p class="text-xs text-rose-400 font-medium">{{ general.tagline }}</p>
+                            <h2 class="text-lg font-bold text-rose-800">R'Bungas</h2>
+                            <p class="text-xs text-rose-600">Layanan Kesehatan Terpercaya</p>
                         </div>
                     </div>
                     <nav class="hidden md:flex space-x-8">
@@ -312,7 +341,7 @@ onMounted(() => {
                         Layanan Kesehatan <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-pink-500">Komprehensif</span>
                     </h3>
                     <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                        Kami menyediakan berbagai layanan kesehatan dengan standar internasional untuk memenuhi kebutuhan medis Anda dan keluarga.
+                        Kami menyediakan berbagai layanan kesehatan untuk memenuhi kebutuhan medis Anda dan keluarga.
                     </p>
                 </div>
                 
@@ -330,14 +359,14 @@ onMounted(() => {
                 </div>
                 
                 <!-- Call to Action -->
-                <div class="text-center mt-12">
+                <!-- <div class="text-center mt-12">
                     <button class="bg-gradient-to-r from-rose-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-rose-600 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                         <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                         </svg>
                         Konsultasi Gratis Sekarang
                     </button>
-                </div>
+                </div> -->
             </div>
         </section>
 
@@ -351,15 +380,15 @@ onMounted(() => {
                         </svg>
                         Dokter Kami
                     </div>
-                    <h3 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Profil Dokter</h3>
-                    <p class="text-gray-600 max-w-2xl mx-auto">Kami menghadirkan dokter profesional dengan pendekatan ramah dan berorientasi pada pasien.</p>
+                    <h3 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Dokter</h3>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Kami menghadirkan dokter dan tenaga kesehatan profesional dengan pendekatan ramah dan berorientasi pada pasien.</p>
                 </div>
                 
                 <div class="max-w-6xl mx-auto">
                     <!-- Multiple Doctors Grid -->
-                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" v-if="doctors.length > 1">
+                    <div :class="dynamicGridClasses" v-if="doctors.length > 1">
                         <div v-for="doctor in doctors" :key="doctor.name" 
-                             class="bg-gradient-to-br from-rose-50 to-pink-50 rounded-3xl p-6 border border-rose-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                             :class="cardClasses">
                             <!-- Doctor Profile -->
                             <div class="text-center mb-6">
                                 <div class="relative inline-block mb-4">
@@ -555,15 +584,15 @@ onMounted(() => {
                         <div class="space-y-3">
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600 font-medium">Senin - Jumat</span>
-                                <span class="font-semibold text-gray-900">08:00 - 20:00</span>
+                                <span class="font-semibold text-gray-900">08:00 - 21:00</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600 font-medium">Sabtu</span>
-                                <span class="font-semibold text-gray-900">08:00 - 16:00</span>
+                                <span class="font-semibold text-gray-900">08:00 - 21:00</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-600 font-medium">Minggu</span>
-                                <span class="font-semibold text-gray-900">10:00 - 14:00</span>
+                                <span class="font-semibold text-gray-900">08:00 - 21:00</span>
                             </div>
                         </div>
                         <div class="bg-white rounded-xl p-4 border border-rose-200">
@@ -583,19 +612,18 @@ onMounted(() => {
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <div class="grid lg:grid-cols-5 md:grid-cols-3 gap-8">
                     <!-- Logo & Description -->
-                    <div class="lg:col-span-2 md:col-span-2">
+                    <div class="lg:col-span-3 md:col-span-3">
                         <div class="flex items-center mb-6">
                             <!-- RBungas Logo -->
-                            <div class="bg-gradient-to-br from-rose-500 to-pink-500 w-12 h-12 rounded-xl flex items-center justify-center mr-4 p-1">
+                            <div class="flex items-center justify-center mr-4 p-1">
                                 <img 
                                     src="/images/RBungas.png" 
-                                    alt="Klinik Bungas Logo" 
-                                    class="w-full h-full object-contain"
+                                    class="w-15 h-15 object-contain"
                                 />
                             </div>
                             <div>
-                                <h3 class="text-2xl font-bold text-gray-800">{{ general.clinic_name }}</h3>
-                                <p class="text-rose-600 text-sm font-medium">{{ general.tagline }}</p>
+                                <h3 class="text-2xl font-bold text-gray-800">R'Bungas</h3>
+                                <!-- <p class="text-rose-600 text-sm font-medium">{{ general.tagline }}</p> -->
                             </div>
                         </div>
                         <p class="text-gray-600 mb-6 max-w-md leading-relaxed">
@@ -681,7 +709,7 @@ onMounted(() => {
                         </ul>
                     </div> -->
                     
-                    <!-- Services -->
+                    <!-- Services -->   
                     <div>
                         <h4 class="text-lg font-semibold mb-6 text-gray-800">Layanan Utama</h4>
                         <ul class="space-y-3">
