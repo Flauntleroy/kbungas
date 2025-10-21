@@ -35,22 +35,22 @@ class Dokter extends Model
         'tgl_lahir' => 'date',
     ];
 
-    // Status constants
+    
     const STATUS_AKTIF = '1';
     const STATUS_NONAKTIF = '0';
 
-    // Jenis kelamin constants
+    
     const JK_LAKI = 'L';
     const JK_PEREMPUAN = 'P';
 
-    // Golongan darah constants
+    
     const GOL_DARAH_A = 'A';
     const GOL_DARAH_B = 'B';
     const GOL_DARAH_O = 'O';
     const GOL_DARAH_AB = 'AB';
     const GOL_DARAH_UNKNOWN = '-';
 
-    // Status nikah constants
+    
     const NIKAH_BELUM = 'BELUM MENIKAH';
     const NIKAH_MENIKAH = 'MENIKAH';
     const NIKAH_JANDA = 'JANDA';
@@ -180,7 +180,7 @@ class Dokter extends Model
             ->map(function ($dokter) {
                 return [
                     'value' => $dokter->kd_dokter,
-                    'label' => $dokter->nama_lengkap
+                    'label' => $dokter->nm_dokter . ($dokter->spesialis ? ', ' . $dokter->spesialis->nm_sps : '')
                 ];
             });
     }
@@ -190,8 +190,8 @@ class Dokter extends Model
      */
     public function hasScheduleOnDate($date): bool
     {
-        // Implementasi sesuai dengan tabel jadwal dokter jika ada
-        // Untuk sementara return true
+        
+        
         return true;
     }
 

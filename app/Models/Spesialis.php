@@ -18,17 +18,11 @@ class Spesialis extends Model
         'nm_sps'
     ];
 
-    /**
-     * Relationship dengan tabel dokter
-     */
     public function dokter(): HasMany
     {
         return $this->hasMany(Dokter::class, 'kd_sps', 'kd_sps');
     }
 
-    /**
-     * Get spesialis untuk dropdown/select
-     */
     public static function getForSelect()
     {
         return self::orderBy('nm_sps')
@@ -41,25 +35,16 @@ class Spesialis extends Model
             });
     }
 
-    /**
-     * Cari spesialis berdasarkan nama
-     */
     public static function cariByNama($nama)
     {
         return self::where('nm_sps', 'like', "%{$nama}%");
     }
 
-    /**
-     * Get dokter count untuk spesialis
-     */
     public function getDokterCount(): int
     {
         return $this->dokter()->count();
     }
 
-    /**
-     * Get dokter aktif untuk spesialis
-     */
     public function getDokterAktif()
     {
         return $this->dokter()->aktif()->get();

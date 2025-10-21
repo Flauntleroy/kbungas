@@ -140,7 +140,7 @@ const confirmBooking = async () => {
 }
 
 const closeWindow = () => {
-  // Coba tutup tab/window, jika tidak bisa redirect ke halaman utama
+  
   if (window.history.length > 1) {
     window.history.back()
   } else {

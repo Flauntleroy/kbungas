@@ -270,7 +270,7 @@ import { ref, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 
-// Props
+
 interface User {
   id: number
   name: string
@@ -287,7 +287,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// State
+
 const showFilters = ref(false)
 const showModal = ref(false)
 const editingUser = ref<User | null>(null)
@@ -295,14 +295,14 @@ const searchQuery = ref('')
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
 
-// Filters
+
 const filters = ref({
   role: '',
   status: '',
   joinDate: ''
 })
 
-// Form
+
 const userForm = ref({
   name: '',
   email: '',
@@ -312,7 +312,7 @@ const userForm = ref({
   status: 'active'
 })
 
-// Computed
+
 const filteredUsers = computed(() => {
   let filtered = props.users
 
@@ -349,7 +349,7 @@ const visiblePages = computed(() => {
   return pages
 })
 
-// Methods
+
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString('id-ID', {
     year: 'numeric',
@@ -424,7 +424,7 @@ const saveUser = () => {
   }
 
   if (editingUser.value) {
-    // Update existing user
+    
     router.put(`/admin/users/${editingUser.value.id}`, userForm.value, {
       onSuccess: () => {
         closeModal()
@@ -434,7 +434,7 @@ const saveUser = () => {
       }
     })
   } else {
-    // Create new user
+    
     router.post('/admin/users', userForm.value, {
       onSuccess: () => {
         closeModal()

@@ -470,14 +470,14 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
 
-// Reactive data
+
 const reviews = ref([])
 const loading = ref(true)
 const selectedReview = ref(null)
 const currentPage = ref(1)
 const itemsPerPage = 10
 
-// Filters
+
 const filters = ref({
   search: '',
   status: '',
@@ -485,7 +485,7 @@ const filters = ref({
   featured: ''
 })
 
-// Statistics
+
 const stats = ref({
   total: 0,
   approved: 0,
@@ -493,11 +493,11 @@ const stats = ref({
   averageRating: 0
 })
 
-// Computed properties
+
 const filteredReviews = computed(() => {
   let filtered = reviews.value
 
-  // Search filter
+  
   if (filters.value.search) {
     const search = filters.value.search.toLowerCase()
     filtered = filtered.filter(review =>
@@ -507,7 +507,7 @@ const filteredReviews = computed(() => {
     )
   }
 
-  // Status filter
+  
   if (filters.value.status) {
     if (filters.value.status === 'approved') {
       filtered = filtered.filter(review => review.is_approved)
@@ -516,13 +516,13 @@ const filteredReviews = computed(() => {
     }
   }
 
-  // Rating filter
+  
   if (filters.value.rating) {
     const rating = parseInt(filters.value.rating)
     filtered = filtered.filter(review => review.rating === rating)
   }
 
-  // Featured filter
+  
   if (filters.value.featured !== '') {
     const isFeatured = filters.value.featured === '1'
     filtered = filtered.filter(review => review.is_featured === isFeatured)
@@ -571,7 +571,7 @@ const visiblePages = computed(() => {
   return pages.filter(page => page !== '...' || pages.indexOf(page) === pages.lastIndexOf(page))
 })
 
-// Methods
+
 const fetchReviews = async () => {
   try {
     loading.value = true
@@ -608,13 +608,13 @@ const approveReview = async (id) => {
     const response = await axios.patch(`/api/doctor-reviews/${id}/approve`)
     
     if (response.data.success) {
-      // Update local data
+      
       const review = reviews.value.find(r => r.id === id)
       if (review) {
         review.is_approved = true
       }
       
-      // Update selected review if it's the same
+      
       if (selectedReview.value && selectedReview.value.id === id) {
         selectedReview.value.is_approved = true
       }
@@ -633,13 +633,13 @@ const toggleFeatured = async (id, featured) => {
     })
     
     if (response.data.success) {
-      // Update local data
+      
       const review = reviews.value.find(r => r.id === id)
       if (review) {
         review.is_featured = featured
       }
       
-      // Update selected review if it's the same
+      
       if (selectedReview.value && selectedReview.value.id === id) {
         selectedReview.value.is_featured = featured
       }
@@ -658,11 +658,11 @@ const deleteReview = async (id) => {
     const response = await axios.delete(`/api/doctor-reviews/${id}`)
     
     if (response.data.success) {
-      // Remove from local data
+      
       reviews.value = reviews.value.filter(r => r.id !== id)
       calculateStats()
       
-      // Close modal if the deleted review was selected
+      
       if (selectedReview.value && selectedReview.value.id === id) {
         selectedReview.value = null
       }
@@ -695,12 +695,12 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('id-ID', options)
 }
 
-// Watchers
+
 watch(filters, () => {
   currentPage.value = 1
 }, { deep: true })
 
-// Lifecycle
+
 onMounted(() => {
   fetchReviews()
 })

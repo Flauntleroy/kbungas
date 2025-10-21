@@ -67,9 +67,9 @@ const stats = ref<Stats>({
   pendingBookings: 0
 })
 
-// Mock data - in real app, this would come from API
+
 onMounted(() => {
-  // Simulate loading stats
+  
   setTimeout(() => {
     stats.value = {
       totalBookings: 1247,

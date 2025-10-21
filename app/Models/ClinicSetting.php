@@ -18,11 +18,6 @@ class ClinicSetting extends Model
         'description'
     ];
 
-    // Removed automatic JSON casting to handle different data types properly
-
-    /**
-     * Get setting value by key with proper type handling
-     */
     public static function get($key, $default = null)
     {
         $setting = static::where('key', $key)->first();
@@ -31,7 +26,7 @@ class ClinicSetting extends Model
             return $default;
         }
 
-        // Handle different data types based on the type column
+        
         switch ($setting->type) {
             case 'json':
                 return json_decode($setting->value, true);
@@ -45,9 +40,6 @@ class ClinicSetting extends Model
         }
     }
 
-    /**
-     * Set setting value by key
-     */
     public static function set($key, $value, $type = 'json', $description = null)
     {
         return static::updateOrCreate(
@@ -60,16 +52,13 @@ class ClinicSetting extends Model
         );
     }
 
-    /**
-     * Get all settings as key-value pairs with proper type handling
-     */
     public static function getAll()
     {
         $settings = static::all();
         $result = [];
         
         foreach ($settings as $setting) {
-            // Handle different data types based on the type column
+            
             switch ($setting->type) {
                 case 'json':
                     $result[$setting->key] = json_decode($setting->value, true);
@@ -90,9 +79,6 @@ class ClinicSetting extends Model
         return $result;
     }
 
-    /**
-     * Get settings by prefix
-     */
     public static function getByPrefix($prefix)
     {
         return static::where('key', 'LIKE', $prefix . '%')

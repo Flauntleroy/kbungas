@@ -3,7 +3,7 @@ import { Head } from '@inertiajs/vue3';
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
-// Props from controller
+
 interface ClinicSettings {
     hero: {
         title: string;
@@ -66,7 +66,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// Doctor reviews data
+
 const doctorReviews = ref([]);
 const doctorStats = ref({
     averageRating: 0,
@@ -74,17 +74,17 @@ const doctorStats = ref({
 });
 const loading = ref(true);
 
-// Computed properties for easy access to settings
+
 const hero = computed(() => props.clinicSettings.hero);
 const services = computed(() => props.clinicSettings.services);
 const doctors = computed(() => props.clinicSettings.doctors);
 const contact = computed(() => props.clinicSettings.contact);
 const general = computed(() => props.clinicSettings.general);
 
-// Get primary doctor for reviews
+
 const primaryDoctor = computed(() => doctors.value[0] || null);
 
-// Fetch doctor reviews for the primary doctor
+
 const fetchDoctorReviews = async () => {
     if (!primaryDoctor.value) {
         loading.value = false;
@@ -97,7 +97,7 @@ const fetchDoctorReviews = async () => {
         });
         
         if (response.data.success) {
-            doctorReviews.value = response.data.data.reviews.data.slice(0, 3); // Show only 3 latest reviews
+            doctorReviews.value = response.data.data.reviews.data.slice(0, 3); 
             doctorStats.value = {
                 averageRating: response.data.data.average_rating,
                 totalReviews: response.data.data.total_reviews
@@ -105,7 +105,7 @@ const fetchDoctorReviews = async () => {
         }
     } catch (error) {
         console.error('Error fetching doctor reviews:', error);
-        // Use default values from clinic settings if API fails
+        
         doctorStats.value = {
             averageRating: primaryDoctor.value.rating || 0,
             totalReviews: primaryDoctor.value.total_reviews || 0
@@ -115,7 +115,7 @@ const fetchDoctorReviews = async () => {
     }
 };
 
-// Format date
+
 const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('id-ID', { 
@@ -125,7 +125,7 @@ const formatDate = (dateString) => {
     });
 };
 
-// Computed property for dynamic grid classes based on doctor count
+
 const dynamicGridClasses = computed(() => {
     const count = doctors.value.length;
     
@@ -138,12 +138,12 @@ const dynamicGridClasses = computed(() => {
     } else if (count === 4) {
         return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6';
     } else {
-        // For 5+ doctors, use responsive grid that wraps nicely
+        
         return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6';
     }
 });
 
-// Computed property for individual card classes based on doctor count
+
 const cardClasses = computed(() => {
     const count = doctors.value.length;
     
@@ -154,7 +154,7 @@ const cardClasses = computed(() => {
     }
 });
 
-// Get service icon SVG
+
 const getServiceIcon = (iconType: string) => {
     const icons = {
         pharmacy: `M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 7.586V5L8 4z`,
@@ -230,7 +230,7 @@ onMounted(() => {
                             <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                             </svg>
-                            Terpercaya sejak 2010
+                            Pilihan Utama Keluarga
                         </div>
                         <h2 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
                             {{ hero.title }}

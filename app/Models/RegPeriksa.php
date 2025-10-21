@@ -12,7 +12,7 @@ class RegPeriksa extends Model
     protected $primaryKey = 'no_rawat';
     public $incrementing = false;
     protected $keyType = 'string';
-    public $timestamps = false; // Disable timestamps karena tabel tidak memiliki kolom updated_at dan created_at
+    public $timestamps = false; 
     
     protected $fillable = [
         'no_reg',
@@ -43,7 +43,7 @@ class RegPeriksa extends Model
         'umurdaftar' => 'integer',
     ];
 
-    // Status constants
+    
     const STATUS_BELUM = 'Belum';
     const STATUS_SUDAH = 'Sudah';
     const STATUS_BATAL = 'Batal';
@@ -69,41 +69,26 @@ class RegPeriksa extends Model
     const STTS_UMUR_BULAN = 'Bl';
     const STTS_UMUR_HARI = 'Hr';
 
-    /**
-     * Relationship dengan tabel dokter
-     */
     public function dokter(): BelongsTo
     {
         return $this->belongsTo(Dokter::class, 'kd_dokter', 'kd_dokter');
     }
 
-    /**
-     * Relationship dengan tabel poliklinik
-     */
     public function poliklinik(): BelongsTo
     {
         return $this->belongsTo(Poliklinik::class, 'kd_poli', 'kd_poli');
     }
 
-    /**
-     * Relationship dengan tabel penjab (penanggung jawab)
-     */
     public function penjab(): BelongsTo
     {
         return $this->belongsTo(Penjab::class, 'kd_pj', 'kd_pj');
     }
 
-    /**
-     * Relationship dengan tabel pasien
-     */
     public function pasien(): BelongsTo
     {
         return $this->belongsTo(Pasien::class, 'no_rkm_medis', 'no_rkm_medis');
     }
 
-    /**
-     * Generate nomor rawat otomatis
-     */
     public static function generateNoRawat($tanggal = null): string
     {
         if (!$tanggal) {
@@ -114,13 +99,13 @@ class RegPeriksa extends Model
 
         $prefix = $tanggal->format('Y/m/d');
         
-        // Cari nomor rawat terakhir pada tanggal tersebut
+        
         $lastReg = self::where('no_rawat', 'like', $prefix . '%')
             ->orderBy('no_rawat', 'desc')
             ->first();
 
         if ($lastReg) {
-            // Ambil nomor urut terakhir dan tambah 1
+            
             $lastNumber = (int) substr($lastReg->no_rawat, -6);
             $newNumber = $lastNumber + 1;
         } else {
@@ -130,9 +115,6 @@ class RegPeriksa extends Model
         return $prefix . '/' . str_pad($newNumber, 6, '0', STR_PAD_LEFT);
     }
 
-    /**
-     * Generate nomor registrasi otomatis
-     */
     public static function generateNoReg($tanggal = null): string
     {
         if (!$tanggal) {
@@ -141,7 +123,7 @@ class RegPeriksa extends Model
             $tanggal = Carbon::parse($tanggal);
         }
 
-        // Cari nomor registrasi terakhir pada tanggal tersebut
+        
         $lastReg = self::whereDate('tgl_registrasi', $tanggal->format('Y-m-d'))
             ->orderBy('no_reg', 'desc')
             ->first();

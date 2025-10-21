@@ -9,14 +9,11 @@ use Inertia\Inertia;
 
 class DoctorReviewController extends Controller
 {
-    /**
-     * Display a listing of the resource for admin.
-     */
     public function index(Request $request)
     {
         $query = DoctorReview::query();
 
-        // Filter berdasarkan status approval
+        
         if ($request->has('status')) {
             if ($request->status === 'approved') {
                 $query->approved();
@@ -25,12 +22,12 @@ class DoctorReviewController extends Controller
             }
         }
 
-        // Filter berdasarkan dokter
+        
         if ($request->has('doctor') && $request->doctor) {
             $query->byDoctor($request->doctor);
         }
 
-        // Filter berdasarkan rating
+        
         if ($request->has('rating') && $request->rating) {
             $query->byRating($request->rating);
         }
@@ -45,17 +42,11 @@ class DoctorReviewController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return Inertia::render('DoctorReview/Create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -83,7 +74,7 @@ class DoctorReviewController extends Controller
             'email_pasien' => $request->email_pasien,
             'nama_pasien' => $request->nama_pasien,
             'tanggal_penilaian' => now(),
-            'is_approved' => false, // Default pending approval
+            'is_approved' => false, 
             'is_featured' => false
         ]);
 
@@ -94,9 +85,6 @@ class DoctorReviewController extends Controller
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(DoctorReview $doctorReview)
     {
         return response()->json([
@@ -105,9 +93,6 @@ class DoctorReviewController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(DoctorReview $doctorReview)
     {
         return Inertia::render('Admin/DoctorReviews/Edit', [
@@ -115,9 +100,6 @@ class DoctorReviewController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, DoctorReview $doctorReview)
     {
         $validator = Validator::make($request->all(), [
@@ -150,9 +132,6 @@ class DoctorReviewController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(DoctorReview $doctorReview)
     {
         $doctorReview->delete();
@@ -163,9 +142,6 @@ class DoctorReviewController extends Controller
         ]);
     }
 
-    /**
-     * Approve a review.
-     */
     public function approve(DoctorReview $doctorReview)
     {
         $doctorReview->update(['is_approved' => true]);
@@ -176,9 +152,6 @@ class DoctorReviewController extends Controller
         ]);
     }
 
-    /**
-     * Feature a review for landing page.
-     */
     public function feature(DoctorReview $doctorReview)
     {
         $doctorReview->update(['is_featured' => !$doctorReview->is_featured]);
@@ -193,9 +166,6 @@ class DoctorReviewController extends Controller
         ]);
     }
 
-    /**
-     * Get reviews for landing page (public API).
-     */
     public function getFeaturedReviews()
     {
         $reviews = DoctorReview::getFeaturedReviews(6);
@@ -206,9 +176,6 @@ class DoctorReviewController extends Controller
         ]);
     }
 
-    /**
-     * Get reviews by doctor (public API).
-     */
     public function getReviewsByDoctor(Request $request)
     {
         $doctorName = $request->get('doctor');
@@ -238,9 +205,6 @@ class DoctorReviewController extends Controller
         ]);
     }
 
-    /**
-     * Get high rated reviews for public display.
-     */
     public function getHighRatedReviews()
     {
         $reviews = DoctorReview::getHighRatedReviews(4, 10);

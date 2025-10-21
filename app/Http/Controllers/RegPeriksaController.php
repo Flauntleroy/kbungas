@@ -19,15 +19,12 @@ class RegPeriksaController extends Controller
         $this->bookingToRegService = $bookingToRegService;
     }
 
-    /**
-     * Display a listing of reg_periksa
-     */
     public function index(Request $request): JsonResponse
     {
         try {
             $query = RegPeriksa::with(['dokter', 'poliklinik', 'pasien', 'penjab']);
 
-            // Filter berdasarkan tanggal
+            
             if ($request->has('tanggal_dari') && $request->has('tanggal_sampai')) {
                 $query->whereBetween('tgl_registrasi', [
                     $request->tanggal_dari,
@@ -37,22 +34,22 @@ class RegPeriksaController extends Controller
                 $query->whereDate('tgl_registrasi', $request->tanggal);
             }
 
-            // Filter berdasarkan poli
+            
             if ($request->has('kd_poli')) {
                 $query->where('kd_poli', $request->kd_poli);
             }
 
-            // Filter berdasarkan dokter
+            
             if ($request->has('kd_dokter')) {
                 $query->where('kd_dokter', $request->kd_dokter);
             }
 
-            // Filter berdasarkan status
+            
             if ($request->has('stts')) {
                 $query->where('stts', $request->stts);
             }
 
-            // Search
+            
             if ($request->has('search')) {
                 $search = $request->search;
                 $query->where(function($q) use ($search) {
@@ -64,7 +61,7 @@ class RegPeriksaController extends Controller
                 });
             }
 
-            // Pagination
+            
             $perPage = $request->get('per_page', 15);
             $registrations = $query->orderBy('tgl_registrasi', 'desc')
                                   ->orderBy('jam_reg', 'desc')
@@ -85,9 +82,6 @@ class RegPeriksaController extends Controller
         }
     }
 
-    /**
-     * Store a newly created reg_periksa
-     */
     public function store(Request $request): JsonResponse
     {
         try {
@@ -111,11 +105,11 @@ class RegPeriksaController extends Controller
                 'status_poli' => ['required', Rule::in(['Lama', 'Baru'])]
             ]);
 
-            // Generate nomor rawat dan nomor registrasi
+            
             $validated['no_rawat'] = RegPeriksa::generateNoRawat($validated['tgl_registrasi']);
             $validated['no_reg'] = RegPeriksa::generateNoReg($validated['tgl_registrasi']);
             
-            // Set default values
+            
             $validated['jam_reg'] = $validated['jam_reg'] ?? now()->format('H:i:s');
             $validated['stts'] = $validated['stts'] ?? RegPeriksa::STATUS_BELUM;
 
@@ -144,9 +138,6 @@ class RegPeriksaController extends Controller
         }
     }
 
-    /**
-     * Display the specified reg_periksa
-     */
     public function show(string $noRawat): JsonResponse
     {
         try {
@@ -176,9 +167,6 @@ class RegPeriksaController extends Controller
         }
     }
 
-    /**
-     * Update the specified reg_periksa
-     */
     public function update(Request $request, string $noRawat): JsonResponse
     {
         try {
@@ -236,9 +224,6 @@ class RegPeriksaController extends Controller
         }
     }
 
-    /**
-     * Remove the specified reg_periksa
-     */
     public function destroy(string $noRawat): JsonResponse
     {
         try {
@@ -268,9 +253,6 @@ class RegPeriksaController extends Controller
         }
     }
 
-    /**
-     * Transfer booking to reg_periksa
-     */
     public function transferFromBooking(Request $request, string $noBooking): JsonResponse
     {
         try {
@@ -309,9 +291,6 @@ class RegPeriksaController extends Controller
         }
     }
 
-    /**
-     * Transfer multiple bookings to reg_periksa
-     */
     public function transferMultipleBookings(Request $request): JsonResponse
     {
         try {
@@ -353,9 +332,6 @@ class RegPeriksaController extends Controller
         }
     }
 
-    /**
-     * Validate booking for transfer
-     */
     public function validateBookingForTransfer(string $noBooking): JsonResponse
     {
         try {

@@ -112,7 +112,7 @@ class Pasien extends Model
             $newNumber = str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
         }
         
-        // Update set_no_rkm_medis table instead of inserting
+        
         \DB::table('set_no_rkm_medis')->update(['no_rkm_medis' => $newNumber]);
         
         return $newNumber;
@@ -125,7 +125,7 @@ class Pasien extends Model
     {
         $noRkmMedis = self::generateNoRkmMedis();
         
-        // Calculate age from birth date
+        
         $tglLahir = Carbon::parse($bpjsData['tglLahir'] ?? null);
         $umur = $tglLahir ? $tglLahir->age . ' Th' : '';
 
@@ -176,28 +176,28 @@ class Pasien extends Model
     {
         $noRkmMedis = self::generateNoRkmMedis();
         
-        // Use provided birth date or extract from NIK
+        
         $tglLahir = null;
         $umur = '0 Th';
         
         if (!empty($additionalData['tgl_lahir'])) {
-            // Use provided birth date
+            
             $tglLahir = Carbon::parse($additionalData['tgl_lahir']);
             $umur = $tglLahir->age . ' Th';
         } elseif (strlen($booking->nik) === 16) {
-            // Try to extract birth date from NIK (positions 7-12: DDMMYY)
+            
             $day = substr($booking->nik, 6, 2);
             $month = substr($booking->nik, 8, 2);
             $year = substr($booking->nik, 10, 2);
             
-            // Determine century (assume 00-30 is 2000s, 31-99 is 1900s)
+            
             $fullYear = ($year <= 30) ? '20' . $year : '19' . $year;
             
             try {
                 $tglLahir = Carbon::createFromFormat('d-m-Y', "$day-$month-$fullYear");
                 $umur = $tglLahir->age . ' Th';
             } catch (\Exception $e) {
-                // If date parsing fails, use default
+                
                 $tglLahir = Carbon::parse('1990-01-01');
                 $umur = $tglLahir->age . ' Th';
             }
@@ -206,7 +206,7 @@ class Pasien extends Model
             $umur = $tglLahir->age . ' Th';
         }
 
-        // Use provided gender or determine from NIK
+        
         $jk = $additionalData['jk'] ?? 'L';
         if (empty($additionalData['jk']) && strlen($booking->nik) === 16) {
             $genderDigit = intval(substr($booking->nik, 6, 1));

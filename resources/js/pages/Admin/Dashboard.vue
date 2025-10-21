@@ -188,7 +188,7 @@
 import { Link } from '@inertiajs/vue3'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 
-// Props dari AdminController
+
 interface Props {
   stats: {
     totalBookings: number

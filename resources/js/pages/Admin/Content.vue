@@ -338,7 +338,7 @@ import { ref } from 'vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import { router } from '@inertiajs/vue3'
 
-// Props
+
 interface Props {
   heroContent: {
     title: string
@@ -376,7 +376,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// Reactive data
+
 const activeTab = ref('hero')
 
 const tabs = [
@@ -386,7 +386,7 @@ const tabs = [
   { id: 'contact', name: 'Kontak' }
 ]
 
-// Make content reactive for editing
+
 const heroContent = ref({ ...props.heroContent })
 const servicesContent = ref([...props.servicesContent])
 const doctorsContent = ref([...props.doctorsContent])
@@ -395,7 +395,7 @@ const contactContent = ref({
   schedule: props.contactContent.hours
 })
 
-// Methods
+
 const addService = () => {
   servicesContent.value.push({
     name: '',
@@ -429,7 +429,7 @@ const removeDoctor = (index: number) => {
 
 const saveAllChanges = async () => {
   try {
-    // Save hero content
+    
     await router.post('/admin/content', {
       type: 'hero',
       content: heroContent.value
@@ -439,7 +439,7 @@ const saveAllChanges = async () => {
       }
     })
 
-    // Save services content
+    
     await router.post('/admin/content', {
       type: 'services',
       content: servicesContent.value
@@ -449,7 +449,7 @@ const saveAllChanges = async () => {
       }
     })
 
-    // Save doctors content
+    
     await router.post('/admin/content', {
       type: 'doctors',
       content: doctorsContent.value
@@ -459,7 +459,7 @@ const saveAllChanges = async () => {
       }
     })
 
-    // Save contact content
+    
     await router.post('/admin/content', {
       type: 'contact',
       content: {

@@ -55,7 +55,7 @@ class BookingController extends Controller
     public function store(Request $request): JsonResponse
     {
         try {
-            // Validasi input
+            
             $validated = $request->validate([
                 'nik' => 'nullable|string|size:16|regex:/^[0-9]{16}$/',
                 'nomor_kartu' => 'nullable|string|max:13',
@@ -70,7 +70,7 @@ class BookingController extends Controller
                 'catatan' => 'nullable|string|max:255',
             ]);
 
-            // Validasi manual untuk waktu minimum
+            
             $bookingDateTime = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $validated['tanggal']);
             if ($bookingDateTime->isPast()) {
                 return response()->json([
@@ -82,7 +82,7 @@ class BookingController extends Controller
                 ], 422);
             }
 
-            // Cek apakah sudah ada booking dengan NIK dan datetime yang sama (hanya jika NIK tidak null)
+            
             if (!empty($validated['nik'])) {
                 $existingBooking = BookingPeriksa::where('nik', $validated['nik'])
                     ->where('tanggal', $validated['tanggal'])
@@ -100,7 +100,7 @@ class BookingController extends Controller
                 }
             }
 
-            // Cek kapasitas dokter pada tanggal tersebut (maksimal 20 booking per hari)
+            
             $bookingCount = BookingPeriksa::where('kd_dokter', $validated['kd_dokter'])
                 ->whereDate('tanggal', $validated['tanggal'])
                 ->whereIn('status', [
@@ -120,10 +120,10 @@ class BookingController extends Controller
 
             DB::beginTransaction();
 
-            // Generate nomor booking
+            
             $noBooking = BookingPeriksa::generateBookingNumber();
 
-            // Buat booking baru
+            
             $booking = BookingPeriksa::create([
                 'no_booking' => $noBooking,
                 'nik' => $validated['nik'],
@@ -141,12 +141,12 @@ class BookingController extends Controller
                 'tanggal_booking' => Carbon::now(),
             ]);
 
-            // Load relasi untuk response
+            
             $booking->load(['poliklinik', 'dokter', 'penjab']);
 
             DB::commit();
 
-            // Kirim notifikasi WhatsApp setelah booking berhasil
+            
             $this->sendWhatsAppNotifications($booking);
 
             return response()->json([
@@ -357,25 +357,25 @@ class BookingController extends Controller
     public function confirmBooking(Request $request, $token): JsonResponse
     {
         try {
-            // Rate limiting untuk mencegah spam
+            
             $clientIp = $request->ip();
             $rateLimitKey = "booking_confirm:{$clientIp}";
             
             if (cache()->has($rateLimitKey)) {
                 $attempts = cache()->get($rateLimitKey, 0);
-                if ($attempts >= 5) { // Maksimal 5 percobaan per IP per menit
+                if ($attempts >= 5) { 
                     Log::warning('Rate limit exceeded for booking confirmation', ['ip' => $clientIp]);
                     return response()->json([
                         'success' => false,
                         'message' => 'Terlalu banyak percobaan. Silakan coba lagi dalam 1 menit.'
                     ], 429);
                 }
-                cache()->put($rateLimitKey, $attempts + 1, 60); // 60 detik
+                cache()->put($rateLimitKey, $attempts + 1, 60); 
             } else {
                 cache()->put($rateLimitKey, 1, 60);
             }
 
-            // Decode token untuk mendapatkan booking ID dan validasi keamanan
+            
             $decodedData = $this->decodeConfirmationToken($token);
             
             if (!$decodedData) {
@@ -394,7 +394,7 @@ class BookingController extends Controller
                 ], 404);
             }
 
-            // Validasi bahwa dokter yang mengonfirmasi sesuai dengan booking
+            
             if ($booking->kd_dokter !== $decodedData['doctor_id']) {
                 Log::warning('Unauthorized confirmation attempt', [
                     'booking_id' => $booking->no_booking,
@@ -408,7 +408,7 @@ class BookingController extends Controller
                 ], 403);
             }
 
-            // Cek apakah booking masih bisa dikonfirmasi
+            
             if (!in_array($booking->status, [BookingPeriksa::STATUS_BELUM_DIBALAS])) {
                 return response()->json([
                     'success' => false,
@@ -417,10 +417,10 @@ class BookingController extends Controller
                 ], 422);
             }
 
-            // Update status booking menjadi diterima tanpa mengubah catatan
+            
             $booking->updateStatus(BookingPeriksa::STATUS_DITERIMA);
 
-            // Log konfirmasi yang berhasil
+            
             Log::info('Booking confirmed successfully', [
                 'booking_id' => $booking->no_booking,
                 'doctor_id' => $booking->kd_dokter,
@@ -429,7 +429,7 @@ class BookingController extends Controller
                 'ip' => $clientIp
             ]);
 
-            // Kirim notifikasi konfirmasi ke pasien
+            
             $this->sendConfirmationNotificationToPatient($booking);
 
             return response()->json([
@@ -463,7 +463,7 @@ class BookingController extends Controller
     private function decodeConfirmationToken($token)
     {
         try {
-            // Decode base64 token
+            
             $decoded = base64_decode($token);
             $data = json_decode($decoded, true);
 
@@ -472,18 +472,18 @@ class BookingController extends Controller
                 return false;
             }
 
-            // Cek apakah token sudah kedaluwarsa (24 jam)
+            
             if (Carbon::parse($data['expires_at'])->isPast()) {
                 Log::warning('Expired token', ['booking_id' => $data['booking_id'], 'expires_at' => $data['expires_at']]);
                 return false;
             }
 
-            // Validasi hash untuk memastikan integritas token
+            
             $salt = config('app.key') . date('Y-m-d');
             $expectedHash = hash('sha256', $data['booking_id'] . $data['doctor_id'] . $salt);
             
             if (!hash_equals($expectedHash, $data['hash'])) {
-                // Coba dengan salt hari sebelumnya (untuk token yang dibuat menjelang tengah malam)
+                
                 $yesterdaySalt = config('app.key') . date('Y-m-d', strtotime('-1 day'));
                 $yesterdayHash = hash('sha256', $data['booking_id'] . $data['doctor_id'] . $yesterdaySalt);
                 
@@ -493,7 +493,7 @@ class BookingController extends Controller
                 }
             }
 
-            // Validasi tambahan: pastikan booking dan dokter masih ada di database
+            
             $booking = BookingPeriksa::where('no_booking', $data['booking_id'])
                                    ->where('kd_dokter', $data['doctor_id'])
                                    ->first();
@@ -553,13 +553,13 @@ class BookingController extends Controller
                 'tanggal' => 'required|date_format:Y-m-d|after_or_equal:today'
             ]);
 
-            // Slot waktu yang tersedia (bisa disesuaikan dengan jadwal dokter)
+            
             $allSlots = [
                 '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
                 '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'
             ];
 
-            // Ambil booking yang sudah ada pada tanggal tersebut
+            
             $bookedSlots = BookingPeriksa::where('kd_dokter', $validated['kd_dokter'])
                 ->whereDate('tanggal', $validated['tanggal'])
                 ->whereIn('status', [
@@ -574,7 +574,7 @@ class BookingController extends Controller
                 })
                 ->toArray();
 
-            // Filter slot yang masih tersedia
+            
             $availableSlots = array_diff($allSlots, $bookedSlots);
 
             return response()->json([
@@ -659,7 +659,7 @@ class BookingController extends Controller
                 ], 404);
             }
 
-            // Check if patient already exists by NIK (only if NIK is not null)
+            
             if (!empty($booking->nik)) {
                 $existingPatient = \App\Models\Pasien::getByNik($booking->nik);
 
@@ -678,7 +678,7 @@ class BookingController extends Controller
 
             DB::beginTransaction();
 
-            // Get additional data from request
+            
             $additionalData = $request->only([
                 'nm_pasien',
                 'tmp_lahir',
@@ -695,7 +695,7 @@ class BookingController extends Controller
                 'namakeluarga'
             ]);
 
-            // Create patient from booking data using the new method with additional data
+            
             $patient = \App\Models\Pasien::createFromBookingData($booking, $additionalData);
 
             DB::commit();
@@ -733,7 +733,7 @@ class BookingController extends Controller
     private function sendWhatsAppNotifications($booking)
     {
         try {
-            // Kirim notifikasi ke pasien
+            
             if (!empty($booking->no_telp)) {
                 $patientResult = $this->whatsAppService->sendBookingConfirmationToPatient($booking);
                 
@@ -750,7 +750,7 @@ class BookingController extends Controller
                 ]);
             }
 
-            // Kirim notifikasi ke dokter
+            
             if (!empty($booking->dokter->no_telp)) {
                 $doctorResult = $this->whatsAppService->sendBookingNotificationToDoctor($booking);
                 
@@ -785,7 +785,7 @@ class BookingController extends Controller
         try {
             DB::beginTransaction();
 
-            // Find booking
+            
             $booking = BookingPeriksa::where('no_booking', $noBooking)
                 ->with(['poliklinik', 'dokter', 'penjab'])
                 ->first();
@@ -797,7 +797,7 @@ class BookingController extends Controller
                 ], 404);
             }
 
-            // Check if booking can be accepted
+            
             if ($booking->status !== BookingPeriksa::STATUS_BELUM_DIBALAS) {
                 return response()->json([
                     'success' => false,
@@ -805,14 +805,14 @@ class BookingController extends Controller
                 ], 422);
             }
 
-            // Update booking status to accepted
+            
             $booking->update([
                 'status' => BookingPeriksa::STATUS_DITERIMA
             ]);
 
             DB::commit();
 
-            // Send WhatsApp notification to patient
+            
             $this->sendAcceptanceNotification($booking);
 
             return response()->json([

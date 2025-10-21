@@ -12,7 +12,7 @@ class BookingPeriksa extends Model
     protected $primaryKey = 'no_booking';
     public $incrementing = false;
     protected $keyType = 'string';
-    public $timestamps = false; // Disable timestamps karena tabel tidak memiliki kolom updated_at dan created_at
+    public $timestamps = false; 
     
     protected $fillable = [
         'no_booking',
@@ -36,48 +36,33 @@ class BookingPeriksa extends Model
         'tanggal_booking' => 'datetime',
     ];
 
-    // Status constants
+    
     const STATUS_DITERIMA = 'Diterima';
     const STATUS_DITOLAK = 'Ditolak';
     const STATUS_BELUM_DIBALAS = 'Belum Dibalas';
     const STATUS_CHECK_IN = 'Check In';
     const STATUS_CHECKIN = 'CheckIn';
 
-    /**
-     * Relationship dengan tabel poliklinik
-     */
     public function poliklinik(): BelongsTo
     {
         return $this->belongsTo(Poliklinik::class, 'kd_poli', 'kd_poli');
     }
 
-    /**
-     * Relationship dengan tabel dokter
-     */
     public function dokter(): BelongsTo
     {
         return $this->belongsTo(Dokter::class, 'kd_dokter', 'kd_dokter');
     }
 
-    /**
-     * Relationship dengan tabel penjab (penanggung jawab)
-     */
     public function penjab(): BelongsTo
     {
         return $this->belongsTo(Penjab::class, 'kd_pj', 'kd_pj');
     }
 
-    /**
-     * Relationship dengan tabel pasien menggunakan NIK
-     */
     public function pasien(): BelongsTo
     {
         return $this->belongsTo(Pasien::class, 'nik', 'no_ktp');
     }
 
-    /**
-     * Generate nomor booking otomatis
-     */
     public static function generateBookingNumber(): string
     {
         $date = Carbon::now()->format('Ymd');
@@ -95,59 +80,41 @@ class BookingPeriksa extends Model
         return "BK{$date}{$newNumber}";
     }
 
-    /**
-     * Scope untuk filter berdasarkan status
-     */
     public function scopeByStatus($query, $status)
     {
         return $query->where('status', $status);
     }
 
-    /**
-     * Scope untuk filter berdasarkan tanggal
-     */
     public function scopeByDate($query, $date)
     {
         return $query->whereDate('tanggal', $date);
     }
 
-    /**
-     * Scope untuk filter berdasarkan tanggal dan waktu
-     */
     public function scopeByDateTime($query, $datetime)
     {
         return $query->where('tanggal', $datetime);
     }
 
-    /**
-     * Scope untuk filter berdasarkan dokter
-     */
     public function scopeByDokter($query, $kdDokter)
     {
         return $query->where('kd_dokter', $kdDokter);
     }
 
-    /**
-     * Scope untuk filter berdasarkan poliklinik
-     */
     public function scopeByPoliklinik($query, $kdPoli)
     {
         return $query->where('kd_poli', $kdPoli);
     }
 
-    /**
-     * Accessor untuk format tanggal Indonesia
-     */
     public function getTanggalFormattedAttribute(): string
     {
         if (!$this->tanggal) {
             return '';
         }
         
-        // Set locale ke Indonesia
+        
         Carbon::setLocale('id');
         
-        // Array nama hari dalam bahasa Indonesia
+        
         $namaHari = [
             'Sunday' => 'Minggu',
             'Monday' => 'Senin', 
@@ -158,7 +125,7 @@ class BookingPeriksa extends Model
             'Saturday' => 'Sabtu'
         ];
         
-        // Array nama bulan dalam bahasa Indonesia
+        
         $namaBulan = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
             5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
@@ -179,17 +146,11 @@ class BookingPeriksa extends Model
         );
     }
 
-    /**
-     * Accessor untuk format tanggal booking Indonesia
-     */
     public function getTanggalBookingFormattedAttribute(): string
     {
         return $this->tanggal_booking ? $this->tanggal_booking->format('d/m/Y H:i') : '';
     }
 
-    /**
-     * Accessor untuk status badge class
-     */
     public function getStatusBadgeClassAttribute(): string
     {
         return match($this->status) {
@@ -201,57 +162,36 @@ class BookingPeriksa extends Model
         };
     }
 
-    /**
-     * Mutator untuk NIK - pastikan 16 digit
-     */
     public function setNikAttribute($value)
     {
         $this->attributes['nik'] = $value ? str_pad($value, 16, '0', STR_PAD_LEFT) : null;
     }
 
-    /**
-     * Mutator untuk nomor kartu - pastikan 13 digit
-     */
     public function setNomorKartuAttribute($value)
     {
         $this->attributes['nomor_kartu'] = $value ? str_pad($value, 13, '0', STR_PAD_LEFT) : null;
     }
 
-    /**
-     * Validasi NIK
-     */
     public static function validateNik($nik): bool
     {
         return preg_match('/^[0-9]{16}$/', $nik);
     }
 
-    /**
-     * Validasi nomor kartu BPJS
-     */
     public static function validateNomorKartu($nomorKartu): bool
     {
         return preg_match('/^[0-9]{13}$/', $nomorKartu);
     }
 
-    /**
-     * Get booking dengan relasi lengkap
-     */
     public static function getWithRelations()
     {
         return self::with(['poliklinik', 'dokter', 'penjab']);
     }
 
-    /**
-     * Cek apakah booking dapat diubah statusnya
-     */
     public function canChangeStatus(): bool
     {
         return !in_array($this->status, [self::STATUS_CHECK_IN, self::STATUS_CHECKIN]);
     }
 
-    /**
-     * Update status booking
-     */
     public function updateStatus(string $status, string $catatan = null): bool
     {
         if (!$this->canChangeStatus()) {
@@ -259,7 +199,7 @@ class BookingPeriksa extends Model
         }
 
         $this->status = $status;
-        // Hanya update catatan jika parameter catatan diberikan dan tidak kosong
+        
         if ($catatan && !empty(trim($catatan))) {
             $this->catatan = $catatan;
         }

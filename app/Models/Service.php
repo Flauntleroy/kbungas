@@ -27,17 +27,11 @@ class Service extends Model
         'duration_minutes' => 'integer'
     ];
 
-    /**
-     * Scope to get only active services
-     */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    /**
-     * Scope to order services by category and name
-     */
     public function scopeOrdered($query)
     {
         return $query->orderBy('category')->orderBy('name');

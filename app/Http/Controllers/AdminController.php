@@ -13,29 +13,26 @@ use Carbon\Carbon;
 
 class AdminController extends Controller
 {
-    /**
-     * Display admin dashboard with real data
-     */
     public function dashboard()
     {
         try {
-            // Get current date
+            
             $today = Carbon::today();
             $currentMonth = Carbon::now()->month;
             $currentYear = Carbon::now()->year;
 
-            // Calculate statistics
+            
             $stats = [
                 'totalBookings' => BookingPeriksa::count(),
                 'todayBookings' => BookingPeriksa::whereDate('tanggal', $today)->count(),
                 'pendingBookings' => BookingPeriksa::where('status', 'Belum Dibalas')->count(),
                 'totalPatients' => BookingPeriksa::distinct('nik')->count(),
                 'newPatients' => BookingPeriksa::whereDate('tanggal_booking', $today)->distinct('nik')->count(),
-                'averageRating' => 4.8, // Placeholder - implement rating system later
-                'totalReviews' => 0 // Placeholder - implement review system later
+                'averageRating' => 4.8, 
+                'totalReviews' => 0 
             ];
 
-            // Get recent bookings with real data
+            
             $recentBookings = BookingPeriksa::with(['poliklinik', 'dokter'])
                 ->orderBy('tanggal_booking', 'desc')
                 ->limit(4)
@@ -52,7 +49,7 @@ class AdminController extends Controller
                     ];
                 });
 
-            // Calculate monthly statistics
+            
             $monthlyBookings = BookingPeriksa::whereMonth('tanggal', $currentMonth)
                 ->whereYear('tanggal', $currentYear)
                 ->get();
@@ -61,7 +58,7 @@ class AdminController extends Controller
                 'completed' => $monthlyBookings->where('status', 'Diterima')->count(),
                 'cancelled' => $monthlyBookings->where('status', 'Ditolak')->count(),
                 'total' => $monthlyBookings->count(),
-                'satisfaction' => 92 // Placeholder - implement satisfaction survey later
+                'satisfaction' => 92 
             ];
 
             return Inertia::render('Admin/Dashboard', [
@@ -71,7 +68,7 @@ class AdminController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            // Log error and return with default data
+            
             \Log::error('Admin Dashboard Error: ' . $e->getMessage());
             
             return Inertia::render('Admin/Dashboard', [
@@ -95,9 +92,6 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Display bookings management page
-     */
     public function bookings()
     {
         $bookings = BookingPeriksa::with(['poliklinik', 'dokter', 'pasien'])
@@ -109,12 +103,9 @@ class AdminController extends Controller
         ]);
     }
 
-    /**
-     * Display content management page
-     */
     public function content()
     {
-        // Get all content settings from the database using the correct key format
+        
         $allSettings = ClinicSetting::getAll();
 
         $heroContent = [
@@ -124,7 +115,7 @@ class AdminController extends Controller
             'ctaLink' => $allSettings['hero.cta_link'] ?? '/booking'
         ];
 
-        // Get services from dedicated table
+        
         $servicesFromDb = Service::active()->ordered()->get();
         $servicesContent = [];
         
@@ -137,7 +128,7 @@ class AdminController extends Controller
                 ];
             })->toArray();
         } else {
-            // Fallback to JSON data if no services in dedicated table
+            
             if (isset($allSettings['services.items'])) {
                 $servicesData = is_string($allSettings['services.items']) 
                     ? json_decode($allSettings['services.items'], true) 
@@ -145,7 +136,7 @@ class AdminController extends Controller
                 $servicesContent = is_array($servicesData) ? $servicesData : [];
             }
             
-            // If still no services, use defaults
+            
             if (empty($servicesContent)) {
                 $servicesContent = [
                     [
@@ -162,7 +153,7 @@ class AdminController extends Controller
             }
         }
 
-        // Get doctors from dedicated table
+        
         $doctorsFromDb = ClinicDoctor::active()->ordered()->get();
         $doctorsContent = [];
         
@@ -178,7 +169,7 @@ class AdminController extends Controller
                 ];
             })->toArray();
         } else {
-            // Fallback to JSON data if no doctors in dedicated table
+            
             if (isset($allSettings['doctors.all'])) {
                 $doctorsData = is_string($allSettings['doctors.all']) 
                     ? json_decode($allSettings['doctors.all'], true) 
@@ -186,7 +177,7 @@ class AdminController extends Controller
                 $doctorsContent = is_array($doctorsData) ? $doctorsData : [];
             }
             
-            // If no doctors in database, create from primary doctor data or use defaults
+            
             if (empty($doctorsContent)) {
                 if (isset($allSettings['doctors.primary.name'])) {
                     $doctorsContent = [[
@@ -210,7 +201,7 @@ class AdminController extends Controller
             }
         }
 
-        // Get contact hours from database or use defaults
+        
         $contactHours = [];
         if (isset($allSettings['contact.hours'])) {
             $hoursData = is_string($allSettings['contact.hours']) 
@@ -247,9 +238,6 @@ class AdminController extends Controller
         ]);
     }
 
-    /**
-     * Update content settings
-     */
     public function updateContent(Request $request)
     {
         $request->validate([
@@ -260,11 +248,11 @@ class AdminController extends Controller
         $type = $request->input('type');
         $content = $request->input('content');
 
-        // Log the received data for debugging
+        
         \Log::info("Updating content type: {$type}", ['content' => $content]);
 
         try {
-            // Save content with the correct key format that matches the landing page expectations
+            
             switch ($type) {
                 case 'hero':
                     ClinicSetting::set('hero.title', $content['title'] ?? '', 'string', 'Hero section title');
@@ -274,10 +262,10 @@ class AdminController extends Controller
                     break;
 
                 case 'services':
-                    // Clear existing services
+                    
                     Service::query()->delete();
                     
-                    // Validate and save services to dedicated table
+                    
                     if (is_array($content)) {
                         foreach ($content as $index => $serviceData) {
                             if (!isset($serviceData['name']) || !isset($serviceData['description'])) {
@@ -296,10 +284,10 @@ class AdminController extends Controller
                     break;
 
                 case 'doctors':
-                    // Clear existing doctors
+                    
                     ClinicDoctor::query()->delete();
                     
-                    // Validate and save doctors to dedicated table
+                    
                     if (is_array($content)) {
                         foreach ($content as $index => $doctorData) {
                             if (!isset($doctorData['name']) || !isset($doctorData['specialization'])) {
@@ -313,13 +301,13 @@ class AdminController extends Controller
                                 'photo' => $doctorData['photo'] ?? '',
                                 'whatsapp' => $doctorData['whatsapp'] ?? '',
                                 'available' => $doctorData['available'] ?? true,
-                                'is_primary' => $index === 0, // First doctor is primary
+                                'is_primary' => $index === 0, 
                                 'order' => $index + 1,
                                 'is_active' => true
                             ]);
                         }
                         
-                        // Keep backward compatibility by saving primary doctor to settings
+                        
                         if (!empty($content)) {
                             $primaryDoctor = $content[0];
                             ClinicSetting::set('doctors.primary.name', $primaryDoctor['name'] ?? '', 'string', 'Primary doctor name');
@@ -338,7 +326,7 @@ class AdminController extends Controller
                     ClinicSetting::set('contact.whatsapp', $content['whatsapp'] ?? '', 'string', 'Clinic WhatsApp');
                     ClinicSetting::set('contact.email', $content['email'] ?? '', 'string', 'Clinic email');
                     
-                    // Handle both 'hours' and 'schedule' keys from frontend
+                    
                     $hours = $content['hours'] ?? $content['schedule'] ?? null;
                     if ($hours) {
                         ClinicSetting::set('contact.hours', json_encode($hours), 'json', 'Clinic operating hours');
@@ -369,9 +357,6 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Display users management page
-     */
     public function users()
     {
         $users = User::orderBy('created_at', 'desc')->get();
@@ -381,9 +366,6 @@ class AdminController extends Controller
         ]);
     }
 
-    /**
-     * Store a new user
-     */
     public function storeUser(Request $request)
     {
         $request->validate([
@@ -405,9 +387,6 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'User berhasil ditambahkan');
     }
 
-    /**
-     * Update an existing user
-     */
     public function updateUser(Request $request, User $user)
     {
         $rules = [
@@ -439,18 +418,12 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'User berhasil diperbarui');
     }
 
-    /**
-     * Delete a user
-     */
     public function deleteUser(User $user)
     {
         $user->delete();
         return redirect()->back()->with('success', 'User berhasil dihapus');
     }
 
-    /**
-     * Toggle user status
-     */
     public function toggleUserStatus(User $user)
     {
         $newStatus = $user->status === 'active' ? 'inactive' : 'active';
@@ -459,14 +432,11 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Status user berhasil diperbarui');
     }
 
-    /**
-     * Display reg_periksa management page
-     */
     public function regPeriksa(Request $request)
     {
         $query = \App\Models\RegPeriksa::with(['dokter', 'poliklinik', 'pasien', 'penjab']);
 
-        // Apply filters
+        
         if ($request->filled('tanggal')) {
             $query->whereDate('tgl_registrasi', $request->tanggal);
         }
@@ -483,21 +453,18 @@ class AdminController extends Controller
                               ->orderBy('jam_reg', 'desc')
                               ->paginate(15);
 
-        // Get available bookings for transfer
+        
         $availableBookings = BookingPeriksa::where('status', 'confirmed')
                                           ->whereDoesntHave('regPeriksa')
                                           ->orderBy('tanggal', 'desc')
                                           ->get();
 
-        // Get polikliniks for filter
+        
         $polikliniks = \App\Models\Poliklinik::all();
 
         return view('admin.reg-periksa.index', compact('registrations', 'availableBookings', 'polikliniks'));
     }
 
-    /**
-     * Show specific reg_periksa details
-     */
     public function showRegPeriksa($noRawat)
     {
         $registration = \App\Models\RegPeriksa::with(['dokter', 'poliklinik', 'pasien', 'penjab'])
@@ -507,9 +474,6 @@ class AdminController extends Controller
         return view('admin.reg-periksa.show', compact('registration'));
     }
 
-    /**
-     * Display doctor reviews management page
-     */
     public function doctorReviews()
     {
         return Inertia::render('Admin/DoctorReviews');

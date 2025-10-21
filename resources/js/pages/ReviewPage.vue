@@ -181,10 +181,10 @@ import { Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import DoctorReviewForm from '@/components/DoctorReviewForm.vue';
 
-// Mobile menu state
+
 const mobileMenuOpen = ref(false);
 
-// Props for pre-filling form (optional, can be passed from URL params or other sources)
+
 const props = defineProps({
   patientId: {
     type: String,

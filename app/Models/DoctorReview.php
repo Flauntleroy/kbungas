@@ -37,7 +37,7 @@ class DoctorReview extends Model
         'updated_at'
     ];
 
-    // Scopes untuk query yang sering digunakan
+    
     public function scopeApproved($query)
     {
         return $query->where('is_approved', true);
@@ -63,19 +63,19 @@ class DoctorReview extends Model
         return $query->where('tanggal_penilaian', '>=', Carbon::now()->subDays($days));
     }
 
-    // Accessor untuk format rating
+    
     public function getRatingStarsAttribute()
     {
         return str_repeat('★', $this->rating) . str_repeat('☆', 5 - $this->rating);
     }
 
-    // Accessor untuk format tanggal
+    
     public function getFormattedDateAttribute()
     {
         return $this->tanggal_penilaian->format('d M Y');
     }
 
-    // Method untuk mendapatkan rata-rata rating per dokter
+    
     public static function getAverageRatingByDoctor($doctorName)
     {
         return self::approved()
@@ -83,7 +83,7 @@ class DoctorReview extends Model
             ->avg('rating');
     }
 
-    // Method untuk mendapatkan total review per dokter
+    
     public static function getTotalReviewsByDoctor($doctorName)
     {
         return self::approved()
@@ -91,7 +91,7 @@ class DoctorReview extends Model
             ->count();
     }
 
-    // Method untuk mendapatkan review terbaru untuk landing page
+    
     public static function getFeaturedReviews($limit = 6)
     {
         return self::approved()
@@ -101,7 +101,7 @@ class DoctorReview extends Model
             ->get();
     }
 
-    // Method untuk mendapatkan review dengan rating tinggi
+    
     public static function getHighRatedReviews($minRating = 4, $limit = 10)
     {
         return self::approved()

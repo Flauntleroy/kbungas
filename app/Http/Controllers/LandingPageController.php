@@ -10,12 +10,9 @@ use Inertia\Inertia;
 
 class LandingPageController extends Controller
 {
-    /**
-     * Display the landing page with dynamic content from clinic_settings
-     */
     public function index()
     {
-        // Get all clinic settings for the landing page
+        
         $clinicSettings = $this->getClinicSettings();
         
         return Inertia::render('LandingPage', [
@@ -23,15 +20,12 @@ class LandingPageController extends Controller
         ]);
     }
 
-    /**
-     * Get clinic settings data for landing page
-     */
     private function getClinicSettings()
     {
-        // Get all settings and organize them by category
+        
         $allSettings = ClinicSetting::getAll();
         
-        // Get services from dedicated table
+        
         $servicesFromDb = Service::active()->ordered()->get();
         $servicesItems = [];
         
@@ -45,7 +39,7 @@ class LandingPageController extends Controller
                 ];
             })->toArray();
         } else {
-            // Fallback to default services if no services in dedicated table
+            
             $servicesItems = [
                 [
                     'name' => 'Apotek',
@@ -74,7 +68,7 @@ class LandingPageController extends Controller
             ];
         }
         
-        // Get doctors from dedicated table
+        
         $doctorsFromDb = ClinicDoctor::active()->ordered()->get();
         $doctorsData = [];
         
@@ -90,7 +84,7 @@ class LandingPageController extends Controller
                 ];
             })->toArray();
         } else {
-            // Fallback to settings data if no doctors in dedicated table
+            
             $doctorsData = [[
                 'name' => $allSettings['doctors.primary.name'] ?? 'dr. Bunga Sari, Sp.KK',
                 'specialization' => $allSettings['doctors.primary.specialization'] ?? 'Spesialis Kulit & Kelamin',
@@ -102,7 +96,7 @@ class LandingPageController extends Controller
         }
         
         return [
-            // Hero Section
+            
             'hero' => [
                 'title' => $allSettings['hero.title'] ?? 'Kesehatan & Kecantikan Terpercaya',
                 'subtitle' => $allSettings['hero.subtitle'] ?? 'Dapatkan perawatan kesehatan dan kecantikan terbaik dengan dokter berpengalaman dan fasilitas modern di Klinik Bungas.',
@@ -110,17 +104,17 @@ class LandingPageController extends Controller
                 'cta_link' => $allSettings['hero.cta_link'] ?? '/booking'
             ],
             
-            // Services Section
+            
             'services' => [
                 'title' => $allSettings['services.title'] ?? 'Layanan Kami',
                 'subtitle' => $allSettings['services.subtitle'] ?? 'Kami menyediakan berbagai layanan kesehatan dan kecantikan dengan standar pelayanan terbaik',
                 'items' => $servicesItems
             ],
             
-            // Doctor Section - Updated to use array format instead of primary key
+            
             'doctors' => $doctorsData,
             
-            // Contact Section
+            
             'contact' => [
                 'address' => $allSettings['contact.address'] ?? 'Jl. Raya Bungas No. 123, Kecamatan Bungas, Kabupaten Bungas, Provinsi Bungas 12345',
                 'phone' => $allSettings['contact.phone'] ?? '+62 812-3456-7890',
@@ -132,7 +126,7 @@ class LandingPageController extends Controller
                 'maps_embed' => $allSettings['contact.maps_embed'] ?? 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.521260322283!2d106.8195613!3d-6.2087634!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f5390917b759%3A0x6b45e67356080477!2sKlinik%20Bungas!5e0!3m2!1sen!2sid!4v1635724000000!5m2!1sen!2sid'
             ],
             
-            // General Settings
+            
             'general' => [
                 'clinic_name' => $allSettings['general.clinic_name'] ?? 'Klinik Bungas',
                 'tagline' => $allSettings['general.tagline'] ?? 'Kesehatan & Kecantikan Terpercaya',
@@ -141,9 +135,6 @@ class LandingPageController extends Controller
         ];
     }
 
-    /**
-     * API endpoint to get clinic settings (for AJAX requests)
-     */
     public function getSettings(Request $request)
     {
         $category = $request->get('category');

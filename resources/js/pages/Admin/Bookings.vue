@@ -686,7 +686,7 @@ import AdminLayout from '@/layouts/AdminLayout.vue'
 import { useSweetAlert } from '@/composables/useSweetAlert'
 import RegistrationSuccessModal from '@/components/RegistrationSuccessModal.vue'
 
-// Props dari AdminController
+
 interface Props {
   bookings: {
     data: Array<{
@@ -713,7 +713,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// State
+
 const showFilters = ref(false)
 const showModal = ref(false)
 const showRegistrationModal = ref(false)
@@ -733,28 +733,28 @@ const isRegisteringPatient = ref(false)
 const isTransferring = ref(false)
 const isAccepting = ref(false)
 
-// Dropdown state
+
 const dropdownOpen = ref(null)
 
-// Reactive copy of bookings data for real-time updates
+
 const bookingsData = ref(props.bookings)
 
-// NIK BPJS Auto-fill State
+
 const nikBpjs = ref('')
 const isLoadingNikData = ref(false)
 const nikError = ref('')
 const nikSuccess = ref('')
 let nikTimeout: NodeJS.Timeout | null = null
 
-// Initialize SweetAlert composable
+
 const { showSuccess, showError, showWarning, showConfirmation, showDeleteConfirmation, showToast } = useSweetAlert()
 
-// Test modal visibility - temporary for debugging
+
 onMounted(() => {
   console.log('Bookings component mounted')
 })
 
-// Filters
+
 const filters = ref({
   status: '',
   startDate: '',
@@ -762,7 +762,7 @@ const filters = ref({
   doctor: ''
 })
 
-// Form
+
 const bookingForm = ref({
   patient_name: '',
   patient_phone: '',
@@ -772,7 +772,7 @@ const bookingForm = ref({
   notes: ''
 })
 
-// Registration Form
+
 const registrationForm = ref({
   nm_pasien: '',
   tmp_lahir: '',
@@ -789,11 +789,11 @@ const registrationForm = ref({
   namakeluarga: ''
 })
 
-// Patient registration methods
+
 const registerPatient = (booking) => {
   selectedBooking.value = booking
   
-  // Pre-fill form with booking data
+  
   registrationForm.value = {
     nm_pasien: booking.nama || '',
     tmp_lahir: '',
@@ -805,15 +805,15 @@ const registerPatient = (booking) => {
     stts_nikah: 'BELUM MENIKAH',
     agama: 'ISLAM',
     pnd: '-',
-    alamat: booking.alamat || '', // Auto-fill address from booking data
+    alamat: booking.alamat || '', 
     keluarga: 'AYAH',
     namakeluarga: ''
   }
   
-  // Auto-fill address from booking data
+  
   fillAddressFromBooking()
   
-  // Auto-fill NIK BPJS from booking data
+  
   autoFillNikFromBooking()
   
   showRegistrationModal.value = true
@@ -841,7 +841,7 @@ const closeRegistrationModal = () => {
 
 const handleSuccessModalOk = () => {
   showSuccessModal.value = false
-  // Refresh bookings data instead of reloading page
+  
   refreshBookings()
 }
 
@@ -865,13 +865,13 @@ const submitPatientRegistration = async () => {
     if (response.ok) {
       console.log('Registration API Response:', result)
       if (result.success === false && result.patient) {
-        // Patient already exists
+        
         showWarning(
           'Pasien Sudah Terdaftar',
           `Pasien ${selectedBooking.value.nama} sudah terdaftar di SIMRS dengan No. RM: ${result.patient.no_rkm_medis}`
         )
         
-        // Update booking status locally
+        
         const bookingIndex = bookingsData.value.data.findIndex(b => b.no_booking === selectedBooking.value.no_booking)
         if (bookingIndex !== -1) {
           bookingsData.value.data[bookingIndex].status = 'Terdaftar'
@@ -879,13 +879,13 @@ const submitPatientRegistration = async () => {
       } else if (result.success === true && result.patient) {
         console.log('Setting up success modal with patient data:', result.patient)
         
-        // Update booking status locally
+        
         const bookingIndex = bookingsData.value.data.findIndex(b => b.no_booking === selectedBooking.value.no_booking)
         if (bookingIndex !== -1) {
           bookingsData.value.data[bookingIndex].status = 'Terdaftar'
         }
         
-        // Show custom success modal with patient details
+        
         successPatientData.value = {
           no_rkm_medis: result.patient.no_rkm_medis,
           nama: result.patient.nama,
@@ -934,7 +934,7 @@ const closeModal = () => {
   }
 }
 
-// Computed properties
+
 const filteredBookings = computed(() => {
   let filtered = bookingsData.value.data
 
@@ -966,7 +966,7 @@ const visiblePages = computed(() => {
   return pages
 })
 
-// Methods
+
 const toggleDropdown = (bookingId) => {
   dropdownOpen.value = dropdownOpen.value === bookingId ? null : bookingId
 }
@@ -1000,7 +1000,7 @@ const formatDate = (dateString) => {
     return { date: 'Tanggal tidak tersedia', time: '—' }
   }
 
-  // Hilangkan milidetik dan Z jika ada
+  
   const clean = dateString.replace('T', ' ').replace('Z', '').split('.')[0]
 
   const m = clean.match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})(?::(\d{2}))?$/)
@@ -1074,7 +1074,7 @@ const editBooking = (booking) => {
 }
 
 const saveBooking = async () => {
-  // Implementation for saving booking
+  
   console.log('Saving booking:', bookingForm.value)
   closeModal()
 }
@@ -1087,7 +1087,7 @@ const deleteBooking = async (booking) => {
   
   if (result.isConfirmed) {
     try {
-      // Implementation for deleting booking
+      
       console.log('Deleting booking:', booking)
       showToast('Booking berhasil dihapus', 'success')
     } catch (error) {
@@ -1107,55 +1107,55 @@ const resetFilters = () => {
 }
 
 const applyFilters = () => {
-  // Implementation for applying filters
+  
   console.log('Applying filters:', filters.value)
 }
 
 const previousPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--
-    // Implementation for page navigation
+    
   }
 }
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++
-    // Implementation for page navigation
+    
   }
 }
 
 const goToPage = (page) => {
   currentPage.value = page
-  // Implementation for page navigation
+  
 }
 
-// NIK BPJS Auto-fill methods
+
 const handleNikInput = async () => {
-  // Clear previous timeout
+  
   if (nikTimeout) {
     clearTimeout(nikTimeout)
   }
   
-  // Clear previous messages
-  // Note: nikError and nikSuccess are no longer used as we use SweetAlert2 toasts
   
-  // Check if NIK is 16 digits
+  
+  
+  
   if (nikBpjs.value.length !== 16) {
     return
   }
   
-  // Set timeout for real-time processing
+  
   nikTimeout = setTimeout(async () => {
     await fetchNikData()
-  }, 500) // 500ms delay for real-time feel
+  }, 500) 
 }
 
-// Auto-fill NIK BPJS field when registering from booking
+
 const autoFillNikFromBooking = () => {
   if (selectedBooking.value?.nik) {
     nikBpjs.value = selectedBooking.value.nik
-    // Trigger auto-fill immediately if NIK is valid
+    
     if (selectedBooking.value.nik.length === 16) {
       fetchNikData()
     }
@@ -1169,7 +1169,7 @@ const fetchNikData = async () => {
   
   try {
     isLoadingNikData.value = true
-    // Note: nikError and nikSuccess are no longer used as we use SweetAlert2 toasts
+    
     
     const response = await fetch('/api/bpjs/check-nik', {
       method: 'POST',
@@ -1182,26 +1182,26 @@ const fetchNikData = async () => {
     
     const result = await response.json()
     
-    // Handle BPJS API response structure
+    
     if (response.ok && result.metaData && result.metaData.code === '200') {
       const pesertaData = result.response?.peserta
       
       if (pesertaData) {
         let hasAutoFilled = false
         
-        // Auto-fill birth date from NIK or peserta data
+        
         if (pesertaData.tglLahir) {
           registrationForm.value.tgl_lahir = pesertaData.tglLahir
           hasAutoFilled = true
         }
         
-        // Auto-fill name
+        
         if (pesertaData.nama) {
           registrationForm.value.nm_pasien = pesertaData.nama
           hasAutoFilled = true
         }
         
-        // Auto-fill gender
+        
         if (pesertaData.sex) {
           registrationForm.value.jk = pesertaData.sex === 'L' ? 'L' : 'P'
           hasAutoFilled = true
@@ -1210,31 +1210,31 @@ const fetchNikData = async () => {
           hasAutoFilled = true
         }
         
-        // Auto-fill occupation from jenisPeserta
+        
         if (pesertaData.jenisPeserta && pesertaData.jenisPeserta.keterangan) {
           registrationForm.value.pekerjaan = pesertaData.jenisPeserta.keterangan
           hasAutoFilled = true
         }
         
-        // Auto-fill NIK
+        
         if (pesertaData.nik) {
           registrationForm.value.no_ktp = pesertaData.nik
           hasAutoFilled = true
         }
         
-        // Auto-fill BPJS card number
+        
         if (pesertaData.noKartu) {
           registrationForm.value.no_peserta = pesertaData.noKartu
           hasAutoFilled = true
         }
         
-        // Auto-fill address if available
+        
         if (pesertaData.alamat) {
           registrationForm.value.alamat = pesertaData.alamat
           hasAutoFilled = true
         }
         
-        // Auto-fill phone number if available
+        
         if (pesertaData.noHP) {
           registrationForm.value.no_tlp = pesertaData.noHP
           hasAutoFilled = true
@@ -1261,14 +1261,14 @@ const fetchNikData = async () => {
   }
 }
 
-// Auto-fill address from booking data
+
 const fillAddressFromBooking = () => {
   if (selectedBooking.value?.alamat) {
     registrationForm.value.alamat = selectedBooking.value.alamat
   }
 }
 
-// Accept booking methods
+
 const acceptBooking = async (booking) => {
   if (isAccepting.value) return
   
@@ -1292,7 +1292,7 @@ const acceptBooking = async (booking) => {
       const result = await response.json()
       
       if (response.ok && result.success) {
-        // Update booking status locally for real-time update
+        
         const bookingIndex = bookingsData.value.data.findIndex(b => b.no_booking === booking.no_booking)
         if (bookingIndex !== -1) {
           bookingsData.value.data[bookingIndex].status = 'Diterima'
@@ -1317,7 +1317,7 @@ const acceptBooking = async (booking) => {
           `
         )
         
-        // No need to reload page - data updated locally
+        
       } else {
         await showError(
           'Gagal Menerima Booking',
@@ -1336,7 +1336,7 @@ const acceptBooking = async (booking) => {
   }
 }
 
-// Transfer to Reg Periksa methods
+
 const transferToRegPeriksa = async (booking) => {
   if (isTransferring.value) return
   
@@ -1366,7 +1366,7 @@ const transferToRegPeriksa = async (booking) => {
         headers: Object.fromEntries(response.headers.entries())
       })
       
-      // Check if response is JSON
+      
       const contentType = response.headers.get('content-type')
       console.log('Content-Type:', contentType)
       
@@ -1388,13 +1388,13 @@ const transferToRegPeriksa = async (booking) => {
       if (response.ok && result.success) {
         console.log('Success condition met, showing success popup')
         
-        // Update booking status locally for real-time update
+        
         const bookingIndex = bookingsData.value.data.findIndex(b => b.no_booking === booking.no_booking)
         if (bookingIndex !== -1) {
           bookingsData.value.data[bookingIndex].status = 'Terdaftar'
         }
         
-        // Show success message with detailed registration info
+        
         await showSuccess(
           'Transfer Berhasil!',
           undefined,
@@ -1416,7 +1416,7 @@ const transferToRegPeriksa = async (booking) => {
           `
         )
         
-        // No need to reload page - data updated locally
+        
       } else {
         console.log('Failure condition met, showing error popup')
         console.error('Transfer failed:', {
@@ -1441,7 +1441,7 @@ const transferToRegPeriksa = async (booking) => {
   }
 }
 
-// Event listener untuk menutup dropdown saat klik di luar
+
 onMounted(() => {
   document.addEventListener('click', closeDropdown)
 })

@@ -26,29 +26,20 @@ class Poliklinik extends Model
         'registrasilama' => 'decimal:2',
     ];
 
-    // Status constants
+    
     const STATUS_AKTIF = '1';
     const STATUS_NONAKTIF = '0';
 
-    /**
-     * Relationship dengan tabel booking_periksa
-     */
     public function bookingPeriksa(): HasMany
     {
         return $this->hasMany(BookingPeriksa::class, 'kd_poli', 'kd_poli');
     }
 
-    /**
-     * Scope untuk poliklinik aktif
-     */
     public function scopeAktif($query)
     {
         return $query->where('status', self::STATUS_AKTIF);
     }
 
-    /**
-     * Accessor untuk status text
-     */
     public function getStatusTextAttribute(): string
     {
         return match($this->status) {
@@ -58,41 +49,26 @@ class Poliklinik extends Model
         };
     }
 
-    /**
-     * Accessor untuk format biaya registrasi
-     */
     public function getBiayaRegistrasiFormattedAttribute(): string
     {
         return 'Rp ' . number_format($this->registrasi, 0, ',', '.');
     }
 
-    /**
-     * Accessor untuk format biaya registrasi lama
-     */
     public function getBiayaRegistrasiLamaFormattedAttribute(): string
     {
         return 'Rp ' . number_format($this->registrasilama, 0, ',', '.');
     }
 
-    /**
-     * Get poliklinik aktif
-     */
     public static function getAktif()
     {
         return self::aktif()->orderBy('nm_poli');
     }
 
-    /**
-     * Cari poliklinik berdasarkan nama
-     */
     public static function cariByNama($nama)
     {
         return self::where('nm_poli', 'like', "%{$nama}%");
     }
 
-    /**
-     * Get poliklinik untuk dropdown/select
-     */
     public static function getForSelect()
     {
         return self::aktif()
@@ -108,9 +84,6 @@ class Poliklinik extends Model
             });
     }
 
-    /**
-     * Get booking count untuk poliklinik
-     */
     public function getBookingCount($startDate = null, $endDate = null): int
     {
         $query = $this->bookingPeriksa();
@@ -126,30 +99,20 @@ class Poliklinik extends Model
         return $query->count();
     }
 
-    /**
-     * Get dokter yang tersedia di poliklinik ini
-     * Asumsi ada tabel jadwal_dokter atau relasi dokter-poliklinik
-     */
     public function getDokterTersedia($tanggal = null)
     {
-        // Implementasi sesuai dengan struktur tabel jadwal dokter
-        // Untuk sementara return semua dokter aktif
+        
+        
         return Dokter::aktif()->get();
     }
 
-    /**
-     * Cek apakah poliklinik buka pada tanggal tertentu
-     */
     public function isBukaOnDate($date): bool
     {
-        // Implementasi sesuai dengan jadwal poliklinik jika ada
-        // Untuk sementara return true jika status aktif
+        
+        
         return $this->status === self::STATUS_AKTIF;
     }
 
-    /**
-     * Get statistik booking untuk poliklinik
-     */
     public function getBookingStats($startDate = null, $endDate = null): array
     {
         $query = $this->bookingPeriksa();

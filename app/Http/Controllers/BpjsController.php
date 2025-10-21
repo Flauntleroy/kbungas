@@ -18,13 +18,10 @@ class BpjsController extends Controller
         $this->bpjsModel = new Bpjs();
     }
 
-    /**
-     * Check data peserta BPJS berdasarkan NIK
-     */
     public function checkNik(Request $request): JsonResponse
     {
         try {
-            // Validasi input
+            
             $validator = Validator::make($request->all(), [
                 'nik' => 'required|string|size:16|regex:/^[0-9]{16}$/',
                 'tgl_sep' => 'nullable|date_format:Y-m-d'
@@ -47,7 +44,7 @@ class BpjsController extends Controller
             $nik = $request->input('nik');
             $tglSep = $request->input('tgl_sep', date('Y-m-d'));
 
-            // Panggil method dari model
+            
             $result = $this->bpjsModel->checkPesertaByNik($nik, $tglSep);
 
             if ($result['success']) {
@@ -81,13 +78,10 @@ class BpjsController extends Controller
         }
     }
 
-    /**
-     * Check data peserta BPJS berdasarkan nomor kartu
-     */
     public function checkKartu(Request $request): JsonResponse
     {
         try {
-            // Validasi input
+            
             $validator = Validator::make($request->all(), [
                 'nomor_kartu' => 'required|string|size:13|regex:/^[0-9]{13}$/',
                 'tgl_sep' => 'nullable|date_format:Y-m-d'
@@ -110,7 +104,7 @@ class BpjsController extends Controller
             $noKartu = $request->input('nomor_kartu');
             $tglSep = $request->input('tgl_sep', date('Y-m-d'));
 
-            // Panggil method dari model
+            
             $result = $this->bpjsModel->checkPesertaByKartu($noKartu, $tglSep);
 
             if ($result['success']) {
@@ -144,9 +138,6 @@ class BpjsController extends Controller
         }
     }
 
-    /**
-     * Validasi NIK format saja (untuk frontend validation)
-     */
     public function validateNik(Request $request): JsonResponse
     {
         try {
@@ -180,19 +171,16 @@ class BpjsController extends Controller
         }
     }
 
-    /**
-     * Get API status untuk monitoring
-     */
     public function getApiStatus(): JsonResponse
     {
         try {
-            // Test koneksi ke API BPJS dengan NIK dummy
+            
             $testNik = '1234567890123456';
             $tglSep = date('Y-m-d');
 
             $result = $this->bpjsModel->checkPesertaByNik($testNik, $tglSep);
 
-            // Jika response diterima (meskipun data tidak ditemukan), API aktif
+            
             if (isset($result['message'])) {
                 return response()->json([
                     'status' => 'active',

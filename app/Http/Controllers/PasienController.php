@@ -21,9 +21,6 @@ class PasienController extends Controller
         $this->bpjsService = $bpjsService;
     }
 
-    /**
-     * Validate NIK and check if patient exists
-     */
     public function validateNik(Request $request): JsonResponse
     {
         try {
@@ -33,7 +30,7 @@ class PasienController extends Controller
 
             $nik = $request->nik;
 
-            // Check if NIK exists in pasien table
+            
             $existingPatient = Pasien::getByNik($nik);
 
             if ($existingPatient) {
@@ -52,8 +49,7 @@ class PasienController extends Controller
                     ]
                 ]);
             }
-
-            // If NIK doesn't exist, try to get data from BPJS
+            
             try {
                 $bpjsData = $this->bpjsService->getPatientByNik($nik);
                 
@@ -99,9 +95,6 @@ class PasienController extends Controller
         }
     }
 
-    /**
-     * Register new patient
-     */
     public function register(Request $request): JsonResponse
     {
         try {
@@ -124,21 +117,20 @@ class PasienController extends Controller
                 'kd_pj' => 'nullable|string|max:3',
                 'no_peserta' => 'nullable|string|max:25',
                 'email' => 'nullable|email|max:50',
-                // BPJS data (optional, for auto-fill)
                 'bpjs_data' => 'nullable|array'
             ]);
 
             DB::beginTransaction();
 
-            // Create new patient
+            
             if (isset($validated['bpjs_data'])) {
-                // Create from BPJS data
+                
                 $patient = Pasien::createFromBpjsData($validated['bpjs_data'], $validated);
             } else {
-                // Create manually
+                
                 $noRkmMedis = Pasien::generateNoRkmMedis();
                 
-                // Calculate age
+                
                 $tglLahir = Carbon::parse($validated['tgl_lahir']);
                 $umur = $tglLahir->age . ' Th';
 
@@ -217,9 +209,6 @@ class PasienController extends Controller
         }
     }
 
-    /**
-     * Get patient by NIK
-     */
     public function getByNik(Request $request): JsonResponse
     {
         try {
@@ -267,9 +256,6 @@ class PasienController extends Controller
         }
     }
 
-    /**
-     * Update patient data
-     */
     public function update(Request $request, $noRkmMedis): JsonResponse
     {
         try {

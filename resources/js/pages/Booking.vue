@@ -290,9 +290,9 @@
                     <div v-if="errors.tanggal" class="mt-2 text-sm text-red-600">
                       {{ errors.tanggal }}
                     </div>
-                    <div class="mt-2 text-xs text-rose-600">
+                    <!-- <div class="mt-2 text-xs text-rose-600">
                       Format: YYYY-MM-DD HH:MM (contoh: 2025-12-25 10:30)
-                    </div>
+                    </div> -->
                   </div>
                   
                   <!-- Poliklinik field dihapus dari tampilan, nilai "Umum" akan diset otomatis -->
@@ -496,7 +496,7 @@ defineOptions({
   layout: null
 })
 
-// Form data - sesuai dengan struktur database booking_periksa
+
 const form = ref({
   nik: '',
   nomor_kartu: '',
@@ -511,14 +511,14 @@ const form = ref({
   catatan: ''
 })
 
-// Form options from API
+
 const formOptions = ref({
   dokter: [],
   poliklinik: [],
   penjab: []
 })
 
-// Form state
+
 const isSubmitting = ref(false)
 const isLoadingNik = ref(false)
 const isNameFromNik = ref(false)
@@ -526,7 +526,7 @@ const isKartuFromNik = ref(false)
 const nikError = ref('')
 const nikSuccess = ref('')
 
-// Function to generate receipt HTML
+
 const generateReceiptHTML = (bookingData: any) => {
   const selectedPoli = formOptions.value.poliklinik.find(p => p.value === bookingData.kd_poli)
   const selectedDokter = formOptions.value.dokter.find(d => d.value === bookingData.kd_dokter)
@@ -658,10 +658,10 @@ const generateReceiptHTML = (bookingData: any) => {
   `
 }
 
-// Function to download receipt as JPG
+
 const downloadReceipt = async (bookingData: any) => {
   try {
-    // Create temporary div with receipt HTML
+    
     const tempDiv = document.createElement('div')
     tempDiv.innerHTML = generateReceiptHTML(bookingData)
     tempDiv.style.position = 'absolute'
@@ -669,24 +669,24 @@ const downloadReceipt = async (bookingData: any) => {
     tempDiv.style.top = '-9999px'
     document.body.appendChild(tempDiv)
     
-    // Generate canvas from HTML
+    
     const canvas = await html2canvas(tempDiv.querySelector('#receipt') as HTMLElement, {
       backgroundColor: '#ffffff',
-      scale: 2, // Higher quality
+      scale: 2, 
       useCORS: true,
       allowTaint: true
     })
     
-    // Convert to JPG and download
+    
     const link = document.createElement('a')
     link.download = `receipt-booking-${bookingData.no_booking}.jpg`
     link.href = canvas.toDataURL('image/jpeg', 0.9)
     link.click()
     
-    // Clean up
+    
     document.body.removeChild(tempDiv)
     
-    // Show success message
+    
     Swal.fire({
       icon: 'success',
       title: 'Receipt Downloaded!',
@@ -707,7 +707,7 @@ const successMessage = ref('')
 const errorMessage = ref('')
 const errors = ref({})
 
-// Load form data on mount
+
 const loadFormData = async () => {
   try {
     const response = await fetch('/api/booking/form-data', {
@@ -723,10 +723,10 @@ const loadFormData = async () => {
     if (result.success) {
       formOptions.value = result.data
       
-      // Set default values untuk field yang dihapus
-      form.value.email = 'pasien@klinikbungas.com' // Default value untuk email
       
-      // Set nilai otomatis untuk poliklinik dan jenis pembayaran ke "Umum"
+      form.value.email = 'pasien@klinikbungas.com' 
+      
+      
       const umumPoli = formOptions.value.poliklinik.find(p => 
         p.label && p.label.toLowerCase().includes('umum')
       )
@@ -748,12 +748,12 @@ const loadFormData = async () => {
   }
 }
 
-// Validate NIK format (16 digits)
+
 const validateNikFormat = (nik: string): boolean => {
   return /^\d{16}$/.test(nik)
 }
 
-// Fetch NIK data from BPJS API
+
 const fetchNikData = async (nik: string): Promise<boolean> => {
   if (!validateNikFormat(nik)) {
     nikError.value = 'Format NIK tidak valid'
@@ -775,11 +775,11 @@ const fetchNikData = async (nik: string): Promise<boolean> => {
 
     const result = await response.json()
     
-    // Cek response sesuai struktur BPJS API yang benar
+    
     if (result.metaData && result.metaData.code === '200' && result.response && result.response.peserta) {
       const pesertaData = result.response.peserta
       
-      // Auto-fill data dari response BPJS
+      
       form.value.nama = pesertaData.nama || ''
       form.value.nomor_kartu = pesertaData.noKartu || ''
       isNameFromNik.value = true
@@ -787,7 +787,7 @@ const fetchNikData = async (nik: string): Promise<boolean> => {
       nikSuccess.value = 'Data NIK berhasil ditemukan dan diisi otomatis'
       nikError.value = ''
       
-      // Set penjab to umum (UMU) regardless of BPJS data found
+      
       const umumPenjab = formOptions.value.penjab.find(p => 
         p.label && p.label.toLowerCase().includes('umum')
       )
@@ -797,13 +797,13 @@ const fetchNikData = async (nik: string): Promise<boolean> => {
       
       return true
     } else if (result.metaData && result.metaData.code === '201') {
-      // Data tidak ditemukan di BPJS
+      
       nikError.value = 'Data NIK tidak ditemukan di BPJS'
       nikSuccess.value = ''
       isNameFromNik.value = false
       isKartuFromNik.value = false
       
-      // Set penjab to umum if NIK not found in BPJS
+      
       const umumPenjab = formOptions.value.penjab.find(p => 
         p.label && p.label.toLowerCase().includes('umum')
       )
@@ -813,7 +813,7 @@ const fetchNikData = async (nik: string): Promise<boolean> => {
       
       return false
     } else {
-      // Error atau response tidak valid
+      
       nikError.value = result.metaData?.message || 'Gagal mengambil data NIK dari BPJS'
       nikSuccess.value = ''
       isNameFromNik.value = false
@@ -832,16 +832,16 @@ const fetchNikData = async (nik: string): Promise<boolean> => {
 
 const handleNikInput = async (event: Event) => {
   const target = event.target as HTMLInputElement
-  const nik = target.value.replace(/\D/g, '') // Clean NIK (numbers only)
+  const nik = target.value.replace(/\D/g, '') 
   
-  // Update form with cleaned NIK
+  
   form.value.nik = nik
   
-  // Reset states
+  
   nikError.value = ''
   nikSuccess.value = ''
   
-  // Clear name if it was auto-filled previously
+  
   if (isNameFromNik.value) {
     form.value.nama = ''
     form.value.nomor_kartu = ''
@@ -849,7 +849,7 @@ const handleNikInput = async (event: Event) => {
     isKartuFromNik.value = false
   }
   
-  // Validate and fetch data if NIK is complete
+  
   if (nik.length === 16) {
     isLoadingNik.value = true
     await fetchNikData(nik)
@@ -859,30 +859,30 @@ const handleNikInput = async (event: Event) => {
   }
 }
 
-// Handle doctor or date change
+
 const handleDoctorOrDateChange = () => {
-  // This function can be used to load available slots if needed
+  
   console.log('Doctor or date changed')
 }
 
-// Computed minimum datetime (now)
+
 const minDateTime = computed(() => {
   const now = new Date()
-  // Add 1 hour to current time as minimum booking time
+  
   now.setHours(now.getHours() + 1)
-  return now.toISOString().slice(0, 16) // Format: YYYY-MM-DDTHH:MM
+  return now.toISOString().slice(0, 16) 
 })
 
-// Validasi form
+
 const validateForm = () => {
   errors.value = {}
   
-  // Validasi NIK (opsional, tapi jika diisi harus valid)
+  
   if (form.value.nik && !/^\d{16}$/.test(form.value.nik)) {
     errors.value.nik = 'NIK harus 16 digit angka'
   }
   
-  // Validasi nama
+  
   if (!form.value.nama) {
     errors.value.nama = 'Nama lengkap wajib diisi'
   } else if (form.value.nama.length < 3) {
@@ -891,38 +891,38 @@ const validateForm = () => {
     errors.value.nama = 'Nama maksimal 40 karakter'
   }
   
-  // Validasi nomor telepon
+  
   if (!form.value.no_telp) {
     errors.value.no_telp = 'Nomor telepon wajib diisi'
   } else if (!/^(\+62|62|0)[0-9]{8,13}$/.test(form.value.no_telp)) {
     errors.value.no_telp = 'Format nomor telepon tidak valid'
   }
   
-  // Validasi email
+  
   if (form.value.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email)) {
     errors.value.email = 'Format email tidak valid'
   }
   
-  // Validasi alamat
+  
   if (!form.value.alamat) {
     errors.value.alamat = 'Alamat wajib diisi'
   } else if (form.value.alamat.length > 200) {
     errors.value.alamat = 'Alamat maksimal 200 karakter'
   }
   
-  // Validasi tanggal
+  
   if (!form.value.tanggal) {
     errors.value.tanggal = 'Tanggal dan waktu konsultasi wajib diisi'
   } else {
     const selectedDateTime = new Date(form.value.tanggal)
     const now = new Date()
-    const minBookingTime = new Date(now.getTime() + 60 * 60 * 1000) // 1 hour from now
+    const minBookingTime = new Date(now.getTime() + 60 * 60 * 1000) 
     
     if (selectedDateTime < minBookingTime) {
       errors.value.tanggal = 'Waktu konsultasi minimal 1 jam dari sekarang'
     }
     
-    // Cek maksimal 30 hari ke depan
+    
     const maxDate = new Date()
     maxDate.setDate(maxDate.getDate() + 30)
     if (selectedDateTime > maxDate) {
@@ -930,33 +930,33 @@ const validateForm = () => {
     }
   }
   
-  // Validasi poliklinik
+  
   if (!form.value.kd_poli) {
     errors.value.kd_poli = 'Poliklinik wajib dipilih'
   }
   
-  // Validasi dokter
+  
   if (!form.value.kd_dokter) {
     errors.value.kd_dokter = 'Dokter wajib dipilih'
   }
   
-  // Validasi jenis pembayaran
+  
   if (!form.value.kd_pj) {
     errors.value.kd_pj = 'Jenis pembayaran wajib dipilih'
   }
   
-  // Validasi nomor kartu BPJS jika diperlukan
+  
   if (form.value.kd_pj && formOptions.value.penjab.length > 0) {
     const selectedPenjab = formOptions.value.penjab.find(p => p.value === form.value.kd_pj)
     if (selectedPenjab && selectedPenjab.label && selectedPenjab.label.toLowerCase().includes('bpjs')) {
-      // Nomor kartu boleh kosong atau berisi tanda hubung
+      
       if (form.value.nomor_kartu && form.value.nomor_kartu !== '-' && !/^\d{13}$/.test(form.value.nomor_kartu)) {
         errors.value.nomor_kartu = 'Nomor kartu BPJS harus 13 digit atau kosong'
       }
     }
   }
   
-  // Validasi catatan
+  
   if (form.value.catatan && form.value.catatan.length > 255) {
     errors.value.catatan = 'Catatan maksimal 255 karakter'
   }
@@ -964,11 +964,11 @@ const validateForm = () => {
   return Object.keys(errors.value).length === 0
 }
 
-// Submit form
+
 const submitBooking = async () => {
   if (isSubmitting.value) return
 
-  // Validasi form
+  
   if (!validateForm()) {
     return
   }
@@ -976,7 +976,7 @@ const submitBooking = async () => {
   isSubmitting.value = true
 
   try {
-    // Konversi format tanggal dari datetime-local (2025-10-20T10:00) ke Y-m-d H:i (2025-10-20 10:00)
+    
     const formattedTanggal = form.value.tanggal ? form.value.tanggal.replace('T', ' ') : ''
     
     const response = await fetch('/api/booking/store', {
@@ -1003,7 +1003,7 @@ const submitBooking = async () => {
     const result = await response.json()
 
     if (response.ok && result.success) {
-      // Show SweetAlert2 success popup with booking details
+      
       const selectedPoli = formOptions.value.poliklinik.find(p => p.value === result.data.kd_poli)
       const selectedDokter = formOptions.value.dokter.find(d => d.value === result.data.kd_dokter)
       const selectedPenjab = formOptions.value.penjab.find(p => p.value === result.data.kd_pj)

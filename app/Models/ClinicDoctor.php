@@ -25,33 +25,21 @@ class ClinicDoctor extends Model
         'order' => 'integer'
     ];
 
-    /**
-     * Scope to get only active doctors
-     */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    /**
-     * Scope to get only available doctors
-     */
     public function scopeAvailable($query)
     {
         return $query->where('available', true);
     }
 
-    /**
-     * Scope to get primary doctor
-     */
     public function scopePrimary($query)
     {
         return $query->where('is_primary', true);
     }
 
-    /**
-     * Scope to order doctors by order field
-     */
     public function scopeOrdered($query)
     {
         return $query->orderBy('order', 'asc');

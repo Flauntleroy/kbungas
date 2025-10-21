@@ -1,0 +1,1 @@
+import{d as a,c as n,I as o,o as r}from"./app-DnQTBHZy.js";const l=a({inheritAttrs:!1,__name:"AppLogoIcon",props:{className:{}},setup(s){return(e,t)=>(r(),n("img",o({src:"/images/RBungas.png",alt:"Klinik Bungas Logo",class:s.className},e.$attrs),null,16))}});export{l as _};
