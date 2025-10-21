@@ -5,6 +5,10 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+/* Sumber konten untuk Tailwind v4 */
+@source "../js/**/*.{vue,js,ts}";
+@source "../views/**/*.blade.php";
+@source "../views/app.blade.php";
 
 @custom-variant dark (&:is(.dark *));
 
